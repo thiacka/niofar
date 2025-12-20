@@ -16,6 +16,7 @@ const translations: Translations = {
   'nav.experiences': { en: 'Experiences', fr: 'Experiences' },
   'nav.why': { en: 'Why NIO FAR', fr: 'Pourquoi NIO FAR' },
   'nav.contact': { en: 'Contact', fr: 'Contact' },
+  'nav.circuits': { en: 'Tours & Discovery', fr: 'Circuits & Decouvertes' },
 
   'hero.title': { en: 'Discover the Real Senegal', fr: 'Decouvrez le vrai Senegal' },
   'hero.subtitle': { en: 'Authentic travel experiences, human encounters and unforgettable memories.', fr: 'Experiences de voyage authentiques, rencontres humaines et souvenirs inoubliables.' },
@@ -79,6 +80,16 @@ const translations: Translations = {
 
   'footer.tagline': { en: 'Discover the Real Senegal', fr: 'Decouvrez le vrai Senegal' },
   'footer.rights': { en: 'All rights reserved', fr: 'Tous droits reserves' },
+
+  'circuits.title': { en: 'Tours & Discovery', fr: 'Circuits & Decouvertes' },
+  'circuits.subtitle': { en: 'Explore Senegal with our carefully crafted itineraries', fr: 'Explorez le Senegal avec nos itineraires soigneusement elabores' },
+  'circuits.intro': { en: 'Each of our circuits is designed to offer you an authentic and immersive experience. From day trips to multi-day adventures, discover the best of Senegal with passionate local guides.', fr: 'Chacun de nos circuits est concu pour vous offrir une experience authentique et immersive. Des excursions d\'une journee aux aventures de plusieurs jours, decouvrez le meilleur du Senegal avec des guides locaux passionnes.' },
+  'circuits.highlights': { en: 'Highlights', fr: 'Points forts' },
+  'circuits.from': { en: 'From', fr: 'A partir de' },
+  'circuits.book': { en: 'Book this tour', fr: 'Reserver ce circuit' },
+  'circuits.custom.title': { en: 'Custom Itinerary', fr: 'Circuit Sur Mesure' },
+  'circuits.custom.text': { en: 'Don\'t see exactly what you\'re looking for? We specialize in creating personalized journeys tailored to your interests, schedule, and budget. Let us design your perfect Senegalese adventure.', fr: 'Vous ne trouvez pas exactement ce que vous cherchez ? Nous sommes specialises dans la creation de voyages personnalises adaptes a vos interets, votre emploi du temps et votre budget. Laissez-nous concevoir votre aventure senegalaise parfaite.' },
+  'circuits.custom.cta': { en: 'Request a custom tour', fr: 'Demander un circuit sur mesure' },
 };
 
 @Injectable({

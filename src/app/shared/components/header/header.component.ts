@@ -27,6 +27,9 @@ import { LanguageService } from '../../../core/services/language.service';
           <a routerLink="/experiences" routerLinkActive="active" (click)="closeMobileMenu()">
             {{ lang.t('nav.experiences') }}
           </a>
+          <a routerLink="/circuits" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ lang.t('nav.circuits') }}
+          </a>
           <a routerLink="/why-nio-far" routerLinkActive="active" (click)="closeMobileMenu()">
             {{ lang.t('nav.why') }}
           </a>
