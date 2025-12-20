@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/circuits/circuits.component').then(m => m.CircuitsComponent)
   },
   {
+    path: 'booking/:circuitId',
+    loadComponent: () => import('./pages/booking/booking.component').then(m => m.BookingComponent)
+  },
+  {
     path: 'why-nio-far',
     loadComponent: () => import('./pages/why-nio-far/why-nio-far.component').then(m => m.WhyNioFarComponent)
   },

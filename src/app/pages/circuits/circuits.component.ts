@@ -67,7 +67,7 @@ interface Circuit {
                     <span class="price-value">{{ circuit.price | number }} FCFA</span>
                     <span class="price-note">{{ circuit.priceNote[lang.language()] }}</span>
                   </div>
-                  <a routerLink="/contact" class="btn btn-primary">{{ lang.t('circuits.book') }}</a>
+                  <a [routerLink]="['/booking', circuit.id]" class="btn btn-primary">{{ lang.t('circuits.book') }}</a>
                 </div>
               </div>
             </div>
