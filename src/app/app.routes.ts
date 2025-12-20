@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/experiences/experiences.component').then(m => m.ExperiencesComponent)
   },
   {
+    path: 'circuits',
+    loadComponent: () => import('./pages/circuits/circuits.component').then(m => m.CircuitsComponent)
+  },
+  {
     path: 'why-nio-far',
     loadComponent: () => import('./pages/why-nio-far/why-nio-far.component').then(m => m.WhyNioFarComponent)
   },
