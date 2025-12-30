@@ -1,6 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+
+interface HeroSlide {
+  image: string;
+  titleKey: string;
+  subtitleKey: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -8,12 +15,46 @@ import { LanguageService } from '../../core/services/language.service';
   imports: [RouterLink],
   template: `
     <section class="hero">
+      @for (slide of slides; track slide.titleKey; let i = $index) {
+        <div
+          class="hero-slide"
+          [class.active]="currentSlide() === i"
+          [class.prev]="prevSlide() === i"
+          [style.background-image]="'url(' + slide.image + ')'"
+        ></div>
+      }
       <div class="hero-overlay"></div>
+
       <div class="hero-content container">
-        <h1 class="fade-in">{{ lang.t('hero.title') }}</h1>
-        <p class="hero-subtitle fade-in">{{ lang.t('hero.subtitle') }}</p>
-        <a routerLink="/contact" class="btn btn-accent fade-in">{{ lang.t('hero.cta') }}</a>
+        <span class="hero-slogan">{{ lang.t('hero.slogan') }}</span>
+        <h1 class="hero-title">{{ lang.t(slides[currentSlide()].titleKey) }}</h1>
+        <p class="hero-subtitle">{{ lang.t(slides[currentSlide()].subtitleKey) }}</p>
+        <a [routerLink]="slides[currentSlide()].route" class="btn btn-accent">{{ lang.t('hero.cta') }}</a>
       </div>
+
+      <div class="hero-nav">
+        @for (slide of slides; track slide.titleKey; let i = $index) {
+          <button
+            class="hero-dot"
+            [class.active]="currentSlide() === i"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Slide ' + (i + 1)"
+          >
+            <span class="dot-progress" [class.animate]="currentSlide() === i"></span>
+          </button>
+        }
+      </div>
+
+      <button class="hero-arrow hero-arrow-left" (click)="prevSlideAction()" aria-label="Previous slide">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button class="hero-arrow hero-arrow-right" (click)="nextSlide()" aria-label="Next slide">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
     </section>
 
     <section class="intro section">
@@ -129,13 +170,36 @@ import { LanguageService } from '../../core/services/language.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/3889742/pexels-photo-3889742.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      overflow: hidden;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transform: scale(1.1);
+      transition: opacity 1s ease, transform 6s ease;
+      z-index: 0;
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      transform: scale(1);
+      z-index: 1;
+    }
+
+    .hero-slide.prev {
+      opacity: 0;
+      z-index: 0;
     }
 
     .hero-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(135deg, rgba(61, 43, 31, 0.7), rgba(43, 138, 138, 0.4));
+      z-index: 2;
     }
 
     .hero-content {
@@ -143,12 +207,28 @@ import { LanguageService } from '../../core/services/language.service';
       text-align: center;
       color: var(--color-white);
       padding-top: var(--header-height);
+      z-index: 3;
     }
 
-    .hero-content h1 {
-      color: var(--color-white);
+    .hero-slogan {
+      display: inline-block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--color-accent);
       margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-xs) var(--spacing-lg);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-full);
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .hero-title {
+      color: var(--color-white);
+      margin-bottom: var(--spacing-md);
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      animation: fadeInUp 0.6s ease 0.2s both;
     }
 
     .hero-subtitle {
@@ -156,6 +236,115 @@ import { LanguageService } from '../../core/services/language.service';
       max-width: 600px;
       margin: 0 auto var(--spacing-2xl);
       opacity: 0.95;
+      animation: fadeInUp 0.6s ease 0.4s both;
+    }
+
+    .hero-content .btn {
+      animation: fadeInUp 0.6s ease 0.6s both;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-nav {
+      position: absolute;
+      bottom: var(--spacing-3xl);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: var(--spacing-md);
+      z-index: 4;
+    }
+
+    .hero-dot {
+      width: 48px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      overflow: hidden;
+      transition: background var(--transition-base);
+      position: relative;
+    }
+
+    .hero-dot:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .dot-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: var(--color-accent);
+      border-radius: var(--radius-full);
+    }
+
+    .dot-progress.animate {
+      animation: progressBar 6s linear forwards;
+    }
+
+    @keyframes progressBar {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
+    }
+
+    .hero-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      color: var(--color-white);
+      cursor: pointer;
+      z-index: 4;
+      transition: all var(--transition-base);
+      backdrop-filter: blur(4px);
+    }
+
+    .hero-arrow:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .hero-arrow-left {
+      left: var(--spacing-xl);
+    }
+
+    .hero-arrow-right {
+      right: var(--spacing-xl);
     }
 
     .intro-content {
@@ -294,6 +483,10 @@ import { LanguageService } from '../../core/services/language.service';
       .gallery-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .hero-arrow {
+        display: none;
+      }
     }
 
     @media (max-width: 480px) {
@@ -305,12 +498,101 @@ import { LanguageService } from '../../core/services/language.service';
         font-size: 1rem;
       }
 
+      .hero-slogan {
+        font-size: 0.75rem;
+        padding: var(--spacing-xs) var(--spacing-md);
+      }
+
       .gallery-grid {
         grid-template-columns: 1fr;
+      }
+
+      .hero-nav {
+        bottom: var(--spacing-2xl);
+      }
+
+      .hero-dot {
+        width: 32px;
       }
     }
   `]
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy {
   lang = inject(LanguageService);
+
+  currentSlide = signal(0);
+  prevSlide = signal(-1);
+  private autoPlayInterval: ReturnType<typeof setInterval> | null = null;
+
+  slides: HeroSlide[] = [
+    {
+      image: 'https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      titleKey: 'hero.slide1.title',
+      subtitleKey: 'hero.slide1.subtitle',
+      route: '/circuits'
+    },
+    {
+      image: 'https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      titleKey: 'hero.slide2.title',
+      subtitleKey: 'hero.slide2.subtitle',
+      route: '/circuits'
+    },
+    {
+      image: 'https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      titleKey: 'hero.slide3.title',
+      subtitleKey: 'hero.slide3.subtitle',
+      route: '/circuits'
+    },
+    {
+      image: 'https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      titleKey: 'hero.slide4.title',
+      subtitleKey: 'hero.slide4.subtitle',
+      route: '/circuits'
+    }
+  ];
+
+  ngOnInit(): void {
+    this.startAutoPlay();
+  }
+
+  ngOnDestroy(): void {
+    this.stopAutoPlay();
+  }
+
+  startAutoPlay(): void {
+    this.autoPlayInterval = setInterval(() => {
+      this.nextSlide();
+    }, 6000);
+  }
+
+  stopAutoPlay(): void {
+    if (this.autoPlayInterval) {
+      clearInterval(this.autoPlayInterval);
+      this.autoPlayInterval = null;
+    }
+  }
+
+  resetAutoPlay(): void {
+    this.stopAutoPlay();
+    this.startAutoPlay();
+  }
+
+  nextSlide(): void {
+    this.prevSlide.set(this.currentSlide());
+    this.currentSlide.update(current => (current + 1) % this.slides.length);
+  }
+
+  prevSlideAction(): void {
+    this.resetAutoPlay();
+    this.prevSlide.set(this.currentSlide());
+    this.currentSlide.update(current => (current - 1 + this.slides.length) % this.slides.length);
+  }
+
+  goToSlide(index: number): void {
+    if (index !== this.currentSlide()) {
+      this.resetAutoPlay();
+      this.prevSlide.set(this.currentSlide());
+      this.currentSlide.set(index);
+    }
+  }
 }
