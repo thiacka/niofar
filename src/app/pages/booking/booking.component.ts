@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
+import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 interface Circuit {
   id: string;
@@ -17,7 +18,7 @@ interface Circuit {
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe, ScrollAnimateDirective],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -31,7 +32,7 @@ interface Circuit {
       <div class="container">
         @if (circuit()) {
           <div class="booking-grid">
-            <div class="booking-form-wrapper">
+            <div class="booking-form-wrapper" appScrollAnimate animationType="fade-right">
               <div class="selected-circuit">
                 <img [src]="circuit()!.image" [alt]="circuit()!.title[lang.language()]" />
                 <div class="circuit-info">
@@ -221,7 +222,7 @@ interface Circuit {
               </form>
             </div>
 
-            <div class="booking-sidebar">
+            <div class="booking-sidebar" appScrollAnimate animationType="fade-left" [animationDelay]="200">
               <div class="help-card">
                 <h4>{{ lang.t('booking.needHelp') }}</h4>
                 <p>{{ lang.t('booking.helpText') }}</p>
