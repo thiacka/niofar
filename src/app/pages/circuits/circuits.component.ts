@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 interface Circuit {
   id: string;
@@ -17,7 +18,7 @@ interface Circuit {
 @Component({
   selector: 'app-circuits',
   standalone: true,
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, ScrollAnimateDirective],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -29,7 +30,7 @@ interface Circuit {
 
     <section class="circuits-intro section">
       <div class="container">
-        <div class="intro-content">
+        <div class="intro-content" appScrollAnimate>
           <p class="lead">{{ lang.t('circuits.intro') }}</p>
         </div>
       </div>
@@ -38,8 +39,8 @@ interface Circuit {
     <section class="circuits-list section" style="background: var(--color-background-alt);">
       <div class="container">
         <div class="circuits-grid">
-          @for (circuit of circuits; track circuit.id) {
-            <div class="circuit-card">
+          @for (circuit of circuits; track circuit.id; let i = $index) {
+            <div class="circuit-card" appScrollAnimate [animationDelay]="i * 100">
               <div class="circuit-image">
                 <img [src]="circuit.image" [alt]="circuit.title[lang.language()]" />
                 <div class="circuit-duration">
@@ -79,12 +80,12 @@ interface Circuit {
     <section class="custom-circuit section">
       <div class="container">
         <div class="custom-content">
-          <div class="custom-text">
+          <div class="custom-text" appScrollAnimate animationType="fade-right">
             <h2>{{ lang.t('circuits.custom.title') }}</h2>
             <p>{{ lang.t('circuits.custom.text') }}</p>
             <a routerLink="/contact" class="btn btn-secondary">{{ lang.t('circuits.custom.cta') }}</a>
           </div>
-          <div class="custom-image">
+          <div class="custom-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
             <img src="https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Custom circuit" />
           </div>
         </div>
@@ -93,7 +94,7 @@ interface Circuit {
 
     <section class="cta-section">
       <div class="container">
-        <div class="cta-content">
+        <div class="cta-content" appScrollAnimate animationType="fade-in">
           <h2>{{ lang.t('contact.title') }}</h2>
           <a routerLink="/contact" class="btn btn-accent">{{ lang.t('hero.cta') }}</a>
         </div>
