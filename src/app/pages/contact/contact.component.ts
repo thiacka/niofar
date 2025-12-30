@@ -98,7 +98,7 @@ import { ContactMessage } from '../../core/models/contact.model';
 
           <div class="contact-info">
             <div class="info-card">
-              <h3>Contact Information</h3>
+              <h3>{{ lang.t('contact.info') }}</h3>
               <div class="info-items">
                 <div class="info-item">
                   <div class="info-icon">
@@ -140,11 +140,26 @@ import { ContactMessage } from '../../core/models/contact.model';
               </div>
             </div>
 
-            <div class="map-placeholder">
-              <img src="https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegal" />
-              <div class="map-overlay">
-                <span>Dakar, Senegal</span>
-              </div>
+            <div class="map-container">
+              <iframe
+                src="https://www.openstreetmap.org/export/embed.html?bbox=-17.5245%2C14.6557%2C-17.4245%2C14.7157&layer=mapnik&marker=14.6857%2C-17.4745"
+                allowfullscreen
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+              <a
+                href="https://www.openstreetmap.org/?mlat=14.6857&mlon=-17.4745#map=14/14.6857/-17.4745"
+                target="_blank"
+                rel="noopener"
+                class="map-link"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                {{ lang.t('contact.viewMap') }}
+              </a>
             </div>
           </div>
         </div>
@@ -331,31 +346,40 @@ import { ContactMessage } from '../../core/models/contact.model';
       color: var(--color-text);
     }
 
-    .map-placeholder {
+    .map-container {
       position: relative;
       border-radius: var(--radius-xl);
       overflow: hidden;
-      height: 200px;
+      height: 250px;
+      background: var(--color-background);
     }
 
-    .map-placeholder img {
+    .map-container iframe {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      border: none;
     }
 
-    .map-overlay {
+    .map-link {
       position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(61, 43, 31, 0.8), transparent);
+      bottom: var(--spacing-md);
+      right: var(--spacing-md);
       display: flex;
-      align-items: flex-end;
-      padding: var(--spacing-lg);
+      align-items: center;
+      gap: var(--spacing-xs);
+      background: var(--color-white);
+      color: var(--color-primary);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-fast);
     }
 
-    .map-overlay span {
+    .map-link:hover {
+      background: var(--color-primary);
       color: var(--color-white);
-      font-weight: 600;
     }
 
     @media (max-width: 992px) {
