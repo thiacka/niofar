@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 interface HeroSlide {
   image: string;
@@ -12,7 +13,7 @@ interface HeroSlide {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ScrollAnimateDirective],
   template: `
     <section class="hero">
       @for (slide of slides; track slide.titleKey; let i = $index) {
@@ -60,12 +61,12 @@ interface HeroSlide {
     <section class="intro section">
       <div class="container">
         <div class="intro-content">
-          <div class="intro-text">
+          <div class="intro-text" appScrollAnimate animationType="fade-right">
             <h2>{{ lang.t('home.intro.title') }}</h2>
             <p>{{ lang.t('home.intro.text') }}</p>
             <a routerLink="/about" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
-          <div class="intro-image">
+          <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
             <img src="https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal landscape" />
           </div>
         </div>
@@ -74,11 +75,11 @@ interface HeroSlide {
 
     <section class="services-preview section" style="background: var(--color-background-alt);">
       <div class="container">
-        <div class="section-title">
+        <div class="section-title" appScrollAnimate>
           <h2>{{ lang.t('home.services.title') }}</h2>
         </div>
         <div class="services-grid">
-          <div class="service-card card">
+          <div class="service-card card" appScrollAnimate [animationDelay]="0">
             <div class="service-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
@@ -89,7 +90,7 @@ interface HeroSlide {
             <h3>{{ lang.t('home.services.excursions') }}</h3>
             <p>{{ lang.t('home.services.excursions.desc') }}</p>
           </div>
-          <div class="service-card card">
+          <div class="service-card card" appScrollAnimate [animationDelay]="150">
             <div class="service-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>
@@ -98,7 +99,7 @@ interface HeroSlide {
             <h3>{{ lang.t('home.services.transfers') }}</h3>
             <p>{{ lang.t('home.services.transfers.desc') }}</p>
           </div>
-          <div class="service-card card">
+          <div class="service-card card" appScrollAnimate [animationDelay]="300">
             <div class="service-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -109,7 +110,7 @@ interface HeroSlide {
             <p>{{ lang.t('home.services.accommodation.desc') }}</p>
           </div>
         </div>
-        <div class="services-cta">
+        <div class="services-cta" appScrollAnimate [animationDelay]="400">
           <a routerLink="/services" class="btn btn-primary">{{ lang.t('nav.services') }}</a>
         </div>
       </div>
@@ -117,37 +118,37 @@ interface HeroSlide {
 
     <section class="gallery section">
       <div class="container">
-        <div class="section-title">
+        <div class="section-title" appScrollAnimate>
           <h2>{{ lang.t('experiences.title') }}</h2>
           <p>{{ lang.t('experiences.subtitle') }}</p>
         </div>
         <div class="gallery-grid">
-          <div class="gallery-item">
+          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="0">
             <img src="https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Cultural encounter" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.cultural') }}</span>
             </div>
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="100">
             <img src="https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Nature wildlife" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.nature') }}</span>
             </div>
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="200">
             <img src="https://images.pexels.com/photos/1586298/pexels-photo-1586298.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local traditions" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.traditions') }}</span>
             </div>
           </div>
-          <div class="gallery-item">
+          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="300">
             <img src="https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegalese lifestyle" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.lifestyle') }}</span>
             </div>
           </div>
         </div>
-        <div class="gallery-cta">
+        <div class="gallery-cta" appScrollAnimate [animationDelay]="400">
           <a routerLink="/experiences" class="btn btn-secondary">{{ lang.t('nav.experiences') }}</a>
         </div>
       </div>
@@ -155,7 +156,7 @@ interface HeroSlide {
 
     <section class="cta-section">
       <div class="container">
-        <div class="cta-content">
+        <div class="cta-content" appScrollAnimate animationType="fade-in">
           <h2>{{ lang.t('contact.title') }}</h2>
           <a routerLink="/contact" class="btn btn-accent">{{ lang.t('hero.cta') }}</a>
         </div>
