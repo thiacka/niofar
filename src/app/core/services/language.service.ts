@@ -21,6 +21,16 @@ const translations: Translations = {
   'hero.title': { en: 'Discover the Real Senegal', fr: 'Decouvrez le vrai Senegal' },
   'hero.subtitle': { en: 'Authentic travel experiences, human encounters and unforgettable memories.', fr: 'Experiences de voyage authentiques, rencontres humaines et souvenirs inoubliables.' },
   'hero.cta': { en: 'Book your experience', fr: 'Reservez votre experience' },
+  'hero.slogan': { en: 'Africa so close', fr: 'L\'Afrique si proche' },
+
+  'hero.slide1.title': { en: 'Pink Lake', fr: 'Lac Rose' },
+  'hero.slide1.subtitle': { en: 'A unique natural wonder', fr: 'Une merveille naturelle unique' },
+  'hero.slide2.title': { en: 'Goree Island', fr: 'Ile de Goree' },
+  'hero.slide2.subtitle': { en: 'UNESCO World Heritage', fr: 'Patrimoine mondial UNESCO' },
+  'hero.slide3.title': { en: 'Casamance', fr: 'Casamance' },
+  'hero.slide3.subtitle': { en: 'The green Senegal', fr: 'Le Senegal vert' },
+  'hero.slide4.title': { en: 'Saint-Louis', fr: 'Saint-Louis' },
+  'hero.slide4.subtitle': { en: 'Colonial charm', fr: 'Charme colonial' },
 
   'home.intro.title': { en: 'Welcome to NIO FAR', fr: 'Bienvenue chez NIO FAR' },
   'home.intro.text': { en: 'NIO FAR - which means "We are together" in Wolof - is a local travel agency passionate about Senegal, its people, its culture and its landscapes. We help you discover the real Senegal through authentic, respectful and meaningful experiences.', fr: 'NIO FAR - qui signifie "Nous sommes ensemble" en Wolof - est une agence de voyage locale passionnee par le Senegal, ses habitants, sa culture et ses paysages. Nous vous aidons a decouvrir le vrai Senegal a travers des experiences authentiques, respectueuses et enrichissantes.' },
