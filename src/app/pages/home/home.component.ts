@@ -67,7 +67,7 @@ interface HeroSlide {
             <a routerLink="/about" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
           <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal landscape" />
+            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal landscape" />
           </div>
         </div>
       </div>
@@ -124,25 +124,25 @@ interface HeroSlide {
         </div>
         <div class="gallery-grid">
           <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="0">
-            <img src="https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Cultural encounter" />
+            <img src="https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Cultural encounter" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.cultural') }}</span>
             </div>
           </div>
           <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="100">
-            <img src="https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Nature wildlife" />
+            <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Nature wildlife" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.nature') }}</span>
             </div>
           </div>
           <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/1586298/pexels-photo-1586298.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local traditions" />
+            <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local traditions" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.traditions') }}</span>
             </div>
           </div>
           <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="300">
-            <img src="https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegalese lifestyle" />
+            <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegalese lifestyle" />
             <div class="gallery-overlay">
               <span>{{ lang.t('experiences.lifestyle') }}</span>
             </div>
@@ -527,25 +527,25 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   slides: HeroSlide[] = [
     {
-      image: 'https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=1920',
       titleKey: 'hero.slide1.title',
       subtitleKey: 'hero.slide1.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=1920',
       titleKey: 'hero.slide2.title',
       subtitleKey: 'hero.slide2.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=1920',
       titleKey: 'hero.slide3.title',
       subtitleKey: 'hero.slide3.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920',
       titleKey: 'hero.slide4.title',
       subtitleKey: 'hero.slide4.subtitle',
       route: '/circuits'

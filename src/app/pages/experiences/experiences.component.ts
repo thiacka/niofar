@@ -20,7 +20,7 @@ import { LanguageService } from '../../core/services/language.service';
         <div class="experience-grid">
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cultural encounters" />
+              <img src="https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cultural encounters" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -38,7 +38,7 @@ import { LanguageService } from '../../core/services/language.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Nature wildlife" />
+              <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Nature wildlife" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -53,7 +53,7 @@ import { LanguageService } from '../../core/services/language.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/1586298/pexels-photo-1586298.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Local traditions" />
+              <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Local traditions" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -68,7 +68,7 @@ import { LanguageService } from '../../core/services/language.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegalese lifestyle" />
+              <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegalese lifestyle" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -94,19 +94,19 @@ import { LanguageService } from '../../core/services/language.service';
         </div>
         <div class="gallery-grid">
           <div class="gallery-item large">
-            <img src="https://images.pexels.com/photos/3889742/pexels-photo-3889742.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal sunset" />
+            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal sunset" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegal nature" />
+            <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegal nature" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local culture" />
+            <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local culture" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Village life" />
+            <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Village life" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/5560532/pexels-photo-5560532.jpeg?auto=compress&cs=tinysrgb&w=600" alt="People of Senegal" />
+            <img src="https://images.pexels.com/photos/17836961/pexels-photo-17836961.jpeg?auto=compress&cs=tinysrgb&w=600" alt="People of Senegal" />
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@ import { LanguageService } from '../../core/services/language.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background: url('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
     }
 
     .hero-overlay {

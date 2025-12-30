@@ -86,7 +86,7 @@ interface Circuit {
             <a routerLink="/contact" class="btn btn-secondary">{{ lang.t('circuits.custom.cta') }}</a>
           </div>
           <div class="custom-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Custom circuit" />
+            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Custom circuit" />
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@ interface Circuit {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/3889742/pexels-photo-3889742.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background: url('https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
     }
 
     .hero-overlay {
@@ -396,7 +396,7 @@ export class CircuitsComponent {
   circuits: Circuit[] = [
     {
       id: 'lac-rose',
-      image: 'https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: '1 day', fr: '1 jour' },
       title: {
         en: 'Lake Retba (Pink Lake) Discovery',
@@ -415,7 +415,7 @@ export class CircuitsComponent {
     },
     {
       id: 'goree-island',
-      image: 'https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: 'Half day', fr: 'Demi-journee' },
       title: {
         en: 'Goree Island - History & Heritage',
@@ -434,7 +434,7 @@ export class CircuitsComponent {
     },
     {
       id: 'sine-saloum',
-      image: 'https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: '2-3 days', fr: '2-3 jours' },
       title: {
         en: 'Sine-Saloum Delta Expedition',
@@ -453,7 +453,7 @@ export class CircuitsComponent {
     },
     {
       id: 'casamance',
-      image: 'https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: '4-5 days', fr: '4-5 jours' },
       title: {
         en: 'Casamance - The Green Senegal',
@@ -472,7 +472,7 @@ export class CircuitsComponent {
     },
     {
       id: 'saint-louis',
-      image: 'https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: '2 days', fr: '2 jours' },
       title: {
         en: 'Saint-Louis - Colonial Heritage',
@@ -491,7 +491,7 @@ export class CircuitsComponent {
     },
     {
       id: 'dakar-discovery',
-      image: 'https://images.pexels.com/photos/5560532/pexels-photo-5560532.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: 'https://images.pexels.com/photos/17836961/pexels-photo-17836961.jpeg?auto=compress&cs=tinysrgb&w=800',
       duration: { en: '1 day', fr: '1 jour' },
       title: {
         en: 'Dakar City Discovery',
