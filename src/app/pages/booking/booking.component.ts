@@ -194,6 +194,12 @@ interface Circuit {
                   </div>
                 </div>
 
+                @if (dateError()) {
+                  <div class="alert alert-error">
+                    {{ lang.t('booking.dateError') }}
+                  </div>
+                }
+
                 @if (successMessage()) {
                   <div class="alert alert-success">
                     {{ lang.t('booking.success') }}
@@ -641,6 +647,7 @@ export class BookingComponent implements OnInit {
   isSubmitting = signal(false);
   successMessage = signal(false);
   errorMessage = signal(false);
+  dateError = signal(false);
 
   minDate = new Date().toISOString().split('T')[0];
 
@@ -725,13 +732,26 @@ export class BookingComponent implements OnInit {
     return c.price * totalPersons;
   }
 
+  validateDates(): boolean {
+    if (this.formData.endDate && this.formData.startDate) {
+      return new Date(this.formData.endDate) >= new Date(this.formData.startDate);
+    }
+    return true;
+  }
+
   async onSubmit(): Promise<void> {
     const c = this.circuit();
     if (!c) return;
 
+    if (!this.validateDates()) {
+      this.dateError.set(true);
+      return;
+    }
+
     this.isSubmitting.set(true);
     this.successMessage.set(false);
     this.errorMessage.set(false);
+    this.dateError.set(false);
 
     const result = await this.bookingService.createBooking({
       circuit_id: c.id,
@@ -751,20 +771,8 @@ export class BookingComponent implements OnInit {
 
     this.isSubmitting.set(false);
 
-    if (result.success) {
-      this.successMessage.set(true);
-      this.formData = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        country: '',
-        startDate: '',
-        endDate: '',
-        adults: 1,
-        children: 0,
-        specialRequests: ''
-      };
+    if (result.success && result.data) {
+      this.router.navigate(['/confirmation', result.data.reference_number]);
     } else {
       this.errorMessage.set(true);
     }

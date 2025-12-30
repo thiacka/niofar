@@ -26,12 +26,20 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking/booking.component').then(m => m.BookingComponent)
   },
   {
+    path: 'confirmation/:reference',
+    loadComponent: () => import('./pages/confirmation/confirmation.component').then(m => m.ConfirmationComponent)
+  },
+  {
     path: 'why-nio-far',
     loadComponent: () => import('./pages/why-nio-far/why-nio-far.component').then(m => m.WhyNioFarComponent)
   },
   {
     path: 'contact',
     loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
   },
   {
     path: '**',
