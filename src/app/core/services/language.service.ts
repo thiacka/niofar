@@ -224,6 +224,26 @@ const translations: Translations = {
   'admin.allCircuits': { en: 'All circuits', fr: 'Tous les circuits' },
   'admin.noLimit': { en: 'No limit', fr: 'Sans limite' },
   'admin.noPromotions': { en: 'No promotions yet', fr: 'Aucune promotion pour le moment' },
+
+  'admin.dashboard': { en: 'Dashboard', fr: 'Tableau de bord' },
+  'dashboard.totalBookings': { en: 'Total Bookings', fr: 'Total reservations' },
+  'dashboard.confirmed': { en: 'Confirmed', fr: 'Confirmees' },
+  'dashboard.pending': { en: 'Pending', fr: 'En attente' },
+  'dashboard.cancelled': { en: 'Cancelled', fr: 'Annulees' },
+  'dashboard.totalRevenue': { en: 'Total Revenue', fr: 'Revenu total' },
+  'dashboard.recentBookings': { en: 'Recent Bookings', fr: 'Reservations recentes' },
+  'dashboard.noRecentBookings': { en: 'No recent bookings', fr: 'Aucune reservation recente' },
+  'dashboard.bookingsByStatus': { en: 'Bookings by Status', fr: 'Reservations par statut' },
+  'dashboard.popularCircuits': { en: 'Popular Circuits', fr: 'Circuits populaires' },
+  'dashboard.noCircuitData': { en: 'No circuit data yet', fr: 'Aucune donnee de circuit' },
+  'dashboard.bookingsCount': { en: 'Bookings', fr: 'Reservations' },
+  'dashboard.revenue': { en: 'Revenue', fr: 'Revenu' },
+  'dashboard.quickStats': { en: 'Quick Stats', fr: 'Statistiques rapides' },
+  'dashboard.totalCircuits': { en: 'Total Circuits', fr: 'Total circuits' },
+  'dashboard.activeCircuits': { en: 'Active Circuits', fr: 'Circuits actifs' },
+  'dashboard.messages': { en: 'Messages', fr: 'Messages' },
+  'dashboard.recentMessages': { en: 'Recent Messages', fr: 'Messages recents' },
+  'dashboard.noRecentMessages': { en: 'No recent messages', fr: 'Aucun message recent' },
 };
 
 @Injectable({

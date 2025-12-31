@@ -5,13 +5,14 @@ import { AdminService, Booking, ContactMessage } from '../../core/services/admin
 import { LanguageService } from '../../core/services/language.service';
 import { AdminCircuitsComponent } from './admin-circuits.component';
 import { AdminPromotionsComponent } from './admin-promotions.component';
+import { AdminDashboardComponent } from './admin-dashboard.component';
 
-type TabType = 'bookings' | 'messages' | 'circuits' | 'promotions';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -60,6 +61,13 @@ type TabType = 'bookings' | 'messages' | 'circuits' | 'promotions';
           <div class="tabs">
             <button
               class="tab"
+              [class.active]="activeTab() === 'dashboard'"
+              (click)="setTab('dashboard')"
+            >
+              {{ lang.t('admin.dashboard') }}
+            </button>
+            <button
+              class="tab"
               [class.active]="activeTab() === 'bookings'"
               (click)="setTab('bookings')"
             >
@@ -96,6 +104,10 @@ type TabType = 'bookings' | 'messages' | 'circuits' | 'promotions';
               <p>{{ lang.t('admin.loading') }}</p>
             </div>
           } @else {
+            @if (activeTab() === 'dashboard') {
+              <app-admin-dashboard />
+            }
+
             @if (activeTab() === 'bookings') {
               <div class="table-container">
                 @if (bookings().length === 0) {
@@ -732,7 +744,7 @@ export class AdminComponent implements OnInit {
   password = '';
   loginError = signal(false);
   isLoading = signal(false);
-  activeTab = signal<TabType>('bookings');
+  activeTab = signal<TabType>('dashboard');
   bookings = signal<Booking[]>([]);
   messages = signal<ContactMessage[]>([]);
   showNotesModal = signal(false);
