@@ -6,13 +6,14 @@ import { LanguageService } from '../../core/services/language.service';
 import { AdminCircuitsComponent } from './admin-circuits.component';
 import { AdminPromotionsComponent } from './admin-promotions.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
+import { AdminImagesComponent } from './admin-images.component';
 
-type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions' | 'images';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -95,6 +96,13 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
               (click)="setTab('promotions')"
             >
               {{ lang.t('admin.promotions') }}
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'images'"
+              (click)="setTab('images')"
+            >
+              {{ lang.t('admin.images') }}
             </button>
           </div>
 
@@ -238,6 +246,10 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
 
             @if (activeTab() === 'promotions') {
               <app-admin-promotions />
+            }
+
+            @if (activeTab() === 'images') {
+              <app-admin-images />
             }
           }
         </div>

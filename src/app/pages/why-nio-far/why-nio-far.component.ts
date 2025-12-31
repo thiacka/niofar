@@ -1,13 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+import { PageImageService } from '../../core/services/page-image.service';
 
 @Component({
   selector: 'app-why-nio-far',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <section class="page-hero">
+    <section class="page-hero" [style.background-image]="'url(' + heroImage() + ')'">
       <div class="hero-overlay"></div>
       <div class="hero-content container">
         <h1>{{ lang.t('why.title') }}</h1>
@@ -85,7 +86,7 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container">
         <div class="promise-content">
           <div class="promise-image">
-            <img src="https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=800" alt="NIO FAR promise" />
+            <img [src]="teamImage()" alt="NIO FAR promise" />
           </div>
           <div class="promise-text">
             <h2>Our Promise</h2>
@@ -116,7 +117,8 @@ import { LanguageService } from '../../core/services/language.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/5560532/pexels-photo-5560532.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
     }
 
     .hero-overlay {
@@ -276,6 +278,24 @@ import { LanguageService } from '../../core/services/language.service';
     }
   `]
 })
-export class WhyNioFarComponent {
+export class WhyNioFarComponent implements OnInit {
   lang = inject(LanguageService);
+  private imageService = inject(PageImageService);
+
+  heroImage = signal('https://images.pexels.com/photos/5560532/pexels-photo-5560532.jpeg?auto=compress&cs=tinysrgb&w=1920');
+  teamImage = signal('https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=800');
+
+  ngOnInit(): void {
+    this.loadImages();
+  }
+
+  async loadImages(): Promise<void> {
+    const images = await this.imageService.getImagesByPage('why-nio-far');
+
+    const heroImg = images.find(img => img.section === 'hero');
+    if (heroImg) this.heroImage.set(heroImg.image_url);
+
+    const teamImg = images.find(img => img.section === 'team');
+    if (teamImg) this.teamImage.set(teamImg.image_url);
+  }
 }
