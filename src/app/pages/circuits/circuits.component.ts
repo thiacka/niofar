@@ -1,19 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
-
-interface Circuit {
-  id: string;
-  image: string;
-  duration: { en: string; fr: string };
-  title: { en: string; fr: string };
-  description: { en: string; fr: string };
-  highlights: { en: string[]; fr: string[] };
-  price: number;
-  priceNote: { en: string; fr: string };
-}
+import { CircuitService, Circuit } from '../../core/services/circuit.service';
 
 @Component({
   selector: 'app-circuits',
@@ -38,42 +28,48 @@ interface Circuit {
 
     <section class="circuits-list section" style="background: var(--color-background-alt);">
       <div class="container">
-        <div class="circuits-grid">
-          @for (circuit of circuits; track circuit.id; let i = $index) {
-            <div class="circuit-card" appScrollAnimate [animationDelay]="i * 100">
-              <div class="circuit-image">
-                <img [src]="circuit.image" [alt]="circuit.title[lang.language()]" />
-                <div class="circuit-duration">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                  </svg>
-                  {{ circuit.duration[lang.language()] }}
-                </div>
-              </div>
-              <div class="circuit-content">
-                <h3>{{ circuit.title[lang.language()] }}</h3>
-                <p class="circuit-description">{{ circuit.description[lang.language()] }}</p>
-                <div class="circuit-highlights">
-                  <h4>{{ lang.t('circuits.highlights') }}</h4>
-                  <ul>
-                    @for (highlight of circuit.highlights[lang.language()]; track highlight) {
-                      <li>{{ highlight }}</li>
-                    }
-                  </ul>
-                </div>
-                <div class="circuit-footer">
-                  <div class="circuit-price">
-                    <span class="price-label">{{ lang.t('circuits.from') }}</span>
-                    <span class="price-value">{{ circuit.price | number }} FCFA</span>
-                    <span class="price-note">{{ circuit.priceNote[lang.language()] }}</span>
+        @if (isLoading()) {
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        } @else {
+          <div class="circuits-grid">
+            @for (circuit of circuits(); track circuit.id; let i = $index) {
+              <div class="circuit-card" appScrollAnimate [animationDelay]="i * 100">
+                <div class="circuit-image">
+                  <img [src]="circuit.image_url" [alt]="getTitle(circuit)" />
+                  <div class="circuit-duration">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    {{ getDuration(circuit) }}
                   </div>
-                  <a [routerLink]="['/booking', circuit.id]" class="btn btn-primary">{{ lang.t('circuits.book') }}</a>
+                </div>
+                <div class="circuit-content">
+                  <h3>{{ getTitle(circuit) }}</h3>
+                  <p class="circuit-description">{{ getDescription(circuit) }}</p>
+                  <div class="circuit-highlights">
+                    <h4>{{ lang.t('circuits.highlights') }}</h4>
+                    <ul>
+                      @for (highlight of getHighlights(circuit); track highlight) {
+                        <li>{{ highlight }}</li>
+                      }
+                    </ul>
+                  </div>
+                  <div class="circuit-footer">
+                    <div class="circuit-price">
+                      <span class="price-label">{{ lang.t('circuits.from') }}</span>
+                      <span class="price-value">{{ circuit.price | number }} FCFA</span>
+                      <span class="price-note">{{ getPriceNote(circuit) }}</span>
+                    </div>
+                    <a [routerLink]="['/booking', circuit.slug]" class="btn btn-primary">{{ lang.t('circuits.book') }}</a>
+                  </div>
                 </div>
               </div>
-            </div>
-          }
-        </div>
+            }
+          </div>
+        }
       </div>
     </section>
 
@@ -377,6 +373,25 @@ interface Circuit {
       }
     }
 
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: var(--spacing-4xl);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(61, 43, 31, 0.1);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 480px) {
       .circuit-footer {
         flex-direction: column;
@@ -390,123 +405,41 @@ interface Circuit {
     }
   `]
 })
-export class CircuitsComponent {
+export class CircuitsComponent implements OnInit {
   lang = inject(LanguageService);
+  circuitService = inject(CircuitService);
 
-  circuits: Circuit[] = [
-    {
-      id: 'lac-rose',
-      image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '1 day', fr: '1 jour' },
-      title: {
-        en: 'Lake Retba (Pink Lake) Discovery',
-        fr: 'Decouverte du Lac Rose (Lac Retba)'
-      },
-      description: {
-        en: 'Explore the famous Pink Lake, known for its unique rose color caused by algae. Watch salt harvesters at work and enjoy a traditional lunch by the lake.',
-        fr: 'Explorez le celebre Lac Rose, connu pour sa couleur unique causee par les algues. Observez les recolteurs de sel au travail et savourez un dejeuner traditionnel au bord du lac.'
-      },
-      highlights: {
-        en: ['Pink Lake visit', 'Salt harvesting demo', 'Traditional lunch', '4x4 dunes experience', 'Local village visit', 'Photo opportunities'],
-        fr: ['Visite du Lac Rose', 'Demo recolte de sel', 'Dejeuner traditionnel', 'Experience dunes 4x4', 'Visite village local', 'Opportunites photos']
-      },
-      price: 45000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'goree-island',
-      image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: 'Half day', fr: 'Demi-journee' },
-      title: {
-        en: 'Goree Island - History & Heritage',
-        fr: 'Ile de Goree - Histoire & Patrimoine'
-      },
-      description: {
-        en: 'Visit the UNESCO World Heritage site of Goree Island. Discover the House of Slaves, colonial architecture, and the vibrant artistic community.',
-        fr: 'Visitez le site du patrimoine mondial de l\'UNESCO de l\'ile de Goree. Decouvrez la Maison des Esclaves, l\'architecture coloniale et la communaute artistique vibrante.'
-      },
-      highlights: {
-        en: ['Ferry crossing', 'House of Slaves', 'Colonial architecture', 'Art galleries', 'Local crafts', 'Guided tour'],
-        fr: ['Traversee en ferry', 'Maison des Esclaves', 'Architecture coloniale', 'Galeries d\'art', 'Artisanat local', 'Visite guidee']
-      },
-      price: 35000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'sine-saloum',
-      image: 'https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '2-3 days', fr: '2-3 jours' },
-      title: {
-        en: 'Sine-Saloum Delta Expedition',
-        fr: 'Expedition Delta du Sine-Saloum'
-      },
-      description: {
-        en: 'Immerse yourself in the stunning Sine-Saloum Delta biosphere reserve. Navigate through mangroves, discover bird sanctuaries, and stay in traditional lodges.',
-        fr: 'Immergez-vous dans la reserve de biosphere du Delta du Sine-Saloum. Naviguez a travers les mangroves, decouvrez les sanctuaires d\'oiseaux et sejournez dans des lodges traditionnels.'
-      },
-      highlights: {
-        en: ['Pirogue boat trip', 'Bird watching', 'Mangrove exploration', 'Traditional lodge', 'Fishing villages', 'Sunset cruise'],
-        fr: ['Balade en pirogue', 'Observation oiseaux', 'Exploration mangroves', 'Lodge traditionnel', 'Villages de pecheurs', 'Croisiere coucher soleil']
-      },
-      price: 150000,
-      priceNote: { en: 'per person (2 days)', fr: 'par personne (2 jours)' }
-    },
-    {
-      id: 'casamance',
-      image: 'https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '4-5 days', fr: '4-5 jours' },
-      title: {
-        en: 'Casamance - The Green Senegal',
-        fr: 'Casamance - Le Senegal Vert'
-      },
-      description: {
-        en: 'Discover the lush Casamance region with its dense forests, traditional Diola villages, and pristine beaches. Experience authentic rural Senegalese life.',
-        fr: 'Decouvrez la luxuriante region de Casamance avec ses forets denses, ses villages Diola traditionnels et ses plages vierges. Vivez la vie rurale senegalaise authentique.'
-      },
-      highlights: {
-        en: ['Ziguinchor visit', 'Diola villages', 'Sacred forests', 'Cap Skirring beach', 'Traditional dances', 'Palm wine tasting'],
-        fr: ['Visite Ziguinchor', 'Villages Diola', 'Forets sacrees', 'Plage Cap Skirring', 'Danses traditionnelles', 'Degustation vin de palme']
-      },
-      price: 350000,
-      priceNote: { en: 'per person (all inclusive)', fr: 'par personne (tout compris)' }
-    },
-    {
-      id: 'saint-louis',
-      image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '2 days', fr: '2 jours' },
-      title: {
-        en: 'Saint-Louis - Colonial Heritage',
-        fr: 'Saint-Louis - Heritage Colonial'
-      },
-      description: {
-        en: 'Explore the historic city of Saint-Louis, former capital of French West Africa. Admire the colonial architecture, visit the Langue de Barbarie, and experience the Jazz Festival atmosphere.',
-        fr: 'Explorez la ville historique de Saint-Louis, ancienne capitale de l\'Afrique occidentale francaise. Admirez l\'architecture coloniale, visitez la Langue de Barbarie et vivez l\'atmosphere du Festival de Jazz.'
-      },
-      highlights: {
-        en: ['UNESCO old town', 'Faidherbe Bridge', 'Langue de Barbarie', 'Djoudj Bird Park', 'Fishermen village', 'Colonial architecture'],
-        fr: ['Vieille ville UNESCO', 'Pont Faidherbe', 'Langue de Barbarie', 'Parc oiseaux Djoudj', 'Village pecheurs', 'Architecture coloniale']
-      },
-      price: 120000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'dakar-discovery',
-      image: 'https://images.pexels.com/photos/17836961/pexels-photo-17836961.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '1 day', fr: '1 jour' },
-      title: {
-        en: 'Dakar City Discovery',
-        fr: 'Decouverte de Dakar'
-      },
-      description: {
-        en: 'Discover the vibrant capital of Senegal. From the African Renaissance Monument to the colorful markets, experience the energy and culture of this dynamic city.',
-        fr: 'Decouvrez la capitale vibrante du Senegal. Du Monument de la Renaissance Africaine aux marches colores, vivez l\'energie et la culture de cette ville dynamique.'
-      },
-      highlights: {
-        en: ['Renaissance Monument', 'Sandaga Market', 'IFAN Museum', 'Almadies Point', 'Local cuisine', 'Craft village'],
-        fr: ['Monument Renaissance', 'Marche Sandaga', 'Musee IFAN', 'Pointe des Almadies', 'Cuisine locale', 'Village artisanal']
-      },
-      price: 40000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    }
-  ];
+  circuits = signal<Circuit[]>([]);
+  isLoading = signal(true);
+
+  ngOnInit(): void {
+    this.loadCircuits();
+  }
+
+  async loadCircuits(): Promise<void> {
+    this.isLoading.set(true);
+    const data = await this.circuitService.loadCircuits();
+    this.circuits.set(data);
+    this.isLoading.set(false);
+  }
+
+  getTitle(circuit: Circuit): string {
+    return this.lang.language() === 'fr' ? circuit.title_fr : circuit.title_en;
+  }
+
+  getDuration(circuit: Circuit): string {
+    return this.lang.language() === 'fr' ? circuit.duration_fr : circuit.duration_en;
+  }
+
+  getDescription(circuit: Circuit): string {
+    return this.lang.language() === 'fr' ? circuit.description_fr : circuit.description_en;
+  }
+
+  getHighlights(circuit: Circuit): string[] {
+    return this.lang.language() === 'fr' ? circuit.highlights_fr : circuit.highlights_en;
+  }
+
+  getPriceNote(circuit: Circuit): string {
+    return this.lang.language() === 'fr' ? circuit.price_note_fr : circuit.price_note_en;
+  }
 }

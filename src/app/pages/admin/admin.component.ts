@@ -3,13 +3,15 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
 import { LanguageService } from '../../core/services/language.service';
+import { AdminCircuitsComponent } from './admin-circuits.component';
+import { AdminPromotionsComponent } from './admin-promotions.component';
 
-type TabType = 'bookings' | 'messages';
+type TabType = 'bookings' | 'messages' | 'circuits' | 'promotions';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe],
+  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -71,6 +73,20 @@ type TabType = 'bookings' | 'messages';
             >
               {{ lang.t('admin.messages') }}
               <span class="badge">{{ messages().length }}</span>
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'circuits'"
+              (click)="setTab('circuits')"
+            >
+              {{ lang.t('admin.circuits') }}
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'promotions'"
+              (click)="setTab('promotions')"
+            >
+              {{ lang.t('admin.promotions') }}
             </button>
           </div>
 
@@ -202,6 +218,14 @@ type TabType = 'bookings' | 'messages';
                   }
                 }
               </div>
+            }
+
+            @if (activeTab() === 'circuits') {
+              <app-admin-circuits />
+            }
+
+            @if (activeTab() === 'promotions') {
+              <app-admin-promotions />
             }
           }
         </div>

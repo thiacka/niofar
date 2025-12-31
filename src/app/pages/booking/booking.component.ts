@@ -4,16 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
+import { CircuitService, Circuit } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
-
-interface Circuit {
-  id: string;
-  image: string;
-  duration: { en: string; fr: string };
-  title: { en: string; fr: string };
-  price: number;
-  priceNote: { en: string; fr: string };
-}
 
 @Component({
   selector: 'app-booking',
@@ -30,17 +22,21 @@ interface Circuit {
 
     <section class="booking section">
       <div class="container">
-        @if (circuit()) {
+        @if (isLoadingCircuit()) {
+          <div class="loading">
+            <div class="spinner-large"></div>
+          </div>
+        } @else if (circuit()) {
           <div class="booking-grid">
             <div class="booking-form-wrapper" appScrollAnimate animationType="fade-right">
               <div class="selected-circuit">
-                <img [src]="circuit()!.image" [alt]="circuit()!.title[lang.language()]" />
+                <img [src]="circuit()!.image_url" [alt]="getTitle()" />
                 <div class="circuit-info">
-                  <h3>{{ circuit()!.title[lang.language()] }}</h3>
-                  <span class="duration">{{ circuit()!.duration[lang.language()] }}</span>
+                  <h3>{{ getTitle() }}</h3>
+                  <span class="duration">{{ getDuration() }}</span>
                   <div class="price">
                     <span class="price-value">{{ circuit()!.price | number }} FCFA</span>
-                    <span class="price-note">{{ circuit()!.priceNote[lang.language()] }}</span>
+                    <span class="price-note">{{ getPriceNote() }}</span>
                   </div>
                 </div>
               </div>
@@ -610,6 +606,21 @@ interface Circuit {
       color: var(--color-text-light);
     }
 
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: var(--spacing-4xl);
+    }
+
+    .spinner-large {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(61, 43, 31, 0.1);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
     @media (max-width: 992px) {
       .booking-grid {
         grid-template-columns: 1fr;
@@ -642,8 +653,10 @@ export class BookingComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private bookingService = inject(BookingService);
+  private circuitService = inject(CircuitService);
 
   circuit = signal<Circuit | null>(null);
+  isLoadingCircuit = signal(true);
   isSubmitting = signal(false);
   successMessage = signal(false);
   errorMessage = signal(false);
@@ -664,65 +677,40 @@ export class BookingComponent implements OnInit {
     specialRequests: ''
   };
 
-  private circuits: Circuit[] = [
-    {
-      id: 'lac-rose',
-      image: 'https://images.pexels.com/photos/3889854/pexels-photo-3889854.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '1 day', fr: '1 jour' },
-      title: { en: 'Lake Retba (Pink Lake) Discovery', fr: 'Decouverte du Lac Rose (Lac Retba)' },
-      price: 45000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'goree-island',
-      image: 'https://images.pexels.com/photos/5560549/pexels-photo-5560549.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: 'Half day', fr: 'Demi-journee' },
-      title: { en: 'Goree Island - History & Heritage', fr: 'Ile de Goree - Histoire & Patrimoine' },
-      price: 35000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'sine-saloum',
-      image: 'https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '2-3 days', fr: '2-3 jours' },
-      title: { en: 'Sine-Saloum Delta Expedition', fr: 'Expedition Delta du Sine-Saloum' },
-      price: 150000,
-      priceNote: { en: 'per person (2 days)', fr: 'par personne (2 jours)' }
-    },
-    {
-      id: 'casamance',
-      image: 'https://images.pexels.com/photos/3889891/pexels-photo-3889891.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '4-5 days', fr: '4-5 jours' },
-      title: { en: 'Casamance - The Green Senegal', fr: 'Casamance - Le Senegal Vert' },
-      price: 350000,
-      priceNote: { en: 'per person (all inclusive)', fr: 'par personne (tout compris)' }
-    },
-    {
-      id: 'saint-louis',
-      image: 'https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '2 days', fr: '2 jours' },
-      title: { en: 'Saint-Louis - Colonial Heritage', fr: 'Saint-Louis - Heritage Colonial' },
-      price: 120000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    },
-    {
-      id: 'dakar-discovery',
-      image: 'https://images.pexels.com/photos/5560532/pexels-photo-5560532.jpeg?auto=compress&cs=tinysrgb&w=800',
-      duration: { en: '1 day', fr: '1 jour' },
-      title: { en: 'Dakar City Discovery', fr: 'Decouverte de Dakar' },
-      price: 40000,
-      priceNote: { en: 'per person', fr: 'par personne' }
-    }
-  ];
-
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const circuitId = params.get('circuitId');
-      if (circuitId) {
-        const found = this.circuits.find(c => c.id === circuitId);
-        this.circuit.set(found || null);
+      const circuitSlug = params.get('circuitId');
+      if (circuitSlug) {
+        this.loadCircuit(circuitSlug);
+      } else {
+        this.isLoadingCircuit.set(false);
       }
     });
+  }
+
+  async loadCircuit(slug: string): Promise<void> {
+    this.isLoadingCircuit.set(true);
+    const found = await this.circuitService.getCircuitBySlug(slug);
+    this.circuit.set(found);
+    this.isLoadingCircuit.set(false);
+  }
+
+  getTitle(): string {
+    const c = this.circuit();
+    if (!c) return '';
+    return this.lang.language() === 'fr' ? c.title_fr : c.title_en;
+  }
+
+  getDuration(): string {
+    const c = this.circuit();
+    if (!c) return '';
+    return this.lang.language() === 'fr' ? c.duration_fr : c.duration_en;
+  }
+
+  getPriceNote(): string {
+    const c = this.circuit();
+    if (!c) return '';
+    return this.lang.language() === 'fr' ? c.price_note_fr : c.price_note_en;
   }
 
   estimatedTotal(): number {
@@ -754,8 +742,8 @@ export class BookingComponent implements OnInit {
     this.dateError.set(false);
 
     const result = await this.bookingService.createBooking({
-      circuit_id: c.id,
-      circuit_title: c.title[this.lang.language()],
+      circuit_id: c.slug,
+      circuit_title: this.getTitle(),
       first_name: this.formData.firstName,
       last_name: this.formData.lastName,
       email: this.formData.email,
