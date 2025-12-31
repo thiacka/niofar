@@ -1,13 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+import { PageImageService } from '../../core/services/page-image.service';
 
 @Component({
   selector: 'app-experiences',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <section class="page-hero">
+    <section class="page-hero" [style.background-image]="'url(' + heroImage() + ')'">
       <div class="hero-overlay"></div>
       <div class="hero-content container">
         <h1>{{ lang.t('experiences.title') }}</h1>
@@ -20,7 +21,7 @@ import { LanguageService } from '../../core/services/language.service';
         <div class="experience-grid">
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Cultural encounters" />
+              <img [src]="cultureImage()" alt="Cultural encounters" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -38,7 +39,7 @@ import { LanguageService } from '../../core/services/language.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Nature wildlife" />
+              <img [src]="natureImage()" alt="Nature wildlife" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -53,7 +54,7 @@ import { LanguageService } from '../../core/services/language.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Local traditions" />
+              <img [src]="gastronomyImage()" alt="Local traditions" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -131,7 +132,8 @@ import { LanguageService } from '../../core/services/language.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
     }
 
     .hero-overlay {
@@ -281,6 +283,32 @@ import { LanguageService } from '../../core/services/language.service';
     }
   `]
 })
-export class ExperiencesComponent {
+export class ExperiencesComponent implements OnInit {
   lang = inject(LanguageService);
+  private imageService = inject(PageImageService);
+
+  heroImage = signal('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920');
+  cultureImage = signal('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800');
+  natureImage = signal('https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800');
+  gastronomyImage = signal('https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800');
+
+  ngOnInit(): void {
+    this.loadImages();
+  }
+
+  async loadImages(): Promise<void> {
+    const images = await this.imageService.getImagesByPage('experiences');
+
+    const heroImg = images.find(img => img.section === 'hero');
+    if (heroImg) this.heroImage.set(heroImg.image_url);
+
+    const cultureImg = images.find(img => img.section === 'culture');
+    if (cultureImg) this.cultureImage.set(cultureImg.image_url);
+
+    const natureImg = images.find(img => img.section === 'nature');
+    if (natureImg) this.natureImage.set(natureImg.image_url);
+
+    const gastronomyImg = images.find(img => img.section === 'gastronomy');
+    if (gastronomyImg) this.gastronomyImage.set(gastronomyImg.image_url);
+  }
 }

@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
+import { PageImageService } from '../../core/services/page-image.service';
 
 interface HeroSlide {
   image: string;
@@ -67,7 +68,7 @@ interface HeroSlide {
             <a routerLink="/about" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
           <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal landscape" />
+            <img [src]="discoverImage()" alt="Senegal landscape" />
           </div>
         </div>
       </div>
@@ -520,9 +521,11 @@ interface HeroSlide {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   lang = inject(LanguageService);
+  private imageService = inject(PageImageService);
 
   currentSlide = signal(0);
   prevSlide = signal(-1);
+  discoverImage = signal('https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800');
   private autoPlayInterval: ReturnType<typeof setInterval> | null = null;
 
   slides: HeroSlide[] = [
@@ -553,7 +556,27 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    this.loadImages();
     this.startAutoPlay();
+  }
+
+  async loadImages(): Promise<void> {
+    const images = await this.imageService.getImagesByPage('home');
+
+    const heroImages = images.filter(img => img.section === 'hero');
+    if (heroImages.length > 0) {
+      this.slides = heroImages.map((img, index) => ({
+        image: img.image_url,
+        titleKey: `hero.slide${index + 1}.title`,
+        subtitleKey: `hero.slide${index + 1}.subtitle`,
+        route: '/circuits'
+      }));
+    }
+
+    const discoverImg = images.find(img => img.section === 'discover');
+    if (discoverImg) {
+      this.discoverImage.set(discoverImg.image_url);
+    }
   }
 
   ngOnDestroy(): void {

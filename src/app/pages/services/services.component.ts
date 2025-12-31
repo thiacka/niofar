@@ -1,13 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
+import { PageImageService } from '../../core/services/page-image.service';
 
 @Component({
   selector: 'app-services',
   standalone: true,
   imports: [RouterLink],
   template: `
-    <section class="page-hero">
+    <section class="page-hero" [style.background-image]="'url(' + heroImage() + ')'">
       <div class="hero-overlay"></div>
       <div class="hero-content container">
         <h1>{{ lang.t('services.title') }}</h1>
@@ -18,7 +19,7 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container">
         <div class="service-row">
           <div class="service-image">
-            <img src="https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Tailor-made excursions" />
+            <img [src]="excursionsImage()" alt="Tailor-made excursions" />
           </div>
           <div class="service-content">
             <div class="service-icon">
@@ -45,7 +46,7 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container">
         <div class="service-row reverse">
           <div class="service-image">
-            <img src="https://images.pexels.com/photos/1178448/pexels-photo-1178448.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Airport transfers" />
+            <img [src]="transportImage()" alt="Airport transfers" />
           </div>
           <div class="service-content">
             <div class="service-icon">
@@ -70,7 +71,7 @@ import { LanguageService } from '../../core/services/language.service';
       <div class="container">
         <div class="service-row">
           <div class="service-image">
-            <img src="https://images.pexels.com/photos/2507007/pexels-photo-2507007.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Accommodation booking" />
+            <img [src]="accommodationImage()" alt="Accommodation booking" />
           </div>
           <div class="service-content">
             <div class="service-icon">
@@ -109,7 +110,8 @@ import { LanguageService } from '../../core/services/language.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background-size: cover;
+      background-position: center;
     }
 
     .hero-overlay {
@@ -217,6 +219,32 @@ import { LanguageService } from '../../core/services/language.service';
     }
   `]
 })
-export class ServicesComponent {
+export class ServicesComponent implements OnInit {
   lang = inject(LanguageService);
+  private imageService = inject(PageImageService);
+
+  heroImage = signal('https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=1920');
+  excursionsImage = signal('https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=800');
+  transportImage = signal('https://images.pexels.com/photos/1178448/pexels-photo-1178448.jpeg?auto=compress&cs=tinysrgb&w=800');
+  accommodationImage = signal('https://images.pexels.com/photos/2507007/pexels-photo-2507007.jpeg?auto=compress&cs=tinysrgb&w=800');
+
+  ngOnInit(): void {
+    this.loadImages();
+  }
+
+  async loadImages(): Promise<void> {
+    const images = await this.imageService.getImagesByPage('services');
+
+    const heroImg = images.find(img => img.section === 'hero');
+    if (heroImg) this.heroImage.set(heroImg.image_url);
+
+    const transportImg = images.find(img => img.section === 'transport');
+    if (transportImg) this.transportImage.set(transportImg.image_url);
+
+    const accommodationImg = images.find(img => img.section === 'accommodation');
+    if (accommodationImg) this.accommodationImage.set(accommodationImg.image_url);
+
+    const guideImg = images.find(img => img.section === 'guide');
+    if (guideImg) this.excursionsImage.set(guideImg.image_url);
+  }
 }
