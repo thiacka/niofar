@@ -142,13 +142,13 @@ import { ContactMessage } from '../../core/models/contact.model';
 
             <div class="map-container">
               <iframe
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-17.5245%2C14.6557%2C-17.4245%2C14.7157&layer=mapnik&marker=14.6857%2C-17.4745"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61803.41661080513!2d-17.509444!3d14.716677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec172f5b3c5bb71%3A0xb17c17d92d5f9356!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sus!4v1703987600000!5m2!1sen!2sus"
                 allowfullscreen
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
               ></iframe>
               <a
-                href="https://www.openstreetmap.org/?mlat=14.6857&mlon=-17.4745#map=14/14.6857/-17.4745"
+                href="https://www.google.com/maps/place/Dakar,+Senegal/@14.716677,-17.509444,12z"
                 target="_blank"
                 rel="noopener"
                 class="map-link"
