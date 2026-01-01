@@ -47,7 +47,6 @@ import { LanguageService } from '../../../core/services/language.service';
             <h4>Navigation</h4>
             <nav>
               <a routerLink="/">{{ lang.t('nav.home') }}</a>
-              <a routerLink="/about">{{ lang.t('nav.about') }}</a>
               <a routerLink="/services">{{ lang.t('nav.services') }}</a>
               <a routerLink="/experiences">{{ lang.t('nav.experiences') }}</a>
               <a routerLink="/circuits">{{ lang.t('nav.circuits') }}</a>
