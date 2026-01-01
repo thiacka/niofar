@@ -11,7 +11,19 @@ export class SupabaseService {
   constructor() {
     this.supabase = createClient(
       environment.supabaseUrl,
-      environment.supabaseAnonKey
+      environment.supabaseAnonKey,
+      {
+        auth: {
+          storageKey: 'nio-far-auth',
+          storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: false,
+          lock: async (name: string, acquireTimeout: number, fn: () => Promise<any>) => {
+            return await fn();
+          }
+        }
+      }
     );
   }
 
