@@ -18,9 +18,6 @@ import { LanguageService } from '../../../core/services/language.service';
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
             {{ lang.t('nav.home') }}
           </a>
-          <a routerLink="/about" routerLinkActive="active" (click)="closeMobileMenu()">
-            {{ lang.t('nav.about') }}
-          </a>
           <a routerLink="/services" routerLinkActive="active" (click)="closeMobileMenu()">
             {{ lang.t('nav.services') }}
           </a>

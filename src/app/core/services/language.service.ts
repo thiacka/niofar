@@ -11,7 +11,6 @@ interface Translations {
 
 const translations: Translations = {
   'nav.home': { en: 'Home', fr: 'Accueil' },
-  'nav.about': { en: 'About', fr: 'A propos' },
   'nav.services': { en: 'Services', fr: 'Services' },
   'nav.experiences': { en: 'Experiences', fr: 'Experiences' },
   'nav.why': { en: 'Why NIO FAR', fr: 'Pourquoi NIO FAR' },
