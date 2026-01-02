@@ -107,6 +107,7 @@ const translations: Translations = {
   'booking.details': { en: 'Your Information', fr: 'Vos Informations' },
   'booking.firstName': { en: 'First Name', fr: 'Prenom' },
   'booking.lastName': { en: 'Last Name', fr: 'Nom' },
+  'booking.selectCountry': { en: 'Select your country', fr: 'Selectionnez votre pays' },
   'booking.phone': { en: 'Phone Number', fr: 'Numero de telephone' },
   'booking.tripDetails': { en: 'Trip Details', fr: 'Details du voyage' },
   'booking.startDate': { en: 'Start Date', fr: 'Date de debut' },
