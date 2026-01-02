@@ -95,14 +95,18 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
 
                 <div class="form-group">
                   <label for="country">{{ lang.t('contact.country') }} *</label>
-                  <input
-                    type="text"
+                  <select
                     id="country"
                     name="country"
                     [(ngModel)]="formData.country"
                     required
                     [disabled]="isSubmitting()"
-                  />
+                  >
+                    <option value="">{{ lang.t('booking.selectCountry') }}</option>
+                    @for (country of countries; track country) {
+                      <option [value]="country">{{ country }}</option>
+                    }
+                  </select>
                 </div>
 
                 <h3>{{ lang.t('booking.tripDetails') }}</h3>
@@ -788,6 +792,78 @@ export class BookingComponent implements OnInit {
   isCheckingPromo = signal(false);
   promoError = signal(false);
   promoSuccess = signal(false);
+
+  countries = [
+    'Senegal',
+    'Algeria',
+    'Angola',
+    'Benin',
+    'Botswana',
+    'Burkina Faso',
+    'Burundi',
+    'Cameroon',
+    'Cape Verde',
+    'Central African Republic',
+    'Chad',
+    'Comoros',
+    'Congo',
+    'Ivory Coast',
+    'Democratic Republic of Congo',
+    'Djibouti',
+    'Egypt',
+    'Equatorial Guinea',
+    'Eritrea',
+    'Eswatini',
+    'Ethiopia',
+    'Gabon',
+    'Gambia',
+    'Ghana',
+    'Guinea',
+    'Guinea-Bissau',
+    'Kenya',
+    'Lesotho',
+    'Liberia',
+    'Libya',
+    'Madagascar',
+    'Malawi',
+    'Mali',
+    'Mauritania',
+    'Mauritius',
+    'Morocco',
+    'Mozambique',
+    'Namibia',
+    'Niger',
+    'Nigeria',
+    'Rwanda',
+    'Sao Tome and Principe',
+    'Seychelles',
+    'Sierra Leone',
+    'Somalia',
+    'South Africa',
+    'South Sudan',
+    'Sudan',
+    'Tanzania',
+    'Togo',
+    'Tunisia',
+    'Uganda',
+    'Zambia',
+    'Zimbabwe',
+    'Belgium',
+    'France',
+    'Germany',
+    'Italy',
+    'Netherlands',
+    'Portugal',
+    'Spain',
+    'Switzerland',
+    'United Kingdom',
+    'Canada',
+    'United States',
+    'Brazil',
+    'China',
+    'Japan',
+    'Other'
+  ];
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
