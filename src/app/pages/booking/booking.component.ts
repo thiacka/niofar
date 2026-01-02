@@ -93,34 +93,38 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                   </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group country-autocomplete">
                   <label for="country">{{ lang.t('contact.country') }} *</label>
                   <input
                     type="text"
-                    class="country-search"
-                    [ngModel]="countrySearchTerm()"
-                    (ngModelChange)="countrySearchTerm.set($event)"
-                    name="countrySearch"
-                    placeholder="{{ lang.t('booking.searchCountry') }}"
-                    [disabled]="isSubmitting()"
-                  />
-                  <select
                     id="country"
                     name="country"
                     [(ngModel)]="formData.country"
+                    (focus)="showCountryDropdown.set(true)"
+                    (blur)="onCountryBlur()"
+                    placeholder="{{ lang.t('booking.searchCountry') }}"
                     required
                     [disabled]="isSubmitting()"
-                    size="8"
-                    class="country-select-list"
-                  >
-                    @for (continent of filteredCountryGroups(); track continent.name) {
-                      <optgroup [label]="continent.name">
-                        @for (country of continent.countries; track country.name) {
-                          <option [value]="country.name">{{ country.flag }} {{ country.name }}</option>
-                        }
-                      </optgroup>
-                    }
-                  </select>
+                    autocomplete="off"
+                  />
+                  @if (showCountryDropdown() && filteredCountryGroups().length > 0) {
+                    <div class="country-dropdown">
+                      @for (continent of filteredCountryGroups(); track continent.name) {
+                        <div class="country-group">
+                          <div class="country-group-label">{{ continent.name }}</div>
+                          @for (country of continent.countries; track country.name) {
+                            <div
+                              class="country-option"
+                              (mousedown)="selectCountry(country.name)"
+                            >
+                              <span class="country-flag">{{ country.flag }}</span>
+                              <span class="country-name">{{ country.name }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
 
                 <h3>{{ lang.t('booking.tripDetails') }}</h3>
@@ -515,22 +519,64 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       padding: var(--spacing-xs) 0;
     }
 
-    .country-search {
-      margin-bottom: var(--spacing-sm);
+    .country-autocomplete {
+      position: relative;
     }
 
-    .country-select-list {
-      max-height: 280px;
+    .country-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      max-height: 320px;
       overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin-top: 4px;
     }
 
-    .country-select-list option {
+    .country-group {
+      border-bottom: 1px solid rgba(61, 43, 31, 0.1);
+    }
+
+    .country-group:last-child {
+      border-bottom: none;
+    }
+
+    .country-group-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--color-primary);
+      background: rgba(61, 43, 31, 0.05);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .country-option {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm);
       cursor: pointer;
       transition: all var(--transition-fast);
     }
 
-    .country-select-list option:hover {
+    .country-option:hover {
       background-color: rgba(61, 43, 31, 0.08);
+    }
+
+    .country-flag {
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .country-name {
+      font-size: 0.95rem;
+      color: var(--color-text);
     }
 
     .estimate-box {
@@ -980,10 +1026,10 @@ export class BookingComponent implements OnInit {
     }
   ];
 
-  countrySearchTerm = signal('');
+  showCountryDropdown = signal(false);
 
   filteredCountryGroups = computed(() => {
-    const searchTerm = this.countrySearchTerm().toLowerCase().trim();
+    const searchTerm = this.formData.country.toLowerCase().trim();
 
     if (!searchTerm) {
       return this.countryGroups;
@@ -998,6 +1044,17 @@ export class BookingComponent implements OnInit {
       }))
       .filter(continent => continent.countries.length > 0);
   });
+
+  selectCountry(countryName: string): void {
+    this.formData.country = countryName;
+    this.showCountryDropdown.set(false);
+  }
+
+  onCountryBlur(): void {
+    setTimeout(() => {
+      this.showCountryDropdown.set(false);
+    }, 200);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
