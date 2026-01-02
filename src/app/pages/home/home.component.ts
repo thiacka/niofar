@@ -65,7 +65,7 @@ interface HeroSlide {
           <div class="intro-text" appScrollAnimate animationType="fade-right">
             <h2>{{ lang.t('home.intro.title') }}</h2>
             <p>{{ lang.t('home.intro.text') }}</p>
-            <a routerLink="/about" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
+            <a routerLink="/why-nio-far" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
           <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
             <img [src]="discoverImage()" alt="Senegal landscape" />
