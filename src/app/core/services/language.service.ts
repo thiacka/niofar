@@ -14,6 +14,7 @@ const translations: Translations = {
   'nav.services': { en: 'Services', fr: 'Services' },
   'nav.experiences': { en: 'Experiences', fr: 'Experiences' },
   'nav.why': { en: 'Why NIO FAR', fr: 'Pourquoi NIO FAR' },
+  'nav.about': { en: 'Why NIO FAR', fr: 'Pourquoi NIO FAR' },
   'nav.contact': { en: 'Contact', fr: 'Contact' },
   'nav.circuits': { en: 'Tours & Discovery', fr: 'Circuits & Decouvertes' },
 
