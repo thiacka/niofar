@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -95,15 +95,25 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
 
                 <div class="form-group">
                   <label for="country">{{ lang.t('contact.country') }} *</label>
+                  <input
+                    type="text"
+                    class="country-search"
+                    [ngModel]="countrySearchTerm()"
+                    (ngModelChange)="countrySearchTerm.set($event)"
+                    name="countrySearch"
+                    placeholder="{{ lang.t('booking.searchCountry') }}"
+                    [disabled]="isSubmitting()"
+                  />
                   <select
                     id="country"
                     name="country"
                     [(ngModel)]="formData.country"
                     required
                     [disabled]="isSubmitting()"
+                    size="8"
+                    class="country-select-list"
                   >
-                    <option value="">{{ lang.t('booking.selectCountry') }}</option>
-                    @for (continent of countryGroups; track continent.name) {
+                    @for (continent of filteredCountryGroups(); track continent.name) {
                       <optgroup [label]="continent.name">
                         @for (country of continent.countries; track country.name) {
                           <option [value]="country.name">{{ country.flag }} {{ country.name }}</option>
@@ -503,6 +513,24 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       color: var(--color-primary);
       background: rgba(61, 43, 31, 0.05);
       padding: var(--spacing-xs) 0;
+    }
+
+    .country-search {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .country-select-list {
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .country-select-list option {
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .country-select-list option:hover {
+      background-color: rgba(61, 43, 31, 0.08);
     }
 
     .estimate-box {
@@ -951,6 +979,25 @@ export class BookingComponent implements OnInit {
       ]
     }
   ];
+
+  countrySearchTerm = signal('');
+
+  filteredCountryGroups = computed(() => {
+    const searchTerm = this.countrySearchTerm().toLowerCase().trim();
+
+    if (!searchTerm) {
+      return this.countryGroups;
+    }
+
+    return this.countryGroups
+      .map(continent => ({
+        ...continent,
+        countries: continent.countries.filter(country =>
+          country.name.toLowerCase().includes(searchTerm)
+        )
+      }))
+      .filter(continent => continent.countries.length > 0);
+  });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
