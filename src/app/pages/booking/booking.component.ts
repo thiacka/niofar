@@ -103,8 +103,12 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                     [disabled]="isSubmitting()"
                   >
                     <option value="">{{ lang.t('booking.selectCountry') }}</option>
-                    @for (country of countries; track country) {
-                      <option [value]="country">{{ country }}</option>
+                    @for (continent of countryGroups; track continent.name) {
+                      <optgroup [label]="continent.name">
+                        @for (country of continent.countries; track country.name) {
+                          <option [value]="country.name">{{ country.flag }} {{ country.name }}</option>
+                        }
+                      </optgroup>
                     }
                   </select>
                 </div>
@@ -483,6 +487,24 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       min-height: 100px;
     }
 
+    .form-group select {
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .form-group select option {
+      padding: var(--spacing-sm);
+      font-size: 1rem;
+    }
+
+    .form-group select optgroup {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--color-primary);
+      background: rgba(61, 43, 31, 0.05);
+      padding: var(--spacing-xs) 0;
+    }
+
     .estimate-box {
       background: var(--color-background-alt);
       border-radius: var(--radius-lg);
@@ -793,76 +815,141 @@ export class BookingComponent implements OnInit {
   promoError = signal(false);
   promoSuccess = signal(false);
 
-  countries = [
-    'Senegal',
-    'Algeria',
-    'Angola',
-    'Benin',
-    'Botswana',
-    'Burkina Faso',
-    'Burundi',
-    'Cameroon',
-    'Cape Verde',
-    'Central African Republic',
-    'Chad',
-    'Comoros',
-    'Congo',
-    'Ivory Coast',
-    'Democratic Republic of Congo',
-    'Djibouti',
-    'Egypt',
-    'Equatorial Guinea',
-    'Eritrea',
-    'Eswatini',
-    'Ethiopia',
-    'Gabon',
-    'Gambia',
-    'Ghana',
-    'Guinea',
-    'Guinea-Bissau',
-    'Kenya',
-    'Lesotho',
-    'Liberia',
-    'Libya',
-    'Madagascar',
-    'Malawi',
-    'Mali',
-    'Mauritania',
-    'Mauritius',
-    'Morocco',
-    'Mozambique',
-    'Namibia',
-    'Niger',
-    'Nigeria',
-    'Rwanda',
-    'Sao Tome and Principe',
-    'Seychelles',
-    'Sierra Leone',
-    'Somalia',
-    'South Africa',
-    'South Sudan',
-    'Sudan',
-    'Tanzania',
-    'Togo',
-    'Tunisia',
-    'Uganda',
-    'Zambia',
-    'Zimbabwe',
-    'Belgium',
-    'France',
-    'Germany',
-    'Italy',
-    'Netherlands',
-    'Portugal',
-    'Spain',
-    'Switzerland',
-    'United Kingdom',
-    'Canada',
-    'United States',
-    'Brazil',
-    'China',
-    'Japan',
-    'Other'
+  countryGroups = [
+    {
+      name: 'Afrique / Africa',
+      countries: [
+        { name: 'Senegal', flag: '🇸🇳' },
+        { name: 'Algeria', flag: '🇩🇿' },
+        { name: 'Angola', flag: '🇦🇴' },
+        { name: 'Benin', flag: '🇧🇯' },
+        { name: 'Botswana', flag: '🇧🇼' },
+        { name: 'Burkina Faso', flag: '🇧🇫' },
+        { name: 'Burundi', flag: '🇧🇮' },
+        { name: 'Cameroon', flag: '🇨🇲' },
+        { name: 'Cape Verde', flag: '🇨🇻' },
+        { name: 'Central African Republic', flag: '🇨🇫' },
+        { name: 'Chad', flag: '🇹🇩' },
+        { name: 'Comoros', flag: '🇰🇲' },
+        { name: 'Congo', flag: '🇨🇬' },
+        { name: 'Ivory Coast', flag: '🇨🇮' },
+        { name: 'Democratic Republic of Congo', flag: '🇨🇩' },
+        { name: 'Djibouti', flag: '🇩🇯' },
+        { name: 'Egypt', flag: '🇪🇬' },
+        { name: 'Equatorial Guinea', flag: '🇬🇶' },
+        { name: 'Eritrea', flag: '🇪🇷' },
+        { name: 'Eswatini', flag: '🇸🇿' },
+        { name: 'Ethiopia', flag: '🇪🇹' },
+        { name: 'Gabon', flag: '🇬🇦' },
+        { name: 'Gambia', flag: '🇬🇲' },
+        { name: 'Ghana', flag: '🇬🇭' },
+        { name: 'Guinea', flag: '🇬🇳' },
+        { name: 'Guinea-Bissau', flag: '🇬🇼' },
+        { name: 'Kenya', flag: '🇰🇪' },
+        { name: 'Lesotho', flag: '🇱🇸' },
+        { name: 'Liberia', flag: '🇱🇷' },
+        { name: 'Libya', flag: '🇱🇾' },
+        { name: 'Madagascar', flag: '🇲🇬' },
+        { name: 'Malawi', flag: '🇲🇼' },
+        { name: 'Mali', flag: '🇲🇱' },
+        { name: 'Mauritania', flag: '🇲🇷' },
+        { name: 'Mauritius', flag: '🇲🇺' },
+        { name: 'Morocco', flag: '🇲🇦' },
+        { name: 'Mozambique', flag: '🇲🇿' },
+        { name: 'Namibia', flag: '🇳🇦' },
+        { name: 'Niger', flag: '🇳🇪' },
+        { name: 'Nigeria', flag: '🇳🇬' },
+        { name: 'Rwanda', flag: '🇷🇼' },
+        { name: 'Sao Tome and Principe', flag: '🇸🇹' },
+        { name: 'Seychelles', flag: '🇸🇨' },
+        { name: 'Sierra Leone', flag: '🇸🇱' },
+        { name: 'Somalia', flag: '🇸🇴' },
+        { name: 'South Africa', flag: '🇿🇦' },
+        { name: 'South Sudan', flag: '🇸🇸' },
+        { name: 'Sudan', flag: '🇸🇩' },
+        { name: 'Tanzania', flag: '🇹🇿' },
+        { name: 'Togo', flag: '🇹🇬' },
+        { name: 'Tunisia', flag: '🇹🇳' },
+        { name: 'Uganda', flag: '🇺🇬' },
+        { name: 'Zambia', flag: '🇿🇲' },
+        { name: 'Zimbabwe', flag: '🇿🇼' }
+      ]
+    },
+    {
+      name: 'Europe',
+      countries: [
+        { name: 'Austria', flag: '🇦🇹' },
+        { name: 'Belgium', flag: '🇧🇪' },
+        { name: 'Denmark', flag: '🇩🇰' },
+        { name: 'Finland', flag: '🇫🇮' },
+        { name: 'France', flag: '🇫🇷' },
+        { name: 'Germany', flag: '🇩🇪' },
+        { name: 'Greece', flag: '🇬🇷' },
+        { name: 'Ireland', flag: '🇮🇪' },
+        { name: 'Italy', flag: '🇮🇹' },
+        { name: 'Luxembourg', flag: '🇱🇺' },
+        { name: 'Netherlands', flag: '🇳🇱' },
+        { name: 'Norway', flag: '🇳🇴' },
+        { name: 'Poland', flag: '🇵🇱' },
+        { name: 'Portugal', flag: '🇵🇹' },
+        { name: 'Spain', flag: '🇪🇸' },
+        { name: 'Sweden', flag: '🇸🇪' },
+        { name: 'Switzerland', flag: '🇨🇭' },
+        { name: 'United Kingdom', flag: '🇬🇧' }
+      ]
+    },
+    {
+      name: 'Amerique / Americas',
+      countries: [
+        { name: 'Argentina', flag: '🇦🇷' },
+        { name: 'Brazil', flag: '🇧🇷' },
+        { name: 'Canada', flag: '🇨🇦' },
+        { name: 'Chile', flag: '🇨🇱' },
+        { name: 'Colombia', flag: '🇨🇴' },
+        { name: 'Mexico', flag: '🇲🇽' },
+        { name: 'Peru', flag: '🇵🇪' },
+        { name: 'United States', flag: '🇺🇸' }
+      ]
+    },
+    {
+      name: 'Asie / Asia',
+      countries: [
+        { name: 'China', flag: '🇨🇳' },
+        { name: 'India', flag: '🇮🇳' },
+        { name: 'Indonesia', flag: '🇮🇩' },
+        { name: 'Japan', flag: '🇯🇵' },
+        { name: 'Malaysia', flag: '🇲🇾' },
+        { name: 'Philippines', flag: '🇵🇭' },
+        { name: 'Singapore', flag: '🇸🇬' },
+        { name: 'South Korea', flag: '🇰🇷' },
+        { name: 'Thailand', flag: '🇹🇭' },
+        { name: 'Vietnam', flag: '🇻🇳' }
+      ]
+    },
+    {
+      name: 'Oceanie / Oceania',
+      countries: [
+        { name: 'Australia', flag: '🇦🇺' },
+        { name: 'New Zealand', flag: '🇳🇿' }
+      ]
+    },
+    {
+      name: 'Moyen-Orient / Middle East',
+      countries: [
+        { name: 'Saudi Arabia', flag: '🇸🇦' },
+        { name: 'United Arab Emirates', flag: '🇦🇪' },
+        { name: 'Qatar', flag: '🇶🇦' },
+        { name: 'Kuwait', flag: '🇰🇼' },
+        { name: 'Israel', flag: '🇮🇱' },
+        { name: 'Turkey', flag: '🇹🇷' }
+      ]
+    },
+    {
+      name: 'Autre / Other',
+      countries: [
+        { name: 'Other', flag: '🌍' }
+      ]
+    }
   ];
 
   ngOnInit(): void {
