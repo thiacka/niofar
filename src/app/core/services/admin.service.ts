@@ -104,6 +104,20 @@ export class AdminService {
     return data || [];
   }
 
+  async deleteBooking(id: string): Promise<boolean> {
+    const { error } = await this.supabase.client
+      .from('bookings')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting booking:', error);
+      return false;
+    }
+
+    return true;
+  }
+
   async deleteContactMessage(id: string): Promise<boolean> {
     const { error } = await this.supabase.client
       .from('contact_messages')

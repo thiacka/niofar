@@ -26,6 +26,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/confirmation/confirmation.component').then(m => m.ConfirmationComponent)
   },
   {
+    path: 'booking-lookup',
+    loadComponent: () => import('./pages/booking-lookup/booking-lookup.component').then(m => m.BookingLookupComponent)
+  },
+  {
     path: 'why-nio-far',
     loadComponent: () => import('./pages/why-nio-far/why-nio-far.component').then(m => m.WhyNioFarComponent)
   },

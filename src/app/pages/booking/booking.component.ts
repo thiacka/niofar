@@ -175,6 +175,56 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                   ></textarea>
                 </div>
 
+                <div class="form-group">
+                  <label for="promotionCode">{{ lang.t('booking.promotionCode') }}</label>
+                  <div class="promo-input-group">
+                    <input
+                      type="text"
+                      id="promotionCode"
+                      name="promotionCode"
+                      [(ngModel)]="formData.promotionCode"
+                      [placeholder]="lang.t('booking.promotionCodePlaceholder')"
+                      [disabled]="isSubmitting() || isCheckingPromo()"
+                      (blur)="checkPromotionCode()"
+                    />
+                    @if (isCheckingPromo()) {
+                      <span class="promo-status">
+                        <span class="spinner-small"></span>
+                      </span>
+                    }
+                    @if (promoSuccess()) {
+                      <span class="promo-status promo-valid">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      </span>
+                    }
+                    @if (promoError()) {
+                      <span class="promo-status promo-invalid">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </span>
+                    }
+                  </div>
+                  @if (promoSuccess() && appliedPromotion()) {
+                    <div class="promo-info">
+                      {{ lang.t('booking.promoApplied') }}:
+                      @if (appliedPromotion()!.discount_type === 'percentage') {
+                        -{{ appliedPromotion()!.discount_value }}%
+                      } @else {
+                        -{{ appliedPromotion()!.discount_value | number }} FCFA
+                      }
+                    </div>
+                  }
+                  @if (promoError()) {
+                    <div class="promo-error">
+                      {{ lang.t('booking.promoInvalid') }}
+                    </div>
+                  }
+                </div>
+
                 <div class="estimate-box">
                   <div class="estimate-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -236,11 +286,11 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                     </svg>
                     <span>contact&#64;niofar.com</span>
                   </a>
-                  <a href="tel:+221XXXXXXXX" class="contact-option">
+                  <a href="tel:+221338226699" class="contact-option">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                     </svg>
-                    <span>+221 XX XXX XX XX</span>
+                    <span>+221 33 822 66 99</span>
                   </a>
                 </div>
               </div>
@@ -507,6 +557,62 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
       margin-top: var(--spacing-md);
     }
 
+    .promo-input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .promo-input-group input {
+      flex: 1;
+      text-transform: uppercase;
+    }
+
+    .promo-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+    }
+
+    .promo-valid {
+      color: var(--color-success);
+    }
+
+    .promo-invalid {
+      color: var(--color-error);
+    }
+
+    .promo-info {
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: rgba(74, 155, 109, 0.1);
+      border-left: 3px solid var(--color-success);
+      color: var(--color-success);
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .promo-error {
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: rgba(196, 91, 74, 0.1);
+      border-left: 3px solid var(--color-error);
+      color: var(--color-error);
+      font-size: 0.9rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .spinner-small {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(61, 43, 31, 0.2);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
     .booking-sidebar {
       position: sticky;
       top: calc(var(--header-height) + var(--spacing-lg));
@@ -674,8 +780,14 @@ export class BookingComponent implements OnInit {
     endDate: '',
     adults: 1,
     children: 0,
-    specialRequests: ''
+    specialRequests: '',
+    promotionCode: ''
   };
+
+  appliedPromotion = signal<any | null>(null);
+  isCheckingPromo = signal(false);
+  promoError = signal(false);
+  promoSuccess = signal(false);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -717,7 +829,54 @@ export class BookingComponent implements OnInit {
     const c = this.circuit();
     if (!c) return 0;
     const totalPersons = this.formData.adults + Math.ceil(this.formData.children * 0.5);
-    return c.price * totalPersons;
+    let total = c.price * totalPersons;
+
+    const promo = this.appliedPromotion();
+    if (promo) {
+      if (promo.discount_type === 'percentage') {
+        total = total * (1 - promo.discount_value / 100);
+      } else if (promo.discount_type === 'fixed') {
+        total = Math.max(0, total - promo.discount_value);
+      }
+    }
+
+    return total;
+  }
+
+  async checkPromotionCode(): Promise<void> {
+    const code = this.formData.promotionCode.trim();
+
+    if (!code) {
+      this.appliedPromotion.set(null);
+      this.promoError.set(false);
+      this.promoSuccess.set(false);
+      return;
+    }
+
+    this.isCheckingPromo.set(true);
+    this.promoError.set(false);
+    this.promoSuccess.set(false);
+
+    const promotion = await this.circuitService.getPromotionByCode(code);
+
+    this.isCheckingPromo.set(false);
+
+    if (promotion) {
+      const circuitId = this.circuit()?.id;
+      if (promotion.circuit_id && promotion.circuit_id !== circuitId) {
+        this.appliedPromotion.set(null);
+        this.promoError.set(true);
+        this.promoSuccess.set(false);
+      } else {
+        this.appliedPromotion.set(promotion);
+        this.promoSuccess.set(true);
+        this.promoError.set(false);
+      }
+    } else {
+      this.appliedPromotion.set(null);
+      this.promoError.set(true);
+      this.promoSuccess.set(false);
+    }
   }
 
   validateDates(): boolean {
@@ -760,6 +919,10 @@ export class BookingComponent implements OnInit {
     this.isSubmitting.set(false);
 
     if (result.success && result.data) {
+      const promo = this.appliedPromotion();
+      if (promo?.id) {
+        await this.circuitService.incrementPromotionUsage(promo.id);
+      }
       this.router.navigate(['/confirmation', result.data.reference_number]);
     } else {
       this.errorMessage.set(true);
