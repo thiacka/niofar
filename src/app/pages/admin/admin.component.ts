@@ -10,13 +10,14 @@ import { AdminPromotionsComponent } from './admin-promotions.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
 import { AdminImagesComponent } from './admin-images.component';
 import { EditModeService } from '../../core/services/edit-mode.service';
+import { AdminUsersComponent } from './admin-users.component';
 
-type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions' | 'promotions' | 'images' | 'content';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions' | 'promotions' | 'images' | 'users' | 'content';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminExcursionsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminExcursionsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent, AdminUsersComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -132,6 +133,12 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
             >
               {{ lang.t('admin.images') }}
             </button>
+            <button
+              [class.active]="activeTab() === 'users'"
+              (click)="setTab('users')"
+            >
+              {{ lang.t('admin.users') }}
+              </button>
             <button
               class="tab"
               [class.active]="activeTab() === 'content'"
@@ -301,6 +308,10 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
 
             @if (activeTab() === 'images') {
               <app-admin-images />
+            }
+
+            @if (activeTab() === 'users') {
+              <app-admin-users />
             }
 
             @if (activeTab() === 'content') {
