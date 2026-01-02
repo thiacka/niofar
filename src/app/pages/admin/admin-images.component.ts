@@ -570,7 +570,8 @@ export class AdminImagesComponent implements OnInit {
   private pageSections: Record<PageName, { value: string; label: string }[]> = {
     'home': [
       { value: 'hero', label: 'Hero Slider' },
-      { value: 'discover', label: 'Discover Section' }
+      { value: 'discover', label: 'Discover Section' },
+      { value: 'experiences', label: 'Experiences Gallery' }
     ],
     'services': [
       { value: 'hero', label: 'Hero' },

@@ -124,30 +124,14 @@ interface HeroSlide {
           <p>{{ lang.t('experiences.subtitle') }}</p>
         </div>
         <div class="gallery-grid">
-          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="0">
-            <img src="https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Cultural encounter" />
-            <div class="gallery-overlay">
-              <span>{{ lang.t('experiences.cultural') }}</span>
+          @for (item of experiencesGallery(); track item.image; let i = $index) {
+            <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="i * 100">
+              <img [src]="item.image" [alt]="lang.t(item.labelKey)" />
+              <div class="gallery-overlay">
+                <span>{{ lang.t(item.labelKey) }}</span>
+              </div>
             </div>
-          </div>
-          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="100">
-            <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Nature wildlife" />
-            <div class="gallery-overlay">
-              <span>{{ lang.t('experiences.nature') }}</span>
-            </div>
-          </div>
-          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local traditions" />
-            <div class="gallery-overlay">
-              <span>{{ lang.t('experiences.traditions') }}</span>
-            </div>
-          </div>
-          <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="300">
-            <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegalese lifestyle" />
-            <div class="gallery-overlay">
-              <span>{{ lang.t('experiences.lifestyle') }}</span>
-            </div>
-          </div>
+          }
         </div>
         <div class="gallery-cta" appScrollAnimate [animationDelay]="400">
           <a routerLink="/experiences" class="btn btn-secondary">{{ lang.t('nav.experiences') }}</a>
@@ -410,7 +394,7 @@ interface HeroSlide {
 
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: var(--spacing-lg);
       margin-bottom: var(--spacing-2xl);
     }
@@ -526,6 +510,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSlide = signal(0);
   prevSlide = signal(-1);
   discoverImage = signal('https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800');
+  experiencesGallery = signal<Array<{ image: string; labelKey: string }>>([
+    { image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.cultural' },
+    { image: 'https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.nature' },
+    { image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.traditions' },
+    { image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.lifestyle' }
+  ]);
   private autoPlayInterval: ReturnType<typeof setInterval> | null = null;
 
   slides: HeroSlide[] = [
@@ -576,6 +566,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     const discoverImg = images.find(img => img.section === 'discover');
     if (discoverImg) {
       this.discoverImage.set(discoverImg.image_url);
+    }
+
+    const experiencesImages = images.filter(img => img.section === 'experiences' && img.is_active);
+    if (experiencesImages.length > 0) {
+      const labelKeys = ['experiences.cultural', 'experiences.nature', 'experiences.traditions', 'experiences.lifestyle'];
+      this.experiencesGallery.set(
+        experiencesImages
+          .sort((a, b) => a.display_order - b.display_order)
+          .map((img, index) => ({
+            image: img.image_url,
+            labelKey: labelKeys[index] || 'experiences.cultural'
+          }))
+      );
     }
   }
 
