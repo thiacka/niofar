@@ -79,6 +79,8 @@ const translations: Translations = {
   'excursions.custom.title': { en: 'Custom Day Trip', fr: 'Excursion Sur Mesure' },
   'excursions.custom.text': { en: 'Want to create your own day adventure? We can design a personalized excursion based on your interests, whether it\'s culture, nature, food, or local crafts.', fr: 'Vous souhaitez creer votre propre aventure d\'une journee ? Nous pouvons concevoir une excursion personnalisee en fonction de vos interets, qu\'il s\'agisse de culture, de nature, de gastronomie ou d\'artisanat local.' },
   'excursions.custom.cta': { en: 'Request a custom excursion', fr: 'Demander une excursion sur mesure' },
+  'excursions.noExcursions': { en: 'No excursions available yet', fr: 'Aucune excursion disponible' },
+  'excursions.noExcursionsText': { en: 'We are preparing exciting daily excursions for you. Contact us to plan your adventure!', fr: 'Nous preparons des excursions passionnantes pour vous. Contactez-nous pour planifier votre aventure !' },
 
   'why.title': { en: 'Why NIO FAR', fr: 'Pourquoi NIO FAR' },
   'why.local': { en: '100% local agency', fr: 'Agence 100% locale' },
@@ -112,6 +114,9 @@ const translations: Translations = {
   'circuits.custom.title': { en: 'Custom Itinerary', fr: 'Circuit Sur Mesure' },
   'circuits.custom.text': { en: 'Don\'t see exactly what you\'re looking for? We specialize in creating personalized journeys tailored to your interests, schedule, and budget. Let us design your perfect Senegalese adventure.', fr: 'Vous ne trouvez pas exactement ce que vous cherchez ? Nous sommes specialises dans la creation de voyages personnalises adaptes a vos interets, votre emploi du temps et votre budget. Laissez-nous concevoir votre aventure senegalaise parfaite.' },
   'circuits.custom.cta': { en: 'Request a custom tour', fr: 'Demander un circuit sur mesure' },
+  'circuits.noCircuits': { en: 'No multi-day tours available yet', fr: 'Aucun circuit multi-jours disponible' },
+  'circuits.noCircuitsText': { en: 'We are preparing amazing multi-day tour packages for you. In the meantime, discover our daily excursions!', fr: 'Nous preparons des circuits multi-jours incroyables pour vous. En attendant, decouvrez nos excursions journalieres !' },
+  'circuits.viewExcursions': { en: 'View our excursions', fr: 'Voir nos excursions' },
 
   'booking.title': { en: 'Book Your Tour', fr: 'Reservez Votre Circuit' },
   'booking.subtitle': { en: 'Complete the form below to request your booking', fr: 'Remplissez le formulaire ci-dessous pour demander votre reservation' },
