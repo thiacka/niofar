@@ -43,8 +43,8 @@ import { BookingService, BookingResponse } from '../../core/services/booking.ser
               <h3>{{ lang.t('confirmation.details') }}</h3>
               <div class="details-grid">
                 <div class="detail-item">
-                  <span class="detail-label">Circuit</span>
-                  <span class="detail-value">{{ booking()!.circuit_title }}</span>
+                  <span class="detail-label">Excursion</span>
+                  <span class="detail-value">{{ booking()!.excursion_title }}</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">{{ lang.t('booking.firstName') }}</span>

@@ -184,7 +184,7 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
                               <span class="client-country">{{ booking.country }}</span>
                             </div>
                           </td>
-                          <td>{{ booking.circuit_title }}</td>
+                          <td>{{ booking.excursion_title }}</td>
                           <td>
                             <div class="date-info">
                               <span>{{ booking.start_date | date:'dd/MM/yyyy' }}</span>

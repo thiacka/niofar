@@ -3,8 +3,8 @@ import { SupabaseService } from './supabase.service';
 
 export interface Booking {
   id: string;
-  circuit_id: string;
-  circuit_title: string;
+  excursion_id: string;
+  excursion_title: string;
   first_name: string;
   last_name: string;
   email: string;

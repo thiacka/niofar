@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
-import { CircuitService, Circuit } from '../../core/services/circuit.service';
+import { ExcursionService, Excursion } from '../../core/services/excursion.service';
+import { CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 @Component({
@@ -22,20 +23,20 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
 
     <section class="booking section">
       <div class="container">
-        @if (isLoadingCircuit()) {
+        @if (isLoadingExcursion()) {
           <div class="loading">
             <div class="spinner-large"></div>
           </div>
-        } @else if (circuit()) {
+        } @else if (excursion()) {
           <div class="booking-grid">
             <div class="booking-form-wrapper" appScrollAnimate animationType="fade-right">
-              <div class="selected-circuit">
-                <img [src]="circuit()!.image_url" [alt]="getTitle()" />
-                <div class="circuit-info">
+              <div class="selected-excursion">
+                <img [src]="excursion()!.image_url" [alt]="getTitle()" />
+                <div class="excursion-info">
                   <h3>{{ getTitle() }}</h3>
                   <span class="duration">{{ getDuration() }}</span>
                   <div class="price">
-                    <span class="price-value">{{ circuit()!.price | number }} FCFA</span>
+                    <span class="price-value">{{ excursion()!.price | number }} FCFA</span>
                     <span class="price-note">{{ getPriceNote() }}</span>
                   </div>
                 </div>
@@ -859,10 +860,11 @@ export class BookingComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private bookingService = inject(BookingService);
+  private excursionService = inject(ExcursionService);
   private circuitService = inject(CircuitService);
 
-  circuit = signal<Circuit | null>(null);
-  isLoadingCircuit = signal(true);
+  excursion = signal<Excursion | null>(null);
+  isLoadingExcursion = signal(true);
   isSubmitting = signal(false);
   successMessage = signal(false);
   errorMessage = signal(false);
@@ -1058,42 +1060,42 @@ export class BookingComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const circuitSlug = params.get('circuitId');
-      if (circuitSlug) {
-        this.loadCircuit(circuitSlug);
+      const excursionSlug = params.get('circuitId');
+      if (excursionSlug) {
+        this.loadExcursion(excursionSlug);
       } else {
-        this.isLoadingCircuit.set(false);
+        this.isLoadingExcursion.set(false);
       }
     });
   }
 
-  async loadCircuit(slug: string): Promise<void> {
-    this.isLoadingCircuit.set(true);
-    const found = await this.circuitService.getCircuitBySlug(slug);
-    this.circuit.set(found);
-    this.isLoadingCircuit.set(false);
+  async loadExcursion(slug: string): Promise<void> {
+    this.isLoadingExcursion.set(true);
+    const found = await this.excursionService.getExcursionBySlug(slug);
+    this.excursion.set(found);
+    this.isLoadingExcursion.set(false);
   }
 
   getTitle(): string {
-    const c = this.circuit();
+    const c = this.excursion();
     if (!c) return '';
     return this.lang.language() === 'fr' ? c.title_fr : c.title_en;
   }
 
   getDuration(): string {
-    const c = this.circuit();
+    const c = this.excursion();
     if (!c) return '';
     return this.lang.language() === 'fr' ? c.duration_fr : c.duration_en;
   }
 
   getPriceNote(): string {
-    const c = this.circuit();
+    const c = this.excursion();
     if (!c) return '';
     return this.lang.language() === 'fr' ? c.price_note_fr : c.price_note_en;
   }
 
   estimatedTotal(): number {
-    const c = this.circuit();
+    const c = this.excursion();
     if (!c) return 0;
     const totalPersons = this.formData.adults + Math.ceil(this.formData.children * 0.5);
     let total = c.price * totalPersons;
@@ -1129,8 +1131,8 @@ export class BookingComponent implements OnInit {
     this.isCheckingPromo.set(false);
 
     if (promotion) {
-      const circuitId = this.circuit()?.id;
-      if (promotion.circuit_id && promotion.circuit_id !== circuitId) {
+      const excursionId = this.excursion()?.id;
+      if (promotion.circuit_id && promotion.circuit_id !== excursionId) {
         this.appliedPromotion.set(null);
         this.promoError.set(true);
         this.promoSuccess.set(false);
@@ -1154,7 +1156,7 @@ export class BookingComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    const c = this.circuit();
+    const c = this.excursion();
     if (!c) return;
 
     if (!this.validateDates()) {
@@ -1168,8 +1170,8 @@ export class BookingComponent implements OnInit {
     this.dateError.set(false);
 
     const result = await this.bookingService.createBooking({
-      circuit_id: c.slug,
-      circuit_title: this.getTitle(),
+      excursion_id: c.slug,
+      excursion_title: this.getTitle(),
       first_name: this.formData.firstName,
       last_name: this.formData.lastName,
       email: this.formData.email,
