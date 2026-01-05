@@ -78,7 +78,7 @@ import { BookingService } from '../../core/services/booking.service';
                 <h3>{{ lang.t('bookingLookup.circuitInfo') }}</h3>
                 <div class="info-item">
                   <span class="label">{{ lang.t('bookingLookup.circuit') }}</span>
-                  <span class="value">{{ booking()!.circuit_title }}</span>
+                  <span class="value">{{ booking()!.excursion_title }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">{{ lang.t('bookingLookup.startDate') }}</span>

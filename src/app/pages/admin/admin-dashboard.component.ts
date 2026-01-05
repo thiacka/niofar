@@ -103,7 +103,7 @@ interface CircuitStats {
                     <div class="booking-item">
                       <div class="booking-info">
                         <span class="booking-name">{{ booking.first_name }} {{ booking.last_name }}</span>
-                        <span class="booking-circuit">{{ booking.circuit_title }}</span>
+                        <span class="booking-excursion">{{ booking.excursion_title }}</span>
                       </div>
                       <div class="booking-meta">
                         <span class="booking-date">{{ booking.start_date | date:'dd/MM/yyyy' }}</span>
@@ -388,7 +388,7 @@ interface CircuitStats {
       color: var(--color-text);
     }
 
-    .booking-circuit {
+    .booking-excursion {
       font-size: 0.85rem;
       color: var(--color-text-light);
     }
@@ -697,12 +697,12 @@ export class AdminDashboardComponent implements OnInit {
 
     const circuitBookings = new Map<string, { count: number; revenue: number }>();
     bookings.forEach(booking => {
-      const existing = circuitBookings.get(booking.circuit_id) || { count: 0, revenue: 0 };
+      const existing = circuitBookings.get(booking.excursion_id) || { count: 0, revenue: 0 };
       existing.count++;
       if (booking.status === 'confirmed') {
         existing.revenue += booking.estimated_total;
       }
-      circuitBookings.set(booking.circuit_id, existing);
+      circuitBookings.set(booking.excursion_id, existing);
     });
 
     const circuitStatsArray: CircuitStats[] = [];

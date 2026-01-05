@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 
 export interface BookingRequest {
-  circuit_id: string;
-  circuit_title: string;
+  excursion_id: string;
+  excursion_title: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -20,8 +20,8 @@ export interface BookingRequest {
 export interface BookingResponse {
   id: string;
   reference_number: string;
-  circuit_id: string;
-  circuit_title: string;
+  excursion_id: string;
+  excursion_title: string;
   first_name: string;
   last_name: string;
   email: string;
