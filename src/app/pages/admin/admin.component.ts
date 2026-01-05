@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
 import { LanguageService } from '../../core/services/language.service';
 import { AdminCircuitsComponent } from './admin-circuits.component';
@@ -14,7 +15,7 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -296,11 +297,59 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
                 <p>Pour modifier le contenu statique des pages:</p>
                 <ol>
                   <li>Cliquez sur le bouton "Activer Mode Edition" en haut de la page</li>
-                  <li>Naviguez vers la page que vous souhaitez modifier</li>
-                  <li>Cliquez sur les textes pour les éditer directement</li>
+                  <li>Utilisez les liens rapides ci-dessous pour accéder aux pages</li>
+                  <li>Cliquez sur les textes avec contour orange pour les éditer</li>
                   <li>Les modifications sont sauvegardées automatiquement</li>
                   <li>Désactivez le mode édition une fois terminé</li>
                 </ol>
+
+                <div class="quick-nav">
+                  <h3>Navigation Rapide</h3>
+                  <div class="quick-nav-grid">
+                    <a routerLink="/" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                      </svg>
+                      <span>Accueil</span>
+                    </a>
+                    <a routerLink="/services" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+                      </svg>
+                      <span>Services</span>
+                    </a>
+                    <a routerLink="/experiences" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                      </svg>
+                      <span>Experiences</span>
+                    </a>
+                    <a routerLink="/circuits" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <span>Circuits</span>
+                    </a>
+                    <a routerLink="/why-nio-far" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      <span>Pourquoi NIO FAR</span>
+                    </a>
+                    <a routerLink="/contact" class="quick-nav-card" (click)="activateEditMode()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      <span>Contact</span>
+                    </a>
+                  </div>
+                </div>
+
                 <p class="note">
                   <strong>Note:</strong> Le mode édition vous permet de modifier les titres, descriptions et autres contenus textuels sur toutes les pages du site.
                 </p>
@@ -855,6 +904,54 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
       color: var(--color-accent);
     }
 
+    .quick-nav {
+      margin: var(--spacing-2xl) 0;
+    }
+
+    .quick-nav h3 {
+      color: var(--color-text);
+      margin-bottom: var(--spacing-lg);
+      font-size: 1.1rem;
+    }
+
+    .quick-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-md);
+    }
+
+    .quick-nav-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-lg);
+      background: var(--color-background);
+      border: 2px solid transparent;
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .quick-nav-card:hover {
+      border-color: var(--color-primary);
+      background: var(--color-white);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .quick-nav-card svg {
+      color: var(--color-primary);
+    }
+
+    .quick-nav-card span {
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     @media (max-width: 992px) {
       .data-table {
         display: block;
@@ -966,5 +1063,11 @@ export class AdminComponent implements OnInit {
   closeNotes(): void {
     this.showNotesModal.set(false);
     this.selectedBooking.set(null);
+  }
+
+  activateEditMode(): void {
+    if (!this.editMode.isEditMode()) {
+      this.editMode.toggleEditMode();
+    }
   }
 }
