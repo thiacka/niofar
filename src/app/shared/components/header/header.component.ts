@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
+import { EditModeService } from '../../../core/services/edit-mode.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   template: `
-    <header class="header" [class.scrolled]="isScrolled()">
+    <header class="header" [class.scrolled]="isScrolled()" [class.edit-mode]="editMode.isEditMode()">
       <div class="container">
         <a routerLink="/" class="logo">
           <span class="logo-text">NIO FAR</span>
@@ -59,6 +60,10 @@ import { LanguageService } from '../../../core/services/language.service';
       background: transparent;
       z-index: 1000;
       transition: all var(--transition-base);
+    }
+
+    .header.edit-mode {
+      top: 44px;
     }
 
     .header.scrolled {
@@ -237,6 +242,7 @@ import { LanguageService } from '../../../core/services/language.service';
 })
 export class HeaderComponent {
   lang = inject(LanguageService);
+  editMode = inject(EditModeService);
   mobileMenuOpen = signal(false);
   isScrolled = signal(false);
 

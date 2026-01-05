@@ -2,15 +2,17 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { EditModeBannerComponent } from './shared/components/edit-mode-banner/edit-mode-banner.component';
 import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, EditModeBannerComponent],
   template: `
     @if (!isAdminRoute()) {
+      <app-edit-mode-banner />
       <app-header />
     }
     <main>
