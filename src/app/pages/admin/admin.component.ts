@@ -5,17 +5,18 @@ import { RouterLink } from '@angular/router';
 import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
 import { LanguageService } from '../../core/services/language.service';
 import { AdminCircuitsComponent } from './admin-circuits.component';
+import { AdminExcursionsComponent } from './admin-excursions.component';
 import { AdminPromotionsComponent } from './admin-promotions.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
 import { AdminImagesComponent } from './admin-images.component';
 import { EditModeService } from '../../core/services/edit-mode.service';
 
-type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions' | 'images' | 'content';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions' | 'promotions' | 'images' | 'content';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminExcursionsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -109,6 +110,13 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
               (click)="setTab('circuits')"
             >
               {{ lang.t('admin.circuits') }}
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'excursions'"
+              (click)="setTab('excursions')"
+            >
+              {{ lang.t('admin.excursions') }}
             </button>
             <button
               class="tab"
@@ -281,6 +289,10 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
 
             @if (activeTab() === 'circuits') {
               <app-admin-circuits />
+            }
+
+            @if (activeTab() === 'excursions') {
+              <app-admin-excursions />
             }
 
             @if (activeTab() === 'promotions') {

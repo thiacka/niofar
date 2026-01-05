@@ -25,6 +25,9 @@ import { EditModeService } from '../../../core/services/edit-mode.service';
           <a routerLink="/experiences" routerLinkActive="active" (click)="closeMobileMenu()">
             {{ lang.t('nav.experiences') }}
           </a>
+          <a routerLink="/excursions" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ lang.t('nav.excursions') }}
+          </a>
           <a routerLink="/circuits" routerLinkActive="active" (click)="closeMobileMenu()">
             {{ lang.t('nav.circuits') }}
           </a>
