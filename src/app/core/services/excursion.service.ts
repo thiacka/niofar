@@ -17,6 +17,7 @@ export interface Excursion {
   highlights_en: string[];
   image_url: string;
   is_active: boolean;
+  is_multi_day: boolean;
   display_order: number;
   created_at?: string;
   updated_at?: string;
@@ -51,10 +52,27 @@ export class ExcursionService {
       .from('excursions')
       .select('*')
       .eq('is_active', true)
+      .eq('is_multi_day', false)
       .order('display_order', { ascending: true });
 
     if (error) {
       console.error('Error loading excursions:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async loadMultiDayTours(): Promise<Excursion[]> {
+    const { data, error } = await this.supabase.client
+      .from('excursions')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_multi_day', true)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('Error loading multi-day tours:', error);
       return [];
     }
 
