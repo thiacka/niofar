@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/circuits/circuits.component').then(m => m.CircuitsComponent)
   },
   {
+    path: 'circuits/:slug',
+    loadComponent: () => import('./pages/circuit-detail/circuit-detail.component').then(m => m.CircuitDetailComponent)
+  },
+  {
     path: 'booking/:circuitId',
     loadComponent: () => import('./pages/booking/booking.component').then(m => m.BookingComponent)
   },

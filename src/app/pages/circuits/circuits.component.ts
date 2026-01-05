@@ -77,7 +77,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
                       <span class="price-value">{{ circuit.price | number }} FCFA</span>
                       <span class="price-note">{{ getPriceNote(circuit) }}</span>
                     </div>
-                    <a [routerLink]="['/booking', circuit.slug]" class="btn btn-primary">{{ lang.t('circuits.book') }}</a>
+                    <a [routerLink]="['/circuits', circuit.slug]" class="btn btn-primary">{{ lang.t('circuits.viewDetails') }}</a>
                   </div>
                 </div>
               </div>
