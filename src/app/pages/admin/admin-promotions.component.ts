@@ -144,7 +144,7 @@ import { LanguageService } from '../../core/services/language.service';
             </button>
           </div>
           <div class="modal-body">
-            <form #promoForm="ngForm" (ngSubmit)="promoForm.form.valid && savePromotion()">
+            <form #promoForm="ngForm" (ngSubmit)="onSubmit(promoForm)">
               @if (errorMessage()) {
                 <div class="error-message">
                   {{ errorMessage() }}
@@ -705,6 +705,12 @@ export class AdminPromotionsComponent implements OnInit {
     this.showForm.set(false);
     this.errorMessage.set('');
     this.formData = this.getEmptyFormData();
+  }
+
+  onSubmit(form: any): void {
+    if (form.form.valid) {
+      this.savePromotion();
+    }
   }
 
   async savePromotion(): Promise<void> {
