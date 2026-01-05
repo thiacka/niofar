@@ -1,18 +1,24 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { filter, map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
   template: `
-    <app-header />
+    @if (!isAdminRoute()) {
+      <app-header />
+    }
     <main>
       <router-outlet />
     </main>
-    <app-footer />
+    @if (!isAdminRoute()) {
+      <app-footer />
+    }
   `,
   styles: [`
     main {
@@ -20,4 +26,14 @@ import { FooterComponent } from './shared/components/footer/footer.component';
     }
   `]
 })
-export class AppComponent {}
+export class AppComponent {
+  private router = inject(Router);
+
+  isAdminRoute = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.router.url.startsWith('/admin'))
+    ),
+    { initialValue: this.router.url.startsWith('/admin') }
+  );
+}
