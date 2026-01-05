@@ -1,18 +1,36 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 
+export interface ItineraryDay {
+  day: number;
+  title_fr: string;
+  title_en: string;
+  excursion_ids: string[];
+  accommodation_fr?: string;
+  accommodation_en?: string;
+  meals_included: string[];
+}
+
 export interface Circuit {
   id: string;
   slug: string;
   image_url: string;
   duration_en: string;
   duration_fr: string;
+  duration_days: number;
   title_en: string;
   title_fr: string;
   description_en: string;
   description_fr: string;
   highlights_en: string[];
   highlights_fr: string[];
+  itinerary: ItineraryDay[];
+  included_services_fr: string[];
+  included_services_en: string[];
+  accommodation_type_fr: string | null;
+  accommodation_type_en: string | null;
+  min_participants: number;
+  max_participants: number;
   price: number;
   price_note_en: string;
   price_note_fr: string;
