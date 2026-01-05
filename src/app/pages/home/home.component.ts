@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { PageImageService } from '../../core/services/page-image.service';
+import { EditableContentDirective } from '../../shared/directives/editable-content.directive';
 
 interface HeroSlide {
   image: string;
@@ -14,7 +15,7 @@ interface HeroSlide {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, ScrollAnimateDirective],
+  imports: [RouterLink, ScrollAnimateDirective, EditableContentDirective],
   template: `
     <section class="hero">
       @for (slide of slides; track slide.titleKey; let i = $index) {
@@ -28,9 +29,27 @@ interface HeroSlide {
       <div class="hero-overlay"></div>
 
       <div class="hero-content container">
-        <span class="hero-slogan">{{ lang.t('hero.slogan') }}</span>
-        <h1 class="hero-title">{{ lang.t(slides[currentSlide()].titleKey) }}</h1>
-        <p class="hero-subtitle">{{ lang.t(slides[currentSlide()].subtitleKey) }}</p>
+        <span
+          class="hero-slogan"
+          appEditableContent
+          contentPage="home"
+          contentSection="hero"
+          contentKey="slogan"
+        >{{ lang.t('hero.slogan') }}</span>
+        <h1
+          class="hero-title"
+          appEditableContent
+          contentPage="home"
+          contentSection="hero"
+          [contentKey]="'title-' + currentSlide()"
+        >{{ lang.t(slides[currentSlide()].titleKey) }}</h1>
+        <p
+          class="hero-subtitle"
+          appEditableContent
+          contentPage="home"
+          contentSection="hero"
+          [contentKey]="'subtitle-' + currentSlide()"
+        >{{ lang.t(slides[currentSlide()].subtitleKey) }}</p>
         <a [routerLink]="slides[currentSlide()].route" class="btn btn-accent">{{ lang.t('hero.cta') }}</a>
       </div>
 
@@ -63,8 +82,18 @@ interface HeroSlide {
       <div class="container">
         <div class="intro-content">
           <div class="intro-text" appScrollAnimate animationType="fade-right">
-            <h2>{{ lang.t('home.intro.title') }}</h2>
-            <p>{{ lang.t('home.intro.text') }}</p>
+            <h2
+              appEditableContent
+              contentPage="home"
+              contentSection="intro"
+              contentKey="title"
+            >{{ lang.t('home.intro.title') }}</h2>
+            <p
+              appEditableContent
+              contentPage="home"
+              contentSection="intro"
+              contentKey="text"
+            >{{ lang.t('home.intro.text') }}</p>
             <a routerLink="/why-nio-far" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
           <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
@@ -77,7 +106,12 @@ interface HeroSlide {
     <section class="services-preview section" style="background: var(--color-background-alt);">
       <div class="container">
         <div class="section-title" appScrollAnimate>
-          <h2>{{ lang.t('home.services.title') }}</h2>
+          <h2
+            appEditableContent
+            contentPage="home"
+            contentSection="services"
+            contentKey="title"
+          >{{ lang.t('home.services.title') }}</h2>
         </div>
         <div class="services-grid">
           <div class="service-card card" appScrollAnimate [animationDelay]="0">

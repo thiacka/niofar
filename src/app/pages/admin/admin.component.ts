@@ -7,8 +7,9 @@ import { AdminCircuitsComponent } from './admin-circuits.component';
 import { AdminPromotionsComponent } from './admin-promotions.component';
 import { AdminDashboardComponent } from './admin-dashboard.component';
 import { AdminImagesComponent } from './admin-images.component';
+import { EditModeService } from '../../core/services/edit-mode.service';
 
-type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions' | 'images';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions' | 'images' | 'content';
 
 @Component({
   selector: 'app-admin',
@@ -52,6 +53,24 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
             <h1>NIO FAR Admin</h1>
           </div>
           <div class="header-right">
+            <button
+              class="btn btn-toggle"
+              [class.active]="editMode.isEditMode()"
+              (click)="editMode.toggleEditMode()"
+            >
+              @if (editMode.isEditMode()) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Mode Edition Actif
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Activer Mode Edition
+              }
+            </button>
             <button class="btn btn-outline" (click)="logout()">
               {{ lang.t('admin.logout') }}
             </button>
@@ -103,6 +122,13 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
               (click)="setTab('images')"
             >
               {{ lang.t('admin.images') }}
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'content'"
+              (click)="setTab('content')"
+            >
+              Contenu
             </button>
           </div>
 
@@ -263,6 +289,23 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
             @if (activeTab() === 'images') {
               <app-admin-images />
             }
+
+            @if (activeTab() === 'content') {
+              <div class="content-info card">
+                <h2>Mode Edition du Contenu</h2>
+                <p>Pour modifier le contenu statique des pages:</p>
+                <ol>
+                  <li>Cliquez sur le bouton "Activer Mode Edition" en haut de la page</li>
+                  <li>Naviguez vers la page que vous souhaitez modifier</li>
+                  <li>Cliquez sur les textes pour les éditer directement</li>
+                  <li>Les modifications sont sauvegardées automatiquement</li>
+                  <li>Désactivez le mode édition une fois terminé</li>
+                </ol>
+                <p class="note">
+                  <strong>Note:</strong> Le mode édition vous permet de modifier les titres, descriptions et autres contenus textuels sur toutes les pages du site.
+                </p>
+              </div>
+            }
           }
         </div>
 
@@ -384,6 +427,35 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
     .btn-outline:hover {
       background: var(--color-primary);
       color: var(--color-white);
+    }
+
+    .btn-toggle {
+      background: transparent;
+      border: 2px solid var(--color-accent);
+      color: var(--color-accent);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-weight: 600;
+    }
+
+    .btn-toggle:hover {
+      background: rgba(196, 159, 74, 0.1);
+    }
+
+    .btn-toggle.active {
+      background: var(--color-accent);
+      color: var(--color-white);
+    }
+
+    .header-right {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
     }
 
     .admin-content {
@@ -742,6 +814,47 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
       color: var(--color-text);
     }
 
+    .content-info {
+      background: var(--color-white);
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+    }
+
+    .content-info h2 {
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .content-info p {
+      color: var(--color-text);
+      line-height: 1.6;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .content-info ol {
+      margin: var(--spacing-lg) 0;
+      padding-left: var(--spacing-xl);
+      color: var(--color-text);
+    }
+
+    .content-info li {
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.6;
+    }
+
+    .content-info .note {
+      background: rgba(196, 159, 74, 0.1);
+      border-left: 4px solid var(--color-accent);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .content-info .note strong {
+      color: var(--color-accent);
+    }
+
     @media (max-width: 992px) {
       .data-table {
         display: block;
@@ -769,6 +882,7 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'promotions'
 export class AdminComponent implements OnInit {
   adminService = inject(AdminService);
   lang = inject(LanguageService);
+  editMode = inject(EditModeService);
 
   password = '';
   loginError = signal(false);
