@@ -32,6 +32,20 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
           <div class="loading">
             <div class="spinner"></div>
           </div>
+        } @else if (excursions().length === 0) {
+          <div class="empty-state" appScrollAnimate>
+            <div class="empty-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                <line x1="15" y1="9" x2="15.01" y2="9"/>
+              </svg>
+            </div>
+            <h3>{{ lang.t('excursions.noExcursions') }}</h3>
+            <p>{{ lang.t('excursions.noExcursionsText') }}</p>
+            <a routerLink="/contact" class="btn btn-primary">{{ lang.t('contact.send') }}</a>
+          </div>
         } @else {
           <div class="excursions-grid">
             @for (excursion of excursions(); track excursion.id; let i = $index) {
@@ -360,6 +374,32 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-4xl) var(--spacing-xl);
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+    }
+
+    .empty-icon {
+      color: var(--color-secondary);
+      margin-bottom: var(--spacing-xl);
+      opacity: 0.6;
+    }
+
+    .empty-state h3 {
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .empty-state p {
+      color: var(--color-text-light);
+      max-width: 400px;
+      margin: 0 auto var(--spacing-xl);
+      line-height: 1.7;
     }
 
     @media (max-width: 480px) {
