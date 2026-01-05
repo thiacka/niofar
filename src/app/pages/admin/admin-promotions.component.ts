@@ -144,11 +144,20 @@ import { LanguageService } from '../../core/services/language.service';
             </button>
           </div>
           <div class="modal-body">
-            <form (ngSubmit)="savePromotion()">
+            <form #promoForm="ngForm" (ngSubmit)="promoForm.form.valid && savePromotion()">
+              @if (errorMessage()) {
+                <div class="error-message">
+                  {{ errorMessage() }}
+                </div>
+              }
+
               <div class="form-row">
                 <div class="form-group">
-                  <label>{{ lang.t('admin.code') }}</label>
-                  <input type="text" [(ngModel)]="formData.code" name="code" required [disabled]="isEditing()" style="text-transform: uppercase;" />
+                  <label>{{ lang.t('admin.code') }} *</label>
+                  <input type="text" [(ngModel)]="formData.code" name="code" required [disabled]="isEditing()" style="text-transform: uppercase;" #codeInput="ngModel" />
+                  @if (codeInput.invalid && codeInput.touched) {
+                    <span class="field-error">Le code est requis</span>
+                  }
                 </div>
                 <div class="form-group">
                   <label>{{ lang.t('admin.circuit') }}</label>
@@ -163,26 +172,35 @@ import { LanguageService } from '../../core/services/language.service';
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>{{ lang.t('admin.nameFr') }}</label>
-                  <input type="text" [(ngModel)]="formData.name_fr" name="name_fr" required />
+                  <label>{{ lang.t('admin.nameFr') }} *</label>
+                  <input type="text" [(ngModel)]="formData.name_fr" name="name_fr" required #nameFrInput="ngModel" />
+                  @if (nameFrInput.invalid && nameFrInput.touched) {
+                    <span class="field-error">Le nom français est requis</span>
+                  }
                 </div>
                 <div class="form-group">
-                  <label>{{ lang.t('admin.nameEn') }}</label>
-                  <input type="text" [(ngModel)]="formData.name_en" name="name_en" required />
+                  <label>{{ lang.t('admin.nameEn') }} *</label>
+                  <input type="text" [(ngModel)]="formData.name_en" name="name_en" required #nameEnInput="ngModel" />
+                  @if (nameEnInput.invalid && nameEnInput.touched) {
+                    <span class="field-error">Le nom anglais est requis</span>
+                  }
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>{{ lang.t('admin.discountType') }}</label>
+                  <label>{{ lang.t('admin.discountType') }} *</label>
                   <select [(ngModel)]="formData.discount_type" name="discount_type" required>
                     <option value="percentage">{{ lang.t('admin.percentage') }}</option>
                     <option value="fixed">{{ lang.t('admin.fixedAmount') }}</option>
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>{{ lang.t('admin.discountValue') }}</label>
-                  <input type="number" [(ngModel)]="formData.discount_value" name="discount_value" required min="1" />
+                  <label>{{ lang.t('admin.discountValue') }} *</label>
+                  <input type="number" [(ngModel)]="formData.discount_value" name="discount_value" required min="1" #discountInput="ngModel" />
+                  @if (discountInput.invalid && discountInput.touched) {
+                    <span class="field-error">La valeur doit être supérieure à 0</span>
+                  }
                 </div>
               </div>
 
@@ -227,7 +245,7 @@ import { LanguageService } from '../../core/services/language.service';
 
               <div class="form-actions">
                 <button type="button" class="btn btn-outline" (click)="closeForm()">{{ lang.t('admin.cancel') }}</button>
-                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving() || promoForm.invalid">
                   @if (isSaving()) {
                     <span class="spinner-small"></span>
                   }
@@ -561,6 +579,29 @@ import { LanguageService } from '../../core/services/language.service';
       color: var(--color-white);
     }
 
+    .error-message {
+      background: rgba(196, 91, 74, 0.1);
+      border: 1px solid var(--color-error);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      color: var(--color-error);
+      font-size: 0.9rem;
+    }
+
+    .field-error {
+      display: block;
+      color: var(--color-error);
+      font-size: 0.8rem;
+      margin-top: var(--spacing-xs);
+    }
+
+    .form-group input.ng-invalid.ng-touched,
+    .form-group textarea.ng-invalid.ng-touched,
+    .form-group select.ng-invalid.ng-touched {
+      border-color: var(--color-error);
+    }
+
     @media (max-width: 768px) {
       .section-header {
         flex-direction: column;
@@ -590,6 +631,7 @@ export class AdminPromotionsComponent implements OnInit {
   isEditing = signal(false);
   isSaving = signal(false);
   editingPromotionId = signal<string | null>(null);
+  errorMessage = signal<string>('');
 
   formData: PromotionFormData = this.getEmptyFormData();
 
@@ -661,25 +703,35 @@ export class AdminPromotionsComponent implements OnInit {
 
   closeForm(): void {
     this.showForm.set(false);
+    this.errorMessage.set('');
     this.formData = this.getEmptyFormData();
   }
 
   async savePromotion(): Promise<void> {
     this.isSaving.set(true);
+    this.errorMessage.set('');
 
-    let success = false;
-    if (this.isEditing() && this.editingPromotionId()) {
-      success = await this.circuitService.updatePromotion(this.editingPromotionId()!, this.formData);
-    } else {
-      const created = await this.circuitService.createPromotion(this.formData);
-      success = !!created;
-    }
+    try {
+      let success = false;
+      if (this.isEditing() && this.editingPromotionId()) {
+        success = await this.circuitService.updatePromotion(this.editingPromotionId()!, this.formData);
+      } else {
+        const created = await this.circuitService.createPromotion(this.formData);
+        success = !!created;
+      }
 
-    this.isSaving.set(false);
+      this.isSaving.set(false);
 
-    if (success) {
-      this.closeForm();
-      await this.loadData();
+      if (success) {
+        this.closeForm();
+        await this.loadData();
+      } else {
+        this.errorMessage.set('Une erreur est survenue lors de la sauvegarde. Vérifiez que le code promotion est unique.');
+      }
+    } catch (error) {
+      console.error('Error saving promotion:', error);
+      this.errorMessage.set('Une erreur est survenue lors de la sauvegarde. Veuillez réessayer.');
+      this.isSaving.set(false);
     }
   }
 
