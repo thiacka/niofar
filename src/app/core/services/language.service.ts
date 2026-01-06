@@ -349,6 +349,14 @@ const translations: Translations = {
   'admin.imagesPlaceholder': { en: 'https://image1.jpg, https://image2.jpg', fr: 'https://image1.jpg, https://image2.jpg' },
   'admin.imagesHint': { en: 'Multiple image URLs separated by commas', fr: 'URLs des images separees par des virgules' },
   'admin.confirmDeleteStage': { en: 'Are you sure you want to delete this stage?', fr: 'Etes-vous sur de vouloir supprimer cette etape ?' },
+  'admin.durationDays': { en: 'Duration (days)', fr: 'Duree (jours)' },
+  'admin.minParticipants': { en: 'Min. participants', fr: 'Participants min.' },
+  'admin.maxParticipants': { en: 'Max. participants', fr: 'Participants max.' },
+  'admin.includedServicesFr': { en: 'Included services (French)', fr: 'Services inclus (Francais)' },
+  'admin.includedServicesEn': { en: 'Included services (English)', fr: 'Services inclus (Anglais)' },
+  'admin.accommodationTypeFr': { en: 'Accommodation type (French)', fr: 'Type d\'hebergement (Francais)' },
+  'admin.accommodationTypeEn': { en: 'Accommodation type (English)', fr: 'Type d\'hebergement (Anglais)' },
+  'admin.accommodationTypePlaceholder': { en: 'e.g., Lodge, Hotel, Camp', fr: 'ex: Lodge, Hotel, Campement' },
 };
 
 @Injectable({

@@ -102,8 +102,23 @@ import { LanguageService } from '../../core/services/language.service';
                   <input type="text" [(ngModel)]="formData.slug" name="slug" required [disabled]="isEditing()" />
                 </div>
                 <div class="form-group">
+                  <label>{{ lang.t('admin.durationDays') }}</label>
+                  <input type="number" [(ngModel)]="formData.duration_days" name="duration_days" min="1" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
                   <label>{{ lang.t('admin.price') }} (FCFA)</label>
                   <input type="number" [(ngModel)]="formData.price" name="price" required />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.minParticipants') }}</label>
+                  <input type="number" [(ngModel)]="formData.min_participants" name="min_participants" min="1" required />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.maxParticipants') }}</label>
+                  <input type="number" [(ngModel)]="formData.max_participants" name="max_participants" min="1" required />
                 </div>
               </div>
 
@@ -133,6 +148,14 @@ import { LanguageService } from '../../core/services/language.service';
                   <input type="text" [(ngModel)]="highlightsFrText" name="highlights_fr" [placeholder]="lang.t('admin.highlightsPlaceholder')" />
                 </div>
                 <div class="form-group">
+                  <label>{{ lang.t('admin.includedServicesFr') }}</label>
+                  <input type="text" [(ngModel)]="includedServicesFrText" name="included_services_fr" [placeholder]="lang.t('admin.highlightsPlaceholder')" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.accommodationTypeFr') }}</label>
+                  <input type="text" [(ngModel)]="formData.accommodation_type_fr" name="accommodation_type_fr" [placeholder]="lang.t('admin.accommodationTypePlaceholder')" />
+                </div>
+                <div class="form-group">
                   <label>{{ lang.t('admin.priceNoteFr') }}</label>
                   <input type="text" [(ngModel)]="formData.price_note_fr" name="price_note_fr" />
                 </div>
@@ -157,6 +180,14 @@ import { LanguageService } from '../../core/services/language.service';
                 <div class="form-group">
                   <label>{{ lang.t('admin.highlightsEn') }}</label>
                   <input type="text" [(ngModel)]="highlightsEnText" name="highlights_en" [placeholder]="lang.t('admin.highlightsPlaceholder')" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.includedServicesEn') }}</label>
+                  <input type="text" [(ngModel)]="includedServicesEnText" name="included_services_en" [placeholder]="lang.t('admin.highlightsPlaceholder')" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.accommodationTypeEn') }}</label>
+                  <input type="text" [(ngModel)]="formData.accommodation_type_en" name="accommodation_type_en" [placeholder]="lang.t('admin.accommodationTypePlaceholder')" />
                 </div>
                 <div class="form-group">
                   <label>{{ lang.t('admin.priceNoteEn') }}</label>
@@ -838,6 +869,8 @@ export class AdminCircuitsComponent implements OnInit {
   formData: CircuitFormData = this.getEmptyFormData();
   highlightsFrText = '';
   highlightsEnText = '';
+  includedServicesFrText = '';
+  includedServicesEnText = '';
 
   showStagesManager = signal(false);
   showStageForm = signal(false);
@@ -892,6 +925,8 @@ export class AdminCircuitsComponent implements OnInit {
     this.formData = this.getEmptyFormData();
     this.highlightsFrText = '';
     this.highlightsEnText = '';
+    this.includedServicesFrText = '';
+    this.includedServicesEnText = '';
     this.isEditing.set(false);
     this.editingCircuitId.set(null);
     this.showForm.set(true);
@@ -925,6 +960,8 @@ export class AdminCircuitsComponent implements OnInit {
     };
     this.highlightsFrText = circuit.highlights_fr.join(', ');
     this.highlightsEnText = circuit.highlights_en.join(', ');
+    this.includedServicesFrText = circuit.included_services_fr.join(', ');
+    this.includedServicesEnText = circuit.included_services_en.join(', ');
     this.isEditing.set(true);
     this.editingCircuitId.set(circuit.id);
     this.showForm.set(true);
@@ -940,6 +977,8 @@ export class AdminCircuitsComponent implements OnInit {
 
     this.formData.highlights_fr = this.highlightsFrText.split(',').map(s => s.trim()).filter(s => s);
     this.formData.highlights_en = this.highlightsEnText.split(',').map(s => s.trim()).filter(s => s);
+    this.formData.included_services_fr = this.includedServicesFrText.split(',').map(s => s.trim()).filter(s => s);
+    this.formData.included_services_en = this.includedServicesEnText.split(',').map(s => s.trim()).filter(s => s);
 
     let success = false;
     if (this.isEditing() && this.editingCircuitId()) {
