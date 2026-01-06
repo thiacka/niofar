@@ -357,6 +357,8 @@ const translations: Translations = {
   'admin.accommodationTypeFr': { en: 'Accommodation type (French)', fr: 'Type d\'hebergement (Francais)' },
   'admin.accommodationTypeEn': { en: 'Accommodation type (English)', fr: 'Type d\'hebergement (Anglais)' },
   'admin.accommodationTypePlaceholder': { en: 'e.g., Lodge, Hotel, Camp', fr: 'ex: Lodge, Hotel, Campement' },
+  'admin.stages': { en: 'Itinerary Stages', fr: 'Etapes du circuit' },
+  'admin.stagesHelpText': { en: 'Click on "Manage Stages" to add the daily itinerary for this multi-day circuit', fr: 'Cliquez sur "Gerer les etapes" pour ajouter l\'itineraire journalier de ce circuit' },
 };
 
 @Injectable({
