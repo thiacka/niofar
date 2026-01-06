@@ -208,6 +208,21 @@ import { LanguageService } from '../../core/services/language.service';
                 </div>
               </div>
 
+              @if (isEditing() && editingCircuitId()) {
+                <div class="form-section stages-section">
+                  <div class="section-header">
+                    <h4>{{ lang.t('admin.stages') }}</h4>
+                    <button type="button" class="btn btn-outline" (click)="openStagesFromForm()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                      </svg>
+                      {{ lang.t('admin.manageStages') }}
+                    </button>
+                  </div>
+                  <p class="help-text">{{ lang.t('admin.stagesHelpText') }}</p>
+                </div>
+              }
+
               <div class="form-actions">
                 <button type="button" class="btn btn-outline" (click)="closeForm()">{{ lang.t('admin.cancel') }}</button>
                 <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
@@ -630,6 +645,35 @@ import { LanguageService } from '../../core/services/language.service';
       letter-spacing: 0.5px;
     }
 
+    .stages-section {
+      border: 2px dashed rgba(61, 43, 31, 0.2);
+      background: rgba(218, 165, 32, 0.05);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .section-header h4 {
+      margin: 0;
+    }
+
+    .section-header button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .help-text {
+      margin: 0;
+      color: var(--color-text-light);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1041,6 +1085,19 @@ export class AdminCircuitsComponent implements OnInit {
     this.showStagesManager.set(false);
     this.currentCircuit.set(null);
     this.stages.set([]);
+  }
+
+  openStagesFromForm(): void {
+    const circuitId = this.editingCircuitId();
+    if (!circuitId) return;
+
+    const circuit = this.circuits().find(c => c.id === circuitId);
+    if (!circuit) return;
+
+    this.currentCircuit.set(circuit);
+    this.showForm.set(false);
+    this.showStagesManager.set(true);
+    this.loadStages(circuitId);
   }
 
   async loadStages(excursionId: string): Promise<void> {
