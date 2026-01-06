@@ -32,8 +32,8 @@ import { PageImageService } from '../../core/services/page-image.service';
                   <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
               </div>
-              <h3>{{ lang.t('experiences.cultural') }}</h3>
-              <p>Meet local artisans, musicians, and families. Share meals, stories, and traditions that have been passed down through generations.</p>
+              <h3>{{ lang.t('experiences.cultural.title') }}</h3>
+              <p>{{ lang.t('experiences.cultural.text') }}</p>
             </div>
           </div>
 
@@ -47,8 +47,8 @@ import { PageImageService } from '../../core/services/page-image.service';
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
               </div>
-              <h3>{{ lang.t('experiences.nature') }}</h3>
-              <p>Explore breathtaking landscapes, from the pink waters of Lake Retba to the lush mangroves of the Sine-Saloum Delta.</p>
+              <h3>{{ lang.t('experiences.nature.title') }}</h3>
+              <p>{{ lang.t('experiences.nature.text') }}</p>
             </div>
           </div>
 
@@ -62,8 +62,8 @@ import { PageImageService } from '../../core/services/page-image.service';
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
               </div>
-              <h3>{{ lang.t('experiences.traditions') }}</h3>
-              <p>Witness traditional ceremonies, learn about Wolof customs, and participate in authentic village celebrations.</p>
+              <h3>{{ lang.t('experiences.traditions.title') }}</h3>
+              <p>{{ lang.t('experiences.traditions.text') }}</p>
             </div>
           </div>
 
@@ -80,8 +80,8 @@ import { PageImageService } from '../../core/services/page-image.service';
                   <line x1="15" y1="9" x2="15.01" y2="9"/>
                 </svg>
               </div>
-              <h3>{{ lang.t('experiences.lifestyle') }}</h3>
-              <p>Live the Teranga spirit. Experience the warmth and hospitality that makes Senegal truly special.</p>
+              <h3>{{ lang.t('experiences.lifestyle.title') }}</h3>
+              <p>{{ lang.t('experiences.lifestyle.text') }}</p>
             </div>
           </div>
         </div>
