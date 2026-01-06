@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { CircuitService, Circuit, CircuitFormData } from '../../core/services/circuit.service';
+import { CircuitStageService, CircuitStage, CircuitStageFormData } from '../../core/services/circuit-stage.service';
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
@@ -40,6 +41,16 @@ import { LanguageService } from '../../core/services/language.service';
               <p class="circuit-price">{{ circuit.price | number }} FCFA</p>
             </div>
             <div class="circuit-actions">
+              <button class="btn-icon" [title]="lang.t('admin.manageStages')" (click)="openStagesManager(circuit)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </button>
               <button class="btn-icon" [title]="lang.t('admin.edit')" (click)="openEditForm(circuit)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -168,6 +179,185 @@ import { LanguageService } from '../../core/services/language.service';
 
               <div class="form-actions">
                 <button type="button" class="btn btn-outline" (click)="closeForm()">{{ lang.t('admin.cancel') }}</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                  @if (isSaving()) {
+                    <span class="spinner-small"></span>
+                  }
+                  {{ lang.t('admin.save') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showStagesManager()) {
+      <div class="modal-overlay" (click)="closeStagesManager()">
+        <div class="modal xlarge" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{ lang.t('admin.manageStages') }} - {{ currentCircuit()?.title_fr }}</h3>
+            <button class="btn-close" (click)="closeStagesManager()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="stages-header">
+              <button class="btn btn-primary" (click)="openStageForm()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                {{ lang.t('admin.addStage') }}
+              </button>
+            </div>
+
+            @if (loadingStages()) {
+              <div class="loading">
+                <div class="spinner"></div>
+              </div>
+            } @else if (stages().length === 0) {
+              <div class="empty-state">
+                <p>{{ lang.t('admin.noStages') }}</p>
+              </div>
+            } @else {
+              <div class="stages-list">
+                @for (stage of stages(); track stage.id) {
+                  <div class="stage-item">
+                    <div class="stage-badge">
+                      {{ lang.t('admin.day') }} {{ stage.day_number }} - {{ lang.t('admin.stage') }} {{ stage.stage_number }}
+                    </div>
+                    <div class="stage-info">
+                      <h4>{{ stage.title_fr }}</h4>
+                      <p class="stage-location">{{ stage.location_fr }}</p>
+                      <p class="stage-times">
+                        @if (stage.start_time) {
+                          {{ formatTime(stage.start_time) }}
+                          @if (stage.end_time) {
+                            - {{ formatTime(stage.end_time) }}
+                          }
+                        }
+                        @if (stage.duration_minutes > 0) {
+                          <span class="duration-badge">{{ formatDuration(stage.duration_minutes) }}</span>
+                        }
+                      </p>
+                      @if (stage.images && stage.images.length > 0) {
+                        <div class="stage-images-preview">
+                          @for (img of stage.images.slice(0, 3); track img) {
+                            <img [src]="img" [alt]="stage.title_fr" />
+                          }
+                          @if (stage.images.length > 3) {
+                            <span class="more-images">+{{ stage.images.length - 3 }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                    <div class="stage-actions">
+                      <button class="btn-icon" (click)="editStage(stage)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      <button class="btn-icon danger" (click)="deleteStage(stage)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showStageForm()) {
+      <div class="modal-overlay" (click)="closeStageForm()">
+        <div class="modal large" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{ editingStage() ? lang.t('admin.editStage') : lang.t('admin.addStage') }}</h3>
+            <button class="btn-close" (click)="closeStageForm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveStage()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>{{ lang.t('admin.dayNumber') }}</label>
+                  <input type="number" [(ngModel)]="stageFormData.day_number" name="day_number" min="1" required />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.stageNumber') }}</label>
+                  <input type="number" [(ngModel)]="stageFormData.stage_number" name="stage_number" min="1" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>{{ lang.t('admin.startTime') }}</label>
+                  <input type="time" [(ngModel)]="stageFormData.start_time" name="start_time" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.endTime') }}</label>
+                  <input type="time" [(ngModel)]="stageFormData.end_time" name="end_time" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.durationMinutes') }}</label>
+                  <input type="number" [(ngModel)]="stageFormData.duration_minutes" name="duration_minutes" min="0" />
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Francais</h4>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.titleFr') }}</label>
+                  <input type="text" [(ngModel)]="stageFormData.title_fr" name="title_fr" required />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.locationFr') }}</label>
+                  <input type="text" [(ngModel)]="stageFormData.location_fr" name="location_fr" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.descriptionFr') }}</label>
+                  <textarea [(ngModel)]="stageFormData.description_fr" name="description_fr" rows="4" required></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>English</h4>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.titleEn') }}</label>
+                  <input type="text" [(ngModel)]="stageFormData.title_en" name="title_en" required />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.locationEn') }}</label>
+                  <input type="text" [(ngModel)]="stageFormData.location_en" name="location_en" />
+                </div>
+                <div class="form-group">
+                  <label>{{ lang.t('admin.descriptionEn') }}</label>
+                  <textarea [(ngModel)]="stageFormData.description_en" name="description_en" rows="4" required></textarea>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>{{ lang.t('admin.imagesUrls') }}</label>
+                <input type="text" [(ngModel)]="stageImagesText" name="images" [placeholder]="lang.t('admin.imagesPlaceholder')" />
+                <small>{{ lang.t('admin.imagesHint') }}</small>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-outline" (click)="closeStageForm()">{{ lang.t('admin.cancel') }}</button>
                 <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
                   @if (isSaving()) {
                     <span class="spinner-small"></span>
@@ -355,6 +545,10 @@ import { LanguageService } from '../../core/services/language.service';
       max-width: 700px;
     }
 
+    .modal.xlarge {
+      max-width: 900px;
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -509,6 +703,100 @@ import { LanguageService } from '../../core/services/language.service';
       color: var(--color-white);
     }
 
+    .stages-header {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .stages-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .stage-item {
+      background: var(--color-background-alt);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: start;
+    }
+
+    .stage-badge {
+      background: var(--color-secondary);
+      color: var(--color-white);
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .stage-info {
+      flex-grow: 1;
+    }
+
+    .stage-info h4 {
+      margin: 0 0 var(--spacing-xs);
+      color: var(--color-text);
+    }
+
+    .stage-location {
+      font-size: 0.85rem;
+      color: var(--color-text-light);
+      margin: 0 0 var(--spacing-xs);
+    }
+
+    .stage-times {
+      font-size: 0.85rem;
+      color: var(--color-text-light);
+      margin: 0 0 var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+
+    .duration-badge {
+      background: var(--color-accent);
+      color: var(--color-white);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .stage-images-preview {
+      display: flex;
+      gap: var(--spacing-xs);
+      margin-top: var(--spacing-sm);
+      align-items: center;
+    }
+
+    .stage-images-preview img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+    }
+
+    .more-images {
+      font-size: 0.85rem;
+      color: var(--color-text-light);
+      font-weight: 600;
+    }
+
+    .stage-actions {
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-4xl);
+      color: var(--color-text-light);
+    }
+
     @media (max-width: 600px) {
       .section-header {
         flex-direction: column;
@@ -523,12 +811,22 @@ import { LanguageService } from '../../core/services/language.service';
       .circuits-grid {
         grid-template-columns: 1fr;
       }
+
+      .stage-item {
+        flex-direction: column;
+      }
+
+      .stage-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
     }
   `]
 })
 export class AdminCircuitsComponent implements OnInit {
   lang = inject(LanguageService);
   circuitService = inject(CircuitService);
+  stageService = inject(CircuitStageService);
 
   circuits = signal<Circuit[]>([]);
   isLoading = signal(false);
@@ -540,6 +838,16 @@ export class AdminCircuitsComponent implements OnInit {
   formData: CircuitFormData = this.getEmptyFormData();
   highlightsFrText = '';
   highlightsEnText = '';
+
+  showStagesManager = signal(false);
+  showStageForm = signal(false);
+  stages = signal<CircuitStage[]>([]);
+  loadingStages = signal(false);
+  currentCircuit = signal<Circuit | null>(null);
+  editingStage = signal(false);
+  editingStageId = signal<string | null>(null);
+  stageFormData: CircuitStageFormData = this.getEmptyStageFormData();
+  stageImagesText = '';
 
   ngOnInit(): void {
     this.loadCircuits();
@@ -663,5 +971,136 @@ export class AdminCircuitsComponent implements OnInit {
         await this.loadCircuits();
       }
     }
+  }
+
+  getEmptyStageFormData(): CircuitStageFormData {
+    return {
+      excursion_id: '',
+      day_number: 1,
+      stage_number: 1,
+      title_fr: '',
+      title_en: '',
+      description_fr: '',
+      description_en: '',
+      images: [],
+      duration_minutes: 0,
+      start_time: null,
+      end_time: null,
+      location_fr: '',
+      location_en: '',
+      display_order: 0
+    };
+  }
+
+  async openStagesManager(circuit: Circuit): Promise<void> {
+    this.currentCircuit.set(circuit);
+    this.showStagesManager.set(true);
+    await this.loadStages(circuit.id);
+  }
+
+  closeStagesManager(): void {
+    this.showStagesManager.set(false);
+    this.currentCircuit.set(null);
+    this.stages.set([]);
+  }
+
+  async loadStages(excursionId: string): Promise<void> {
+    this.loadingStages.set(true);
+    const data = await this.stageService.getStagesByExcursionId(excursionId);
+    this.stages.set(data);
+    this.loadingStages.set(false);
+  }
+
+  openStageForm(): void {
+    const circuit = this.currentCircuit();
+    if (!circuit) return;
+
+    this.stageFormData = this.getEmptyStageFormData();
+    this.stageFormData.excursion_id = circuit.id;
+    this.stageImagesText = '';
+    this.editingStage.set(false);
+    this.editingStageId.set(null);
+    this.showStageForm.set(true);
+  }
+
+  editStage(stage: CircuitStage): void {
+    this.stageFormData = {
+      excursion_id: stage.excursion_id,
+      day_number: stage.day_number,
+      stage_number: stage.stage_number,
+      title_fr: stage.title_fr,
+      title_en: stage.title_en,
+      description_fr: stage.description_fr,
+      description_en: stage.description_en,
+      images: stage.images || [],
+      duration_minutes: stage.duration_minutes || 0,
+      start_time: stage.start_time,
+      end_time: stage.end_time,
+      location_fr: stage.location_fr || '',
+      location_en: stage.location_en || '',
+      display_order: stage.display_order
+    };
+    this.stageImagesText = (stage.images || []).join(', ');
+    this.editingStage.set(true);
+    this.editingStageId.set(stage.id);
+    this.showStageForm.set(true);
+  }
+
+  closeStageForm(): void {
+    this.showStageForm.set(false);
+    this.stageFormData = this.getEmptyStageFormData();
+  }
+
+  async saveStage(): Promise<void> {
+    this.isSaving.set(true);
+
+    this.stageFormData.images = this.stageImagesText.split(',').map(s => s.trim()).filter(s => s);
+
+    let success = false;
+    if (this.editingStage() && this.editingStageId()) {
+      success = await this.stageService.updateStage(this.editingStageId()!, this.stageFormData);
+    } else {
+      const created = await this.stageService.createStage(this.stageFormData);
+      success = !!created;
+    }
+
+    this.isSaving.set(false);
+
+    if (success) {
+      this.closeStageForm();
+      const circuit = this.currentCircuit();
+      if (circuit) {
+        await this.loadStages(circuit.id);
+      }
+    }
+  }
+
+  async deleteStage(stage: CircuitStage): Promise<void> {
+    if (confirm(this.lang.t('admin.confirmDeleteStage'))) {
+      const success = await this.stageService.deleteStage(stage.id);
+      if (success) {
+        const circuit = this.currentCircuit();
+        if (circuit) {
+          await this.loadStages(circuit.id);
+        }
+      }
+    }
+  }
+
+  formatTime(time: string): string {
+    if (!time) return '';
+    return time.substring(0, 5);
+  }
+
+  formatDuration(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (mins === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h${mins}`;
   }
 }
