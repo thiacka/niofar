@@ -1,5 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
+import { Promotion, PromotionFormData } from './circuit.service';
 
 export interface Excursion {
   id: string;
@@ -46,6 +47,7 @@ export interface ExcursionFormData {
 })
 export class ExcursionService {
   private supabase = inject(SupabaseService);
+  promotions = signal<Promotion[]>([]);
 
   async loadExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
@@ -108,6 +110,111 @@ export class ExcursionService {
 
     return data || [];
   }
+
+  async loadPromotions(): Promise<Promotion[]> {
+    const { data, error } = await this.supabase.client
+      .from('promotions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching promotions:', error);
+      return [];
+    }
+
+    this.promotions.set(data || []);
+    return data || [];
+  }
+
+  async loadAllPromotions(): Promise<Promotion[]> {
+    const { data, error } = await this.supabase.client
+      .from('promotions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all promotions:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+  
+  async getPromotionByCode(code: string): Promise<Promotion | null> {
+    const { data, error } = await this.supabase.client
+      .from('promotions')
+      .select('*')
+      .eq('code', code.toUpperCase())
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching promotion:', error);
+      return null;
+    }
+
+    return data;
+  }
+  
+    async createPromotion(promotion: PromotionFormData): Promise<Promotion | null> {
+      const { data, error } = await this.supabase.client
+        .from('promotions')
+        .insert({ ...promotion, code: promotion.code.toUpperCase() })
+        .select()
+        .single();
+  
+      if (error) {
+        console.error('Error creating promotion:', error);
+        return null;
+      }
+  
+      return data;
+    }
+  
+    async updatePromotion(id: string, promotion: Partial<PromotionFormData>): Promise<boolean> {
+      const updateData = { ...promotion, updated_at: new Date().toISOString() };
+      if (promotion.code) {
+        updateData.code = promotion.code.toUpperCase();
+      }
+  
+      const { error } = await this.supabase.client
+        .from('promotions')
+        .update(updateData)
+        .eq('id', id);
+  
+      if (error) {
+        console.error('Error updating promotion:', error);
+        return false;
+      }
+  
+      return true;
+    }
+  
+    async deletePromotion(id: string): Promise<boolean> {
+      const { error } = await this.supabase.client
+        .from('promotions')
+        .delete()
+        .eq('id', id);
+  
+      if (error) {
+        console.error('Error deleting promotion:', error);
+        return false;
+      }
+  
+      return true;
+    }
+  
+    async incrementPromotionUsage(id: string): Promise<boolean> {
+      const { error } = await this.supabase.client
+        .rpc('increment_promotion_usage', { promotion_id: id });
+  
+      if (error) {
+        console.error('Error incrementing promotion usage:', error);
+        return false;
+      }
+  
+      return true;
+    }
 
   async createExcursion(formData: ExcursionFormData): Promise<boolean> {
     const { error } = await this.supabase.client

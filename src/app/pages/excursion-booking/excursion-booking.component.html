@@ -1,0 +1,273 @@
+<section class="page-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+        <h1>{{ lang.t('booking.title') }}</h1>
+        <p>{{ lang.t('booking.subtitle') }}</p>
+    </div>
+</section>
+
+<section class="booking section">
+    <div class="container">
+        @if (isLoadingExcursion()) {
+        <div class="loading">
+            <div class="spinner-large"></div>
+        </div>
+        } @else if (excursion()) {
+        <div class="booking-grid">
+            <div class="booking-form-wrapper" appScrollAnimate animationType="fade-right">
+                <div class="selected-excursion">
+                    <img [src]="excursion()!.image_url" [alt]="getTitle()" />
+                    <div class="excursion-info">
+                        <h3>{{ getTitle() }}</h3>
+                        <span class="duration">{{ getDuration() }}</span>
+                        <div class="price">
+                            <span class="price-value">{{ excursion()!.price | number }} FCFA</span>
+                            <span class="price-note">{{ getPriceNote() }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="booking-form" (ngSubmit)="onSubmit()" #bookingForm="ngForm">
+                    <h3>{{ lang.t('booking.details') }}</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">{{ lang.t('booking.firstName') }} *</label>
+                            <input type="text" id="firstName" name="firstName" [(ngModel)]="formData.firstName" required
+                                [disabled]="isSubmitting()" />
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">{{ lang.t('booking.lastName') }} *</label>
+                            <input type="text" id="lastName" name="lastName" [(ngModel)]="formData.lastName" required
+                                [disabled]="isSubmitting()" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">{{ lang.t('contact.email') }} *</label>
+                            <input type="email" id="email" name="email" [(ngModel)]="formData.email" required
+                                [disabled]="isSubmitting()" />
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">{{ lang.t('booking.phone') }}</label>
+                            <input type="tel" id="phone" name="phone" [(ngModel)]="formData.phone"
+                                [disabled]="isSubmitting()" />
+                        </div>
+                    </div>
+
+                    <div class="form-group country-autocomplete">
+                        <label for="country">{{ lang.t('contact.country') }} *</label>
+                        <input type="text" id="country" name="country" [(ngModel)]="formData.country"
+                            (focus)="showCountryDropdown.set(true)" (blur)="onCountryBlur()"
+                            placeholder="{{ lang.t('booking.searchCountry') }}" required [disabled]="isSubmitting()"
+                            autocomplete="off" />
+                        @if (showCountryDropdown() && filteredCountryGroups().length > 0) {
+                        <div class="country-dropdown">
+                            @for (continent of filteredCountryGroups(); track continent.name) {
+                            <div class="country-group">
+                                <div class="country-group-label">{{ continent.name }}</div>
+                                @for (country of continent.countries; track country.name) {
+                                <div class="country-option" (mousedown)="selectCountry(country.name)">
+                                    <span class="country-flag">{{ country.flag }}</span>
+                                    <span class="country-name">{{ country.name }}</span>
+                                </div>
+                                }
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+
+                    <h3>{{ lang.t('booking.tripDetails') }}</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">{{ lang.t('booking.startDate') }} *</label>
+                            <input type="date" id="startDate" name="startDate" [(ngModel)]="formData.startDate" required
+                                [min]="minDate" [disabled]="isSubmitting()" />
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">{{ lang.t('booking.endDate') }}</label>
+                            <input type="date" id="endDate" name="endDate" [(ngModel)]="formData.endDate"
+                                [min]="formData.startDate || minDate" [disabled]="isSubmitting()" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="adults">{{ lang.t('booking.adults') }} *</label>
+                            <select id="adults" name="adults" [(ngModel)]="formData.adults" required
+                                [disabled]="isSubmitting()">
+                                @for (n of [1,2,3,4,5,6,7,8,9,10]; track n) {
+                                <option [value]="n">{{ n }}</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="children">{{ lang.t('booking.children') }}</label>
+                            <select id="children" name="children" [(ngModel)]="formData.children"
+                                [disabled]="isSubmitting()">
+                                @for (n of [0,1,2,3,4,5,6]; track n) {
+                                <option [value]="n">{{ n }}</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialRequests">{{ lang.t('booking.specialRequests') }}</label>
+                        <textarea id="specialRequests" name="specialRequests" rows="4"
+                            [(ngModel)]="formData.specialRequests"
+                            [placeholder]="lang.t('booking.specialRequestsPlaceholder')"
+                            [disabled]="isSubmitting()"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="promotionCode">{{ lang.t('booking.promotionCode') }}</label>
+                        <div class="promo-input-group">
+                            <input type="text" id="promotionCode" name="promotionCode"
+                                [(ngModel)]="formData.promotionCode"
+                                [placeholder]="lang.t('booking.promotionCodePlaceholder')"
+                                [disabled]="isSubmitting() || isCheckingPromo()" (blur)="checkPromotionCode()" />
+                            @if (isCheckingPromo()) {
+                            <span class="promo-status">
+                                <span class="spinner-small"></span>
+                            </span>
+                            }
+                            @if (promoSuccess()) {
+                            <span class="promo-status promo-valid">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </span>
+                            }
+                            @if (promoError()) {
+                            <span class="promo-status promo-invalid">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </span>
+                            }
+                        </div>
+                        @if (promoSuccess() && appliedPromotion()) {
+                        <div class="promo-info">
+                            {{ lang.t('booking.promoApplied') }}:
+                            @if (appliedPromotion()!.discount_type === 'percentage') {
+                            -{{ appliedPromotion()!.discount_value }}%
+                            } @else {
+                            -{{ appliedPromotion()!.discount_value | number }} FCFA
+                            }
+                        </div>
+                        }
+                        @if (promoError()) {
+                        <div class="promo-error">
+                            {{ lang.t('booking.promoInvalid') }}
+                        </div>
+                        }
+                    </div>
+
+                    <div class="estimate-box">
+                        <div class="estimate-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4" />
+                                <path d="M12 8h.01" />
+                            </svg>
+                            <span>{{ lang.t('booking.estimateNote') }}</span>
+                        </div>
+                        <div class="estimate-total">
+                            <span>{{ lang.t('booking.estimatedTotal') }}</span>
+                            <span class="total-value">{{ estimatedTotal() | number }} FCFA</span>
+                        </div>
+                    </div>
+
+                    @if (dateError()) {
+                    <div class="alert alert-error">
+                        {{ lang.t('booking.dateError') }}
+                    </div>
+                    }
+
+                    @if (successMessage()) {
+                    <div class="alert alert-success">
+                        {{ lang.t('booking.success') }}
+                    </div>
+                    }
+
+                    @if (errorMessage()) {
+                    <div class="alert alert-error">
+                        {{ lang.t('booking.error') }}
+                    </div>
+                    }
+
+                    <button type="submit" class="btn btn-primary btn-large"
+                        [disabled]="!bookingForm.valid || isSubmitting()">
+                        @if (isSubmitting()) {
+                        <span class="spinner"></span>
+                        } @else {
+                        {{ lang.t('booking.submit') }}
+                        }
+                    </button>
+
+                    <p class="form-note">{{ lang.t('booking.note') }}</p>
+                </form>
+            </div>
+
+            <div class="booking-sidebar" appScrollAnimate animationType="fade-left" [animationDelay]="200">
+                <div class="help-card">
+                    <h4>{{ lang.t('booking.needHelp') }}</h4>
+                    <p>{{ lang.t('booking.helpText') }}</p>
+                    <div class="contact-options">
+                        <a href="mailto:contact@niofar.com" class="contact-option">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            <span>contact&#64;niofar.com</span>
+                        </a>
+                        <a href="tel:+221338226699" class="contact-option">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            <span>+221 33 822 66 99</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4>{{ lang.t('booking.included') }}</h4>
+                    <ul>
+                        <li>{{ lang.t('booking.includedGuide') }}</li>
+                        <li>{{ lang.t('booking.includedTransport') }}</li>
+                        <li>{{ lang.t('booking.includedEntrance') }}</li>
+                    </ul>
+                </div>
+
+                <a routerLink="/circuits" class="back-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5" />
+                        <polyline points="12 19 5 12 12 5" />
+                    </svg>
+                    {{ lang.t('booking.backToCircuits') }}
+                </a>
+            </div>
+        </div>
+        } @else {
+        <div class="not-found">
+            <h2>{{ lang.t('booking.notFound') }}</h2>
+            <a routerLink="/circuits" class="btn btn-primary">{{ lang.t('booking.browseCircuits') }}</a>
+        </div>
+        }
+    </div>
+</section>

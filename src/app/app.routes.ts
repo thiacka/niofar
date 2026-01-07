@@ -30,6 +30,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking/booking.component').then(m => m.BookingComponent)
   },
   {
+    path: 'excursion-booking/:excursionId',
+    loadComponent: () => import('./pages/excursion-booking/excursion-booking.component').then(m => m.ExcursionBookingComponent)
+  },
+  {
     path: 'confirmation/:reference',
     loadComponent: () => import('./pages/confirmation/confirmation.component').then(m => m.ConfirmationComponent)
   },
