@@ -77,7 +77,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
                       <span class="price-value">{{ excursion.price | number }} FCFA</span>
                       <span class="price-note">{{ getPriceNote(excursion) }}</span>
                     </div>
-                    <a [routerLink]="['/booking', excursion.slug]" class="btn btn-primary">{{ lang.t('excursions.book') }}</a>
+                    <a [routerLink]="['/excursion-booking', excursion.slug]" class="btn btn-primary">{{ lang.t('excursions.book') }}</a>
                   </div>
                 </div>
               </div>
@@ -432,7 +432,7 @@ export class ExcursionsComponent implements OnInit {
 
   async loadExcursions(): Promise<void> {
     this.isLoading.set(true);
-    const data = await this.excursionService.loadExcursions();
+    const data = await this.excursionService.loadAllExcursions();
     this.excursions.set(data);
     this.isLoading.set(false);
   }

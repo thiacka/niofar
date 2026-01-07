@@ -5,7 +5,7 @@ import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
-import { CircuitService } from '../../core/services/circuit.service';
+import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 
 @Component({
@@ -860,10 +860,9 @@ export class BookingComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private bookingService = inject(BookingService);
-  private excursionService = inject(ExcursionService);
   private circuitService = inject(CircuitService);
 
-  excursion = signal<Excursion | null>(null);
+  excursion = signal<Circuit | null>(null);
   isLoadingExcursion = signal(true);
   isSubmitting = signal(false);
   successMessage = signal(false);
@@ -1071,7 +1070,7 @@ export class BookingComponent implements OnInit {
 
   async loadExcursion(slug: string): Promise<void> {
     this.isLoadingExcursion.set(true);
-    const found = await this.excursionService.getExcursionBySlug(slug);
+    const found = await this.circuitService.getCircuitBySlug(slug);
     this.excursion.set(found);
     this.isLoadingExcursion.set(false);
   }

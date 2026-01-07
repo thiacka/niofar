@@ -134,17 +134,18 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
               {{ lang.t('admin.images') }}
             </button>
             <button
-              [class.active]="activeTab() === 'users'"
-              (click)="setTab('users')"
-            >
-              {{ lang.t('admin.users') }}
-              </button>
-            <button
               class="tab"
               [class.active]="activeTab() === 'content'"
               (click)="setTab('content')"
             >
               Contenu
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'users'"
+              (click)="setTab('users')"
+            >
+              {{ lang.t('admin.users') }}
             </button>
           </div>
 

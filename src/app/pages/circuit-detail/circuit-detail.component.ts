@@ -5,6 +5,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { CircuitStageService, CircuitStage } from '../../core/services/circuit-stage.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
+import { Circuit, CircuitService } from '../../core/services/circuit.service';
 
 interface DayStages {
   dayNumber: number;
@@ -617,10 +618,10 @@ interface DayStages {
 export class CircuitDetailComponent implements OnInit {
   lang = inject(LanguageService);
   private route = inject(ActivatedRoute);
-  private excursionService = inject(ExcursionService);
+  private circuitService = inject(CircuitService);
   private stageService = inject(CircuitStageService);
 
-  circuit = signal<Excursion | null>(null);
+  circuit = signal<Circuit | null>(null);
   stages = signal<CircuitStage[]>([]);
   isLoading = signal(true);
 
@@ -655,7 +656,7 @@ export class CircuitDetailComponent implements OnInit {
 
   async loadCircuit(slug: string): Promise<void> {
     this.isLoading.set(true);
-    const excursion = await this.excursionService.getExcursionBySlug(slug);
+    const excursion = await this.circuitService.getCircuitBySlug(slug);
     this.circuit.set(excursion);
 
     if (excursion) {

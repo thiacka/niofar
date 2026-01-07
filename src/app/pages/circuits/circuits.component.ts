@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
+import { Circuit, CircuitService } from '../../core/services/circuit.service';
+import { CircuitStageService } from '../../core/services/circuit-stage.service';
 
 @Component({
   selector: 'app-circuits',
@@ -447,9 +449,10 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 })
 export class CircuitsComponent implements OnInit {
   lang = inject(LanguageService);
-  excursionService = inject(ExcursionService);
+    circuitService = inject(CircuitService);
+    stageService = inject(CircuitStageService);
 
-  circuits = signal<Excursion[]>([]);
+  circuits = signal<Circuit[]>([]);
   isLoading = signal(true);
 
   ngOnInit(): void {
@@ -458,28 +461,29 @@ export class CircuitsComponent implements OnInit {
 
   async loadCircuits(): Promise<void> {
     this.isLoading.set(true);
-    const data = await this.excursionService.loadMultiDayTours();
+    const data = await this.circuitService.loadCircuits();
+    console.log('Loaded circuits:', data);
     this.circuits.set(data);
     this.isLoading.set(false);
   }
 
-  getTitle(circuit: Excursion): string {
+  getTitle(circuit: Circuit): string {
     return this.lang.language() === 'fr' ? circuit.title_fr : circuit.title_en;
   }
 
-  getDuration(circuit: Excursion): string {
+  getDuration(circuit: Circuit): string {
     return this.lang.language() === 'fr' ? circuit.duration_fr : circuit.duration_en;
   }
 
-  getDescription(circuit: Excursion): string {
+  getDescription(circuit: Circuit): string {
     return this.lang.language() === 'fr' ? circuit.description_fr : circuit.description_en;
   }
 
-  getHighlights(circuit: Excursion): string[] {
+  getHighlights(circuit: Circuit): string[] {
     return this.lang.language() === 'fr' ? circuit.highlights_fr : circuit.highlights_en;
   }
 
-  getPriceNote(circuit: Excursion): string {
+  getPriceNote(circuit: Circuit): string {
     return this.lang.language() === 'fr' ? circuit.price_note_fr : circuit.price_note_en;
   }
 }
