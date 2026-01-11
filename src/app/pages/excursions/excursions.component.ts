@@ -96,7 +96,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
             <a routerLink="/contact" class="btn btn-secondary">{{ lang.t('excursions.custom.cta') }}</a>
           </div>
           <div class="custom-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Custom excursion" />
+            <img src="https://media.istockphoto.com/id/472667440/fr/photo/carte-avec-drapeau-du-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=WO3M11Rq6jnoU8SFQt9tJ-MJqb-JvlNy6VEPTm1BhF0=" alt="Custom excursion" />
           </div>
         </div>
       </div>
