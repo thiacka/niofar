@@ -98,7 +98,7 @@ import { CircuitStageService } from '../../core/services/circuit-stage.service';
             <a routerLink="/contact" class="btn btn-secondary">{{ lang.t('circuits.custom.cta') }}</a>
           </div>
           <div class="custom-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Custom circuit" />
+            <img src="https://media.istockphoto.com/id/472667440/fr/photo/carte-avec-drapeau-du-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=WO3M11Rq6jnoU8SFQt9tJ-MJqb-JvlNy6VEPTm1BhF0=" alt="Custom circuit" />
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@ import { CircuitStageService } from '../../core/services/circuit-stage.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background: url('https://media.istockphoto.com/id/2207122559/fr/photo/greniers-%C3%A0-mil-%C3%A0-joal-fadiouth-au-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=EPHk9ZVTLqMBrYRniuCFdmEeAeYMLQhiMagAKT-IXc4=') center/cover no-repeat;
     }
 
     .hero-overlay {

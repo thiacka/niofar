@@ -545,10 +545,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   prevSlide = signal(-1);
   discoverImage = signal('https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800');
   experiencesGallery = signal<Array<{ image: string; labelKey: string }>>([
-    { image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.cultural' },
-    { image: 'https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.nature' },
-    { image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.traditions' },
-    { image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600', labelKey: 'experiences.lifestyle' }
+    { image: 'https://media.istockphoto.com/id/2207596598/fr/photo/figurines-africaines-en-bois-en-vente-sur-le-march%C3%A9-%C3%A0-joal-fadiuth-au-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=Ua7ezVZq8GVYn7c_UCW6Aw2mI0GNmFCrauWy-ZtUxF0=', labelKey: 'experiences.cultural.title' },
+    { image: 'https://media.istockphoto.com/id/1200689275/fr/photo/extrait-du-sel-du-lac.jpg?s=612x612&w=0&k=20&c=R47um58ZljNs53AN00PUnrHFiM9CWEg5Zz5c0fpMpeU=', labelKey: 'experiences.nature.title' },
+    { image: 'https://media.istockphoto.com/id/2191998179/fr/photo/danse-kumpo-avec-des-masques-au-s%C3%A9n%C3%A9gal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=iEsbWIW71SDkNXxAR3enLNG8Msvbcrgbb05uqcLYiNE=', labelKey: 'experiences.traditions.title' },
+    { image: 'https://media.istockphoto.com/id/1039841242/fr/photo/homme-non-identifi%C3%A9-de-diola-dans-un-costume-de-foin-se-d%C3%A9place-au-cours-dune-danse.jpg?s=612x612&w=0&k=20&c=SageibHHel3p9so3fGyu9EC_Lz-rzIFyhcTaPKV2Ojk=', labelKey: 'experiences.lifestyle.title' }
   ]);
   private autoPlayInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -604,13 +604,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const experiencesImages = images.filter(img => img.section === 'experiences' && img.is_active);
     if (experiencesImages.length > 0) {
-      const labelKeys = ['experiences.cultural', 'experiences.nature', 'experiences.traditions', 'experiences.lifestyle'];
+      const labelKeys = ['experiences.cultural.title', 'experiences.nature.title', 'experiences.traditions.title', 'experiences.lifestyle.title'];
       this.experiencesGallery.set(
         experiencesImages
           .sort((a, b) => a.display_order - b.display_order)
           .map((img, index) => ({
             image: img.image_url,
-            labelKey: labelKeys[index] || 'experiences.cultural'
+            labelKey: labelKeys[index] || 'experiences.cultural.title'
           }))
       );
     }

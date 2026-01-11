@@ -104,7 +104,7 @@ import { PageImageService } from '../../core/services/page-image.service';
             <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local culture" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Village life" />
+            <img src="https://media.istockphoto.com/id/1039841242/fr/photo/homme-non-identifi%C3%A9-de-diola-dans-un-costume-de-foin-se-d%C3%A9place-au-cours-dune-danse.jpg?s=612x612&w=0&k=20&c=SageibHHel3p9so3fGyu9EC_Lz-rzIFyhcTaPKV2Ojk=" alt="Village life" />
           </div>
           <div class="gallery-item">
             <img src="https://images.pexels.com/photos/17836961/pexels-photo-17836961.jpeg?auto=compress&cs=tinysrgb&w=600" alt="People of Senegal" />
