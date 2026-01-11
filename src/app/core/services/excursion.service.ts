@@ -111,6 +111,21 @@ export class ExcursionService {
     return data || [];
   }
 
+  async loadActiveExcursions(): Promise<Excursion[]> {
+    const { data, error } = await this.supabase.client
+      .from('excursions')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('Error loading active excursions:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
   async loadPromotions(): Promise<Promotion[]> {
     const { data, error } = await this.supabase.client
       .from('promotions')

@@ -432,7 +432,7 @@ export class ExcursionsComponent implements OnInit {
 
   async loadExcursions(): Promise<void> {
     this.isLoading.set(true);
-    const data = await this.excursionService.loadAllExcursions();
+    const data = await this.excursionService.loadActiveExcursions();
     this.excursions.set(data);
     this.isLoading.set(false);
   }
