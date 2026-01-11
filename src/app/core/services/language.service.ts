@@ -22,7 +22,7 @@ const translations: Translations = {
   'hero.title': { en: 'Discover the Real Senegal', fr: 'Decouvrez le vrai Senegal' },
   'hero.subtitle': { en: 'Authentic travel experiences, human encounters and unforgettable memories.', fr: 'Experiences de voyage authentiques, rencontres humaines et souvenirs inoubliables.' },
   'hero.cta': { en: 'Book your experience', fr: 'Reservez votre experience' },
-  'hero.slogan': { en: 'Africa so close', fr: 'L\'Afrique si proche' },
+  'hero.slogan': { en: 'Discovering the real Senegal', fr: 'À la découverte du vrai Sénégal' },
 
   'hero.slide1.title': { en: 'Pink Lake', fr: 'Lac Rose' },
   'hero.slide1.subtitle': { en: 'A unique natural wonder', fr: 'Une merveille naturelle unique' },
