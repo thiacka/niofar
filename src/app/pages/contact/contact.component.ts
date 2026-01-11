@@ -121,7 +121,7 @@ import { ContactMessage } from '../../core/models/contact.model';
                   </div>
                   <div class="info-content">
                     <span class="info-label">Email</span>
-                    <span class="info-value">contact&#64;niofar.com</span>
+                    <span class="info-value">contact&#64;niofartourisme.com</span>
                   </div>
                 </div>
 
@@ -134,7 +134,7 @@ import { ContactMessage } from '../../core/models/contact.model';
                   </div>
                   <div class="info-content">
                     <span class="info-label">{{ lang.t('contact.location') }}</span>
-                    <span class="info-value">Dakar, Senegal</span>
+                    <span class="info-value">Saly Portudal, M'bour, Senegal</span>
                   </div>
                 </div>
               </div>
@@ -142,13 +142,13 @@ import { ContactMessage } from '../../core/models/contact.model';
 
             <div class="map-container">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d61803.41661080513!2d-17.509444!3d14.716677!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec172f5b3c5bb71%3A0xb17c17d92d5f9356!2sDakar%2C%20Senegal!5e0!3m2!1sen!2sus!4v1703987600000!5m2!1sen!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d39597.62481450568!2d-16.9889904!3d14.443593!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f11.8!3m3!1m2!1s0xec18980177cde4b%3A0x1d3d898fde2cd7df!2sSaly%20Portudal%2C%20S%C3%A9n%C3%A9gal!5e0!3m2!1sfr!2sfr!4v1700000000006"
                 allowfullscreen
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
               ></iframe>
               <a
-                href="https://www.google.com/maps/place/Dakar,+Senegal/@14.716677,-17.509444,12z"
+                href="https://www.google.com/maps/place/Saly,+S%C3%A9n%C3%A9gal/@14.4440182,-17.028875,14.3z"
                 target="_blank"
                 rel="noopener"
                 class="map-link"
