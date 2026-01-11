@@ -51,7 +51,7 @@ export class ExcursionService {
 
   async loadExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .from('excursions')
+      .from('excursions_view')
       .select('*')
       .eq('is_active', true)
       .eq('is_multi_day', false)
@@ -67,7 +67,7 @@ export class ExcursionService {
 
   async loadMultiDayTours(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .from('excursions')
+      .from('excursions_view')
       .select('*')
       .eq('is_active', true)
       .eq('is_multi_day', true)
@@ -83,7 +83,7 @@ export class ExcursionService {
 
   async getExcursionBySlug(slug: string): Promise<Excursion | null> {
     const { data, error } = await this.supabase.client
-      .from('excursions')
+      .from('excursions_view')
       .select('*')
       .eq('slug', slug)
       .eq('is_active', true)
@@ -99,7 +99,7 @@ export class ExcursionService {
 
   async loadAllExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .from('excursions')
+      .from('excursions_view')
       .select('*')
       .order('display_order', { ascending: true });
 
@@ -113,7 +113,7 @@ export class ExcursionService {
 
   async loadActiveExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .from('excursions')
+      .from('excursions_view')
       .select('*')
       .eq('is_active', true)
       .order('display_order', { ascending: true });
