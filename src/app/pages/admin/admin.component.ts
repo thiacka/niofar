@@ -11,13 +11,14 @@ import { AdminDashboardComponent } from './admin-dashboard.component';
 import { AdminImagesComponent } from './admin-images.component';
 import { EditModeService } from '../../core/services/edit-mode.service';
 import { AdminUsersComponent } from './admin-users.component';
+import { AdminRentalsComponent } from './admin-rentals.component';
 
-type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions' | 'promotions' | 'images' | 'users' | 'content';
+type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions' | 'rentals' | 'promotions' | 'images' | 'users' | 'content';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminExcursionsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent, AdminUsersComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, RouterLink, AdminCircuitsComponent, AdminExcursionsComponent, AdminPromotionsComponent, AdminDashboardComponent, AdminImagesComponent, AdminUsersComponent, AdminRentalsComponent],
   template: `
     <div class="admin-container">
       @if (!adminService.isAuthenticated()) {
@@ -118,6 +119,13 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
               (click)="setTab('excursions')"
             >
               {{ lang.t('admin.excursions') }}
+            </button>
+            <button
+              class="tab"
+              [class.active]="activeTab() === 'rentals'"
+              (click)="setTab('rentals')"
+            >
+              Locations
             </button>
             <button
               class="tab"
@@ -301,6 +309,10 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
 
             @if (activeTab() === 'excursions') {
               <app-admin-excursions />
+            }
+
+            @if (activeTab() === 'rentals') {
+              <app-admin-rentals />
             }
 
             @if (activeTab() === 'promotions') {
