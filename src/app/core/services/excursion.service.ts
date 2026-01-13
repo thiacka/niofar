@@ -51,26 +51,36 @@ export class ExcursionService {
 
   async loadExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .rpc('get_active_excursions');
+      .from('excursions')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_multi_day', false)
+      .order('display_order', { ascending: true })
+      .order('title_fr', { ascending: true });
 
     if (error) {
       console.error('Error loading excursions:', error);
       return [];
     }
 
-    return (data || []).filter((excursion: Excursion) => !excursion.is_multi_day);
+    return data || [];
   }
 
   async loadMultiDayTours(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .rpc('get_active_excursions');
+      .from('excursions')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_multi_day', true)
+      .order('display_order', { ascending: true })
+      .order('title_fr', { ascending: true });
 
     if (error) {
       console.error('Error loading multi-day tours:', error);
       return [];
     }
 
-    return (data || []).filter((excursion: Excursion) => excursion.is_multi_day);
+    return data || [];
   }
 
   async getExcursionBySlug(slug: string): Promise<Excursion | null> {
@@ -91,7 +101,10 @@ export class ExcursionService {
 
   async loadAllExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .rpc('get_all_excursions');
+      .from('excursions')
+      .select('*')
+      .order('display_order', { ascending: true })
+      .order('title_fr', { ascending: true });
 
     if (error) {
       console.error('Error loading all excursions:', error);
@@ -103,7 +116,11 @@ export class ExcursionService {
 
   async loadActiveExcursions(): Promise<Excursion[]> {
     const { data, error } = await this.supabase.client
-      .rpc('get_active_excursions');
+      .from('excursions')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+      .order('title_fr', { ascending: true });
 
     if (error) {
       console.error('Error loading active excursions:', error);
