@@ -1,17 +1,17 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -36,7 +36,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                   <h3>{{ getTitle() }}</h3>
                   <span class="duration">{{ getDuration() }}</span>
                   <div class="price">
-                    <span class="price-value">{{ excursion()!.price | number }} FCFA</span>
+                    <span class="price-value">{{ excursion()!.price | currencyConverter }}</span>
                     <span class="price-note">{{ getPriceNote() }}</span>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                       @if (appliedPromotion()!.discount_type === 'percentage') {
                         -{{ appliedPromotion()!.discount_value }}%
                       } @else {
-                        -{{ appliedPromotion()!.discount_value | number }} FCFA
+                        -{{ appliedPromotion()!.discount_value | currencyConverter }}
                       }
                     </div>
                   }
@@ -259,7 +259,7 @@ import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.d
                   </div>
                   <div class="estimate-total">
                     <span>{{ lang.t('booking.estimatedTotal') }}</span>
-                    <span class="total-value">{{ estimatedTotal() | number }} FCFA</span>
+                    <span class="total-value">{{ estimatedTotal() | currencyConverter }}</span>
                   </div>
                 </div>
 

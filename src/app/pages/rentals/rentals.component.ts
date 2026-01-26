@@ -1,14 +1,14 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { RentalService, Rental } from '../../core/services/rental.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-rentals',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -72,7 +72,7 @@ import { RentalService, Rental } from '../../core/services/rental.service';
                         {{ vehicle.capacity }} {{ lang.t('rentals.passengers') }}
                       </div>
                       <div class="rental-price">
-                        <span class="price-value">{{ vehicle.price_per_day | number }} FCFA</span>
+                        <span class="price-value">{{ vehicle.price_per_day | currencyConverter }}</span>
                         <span class="price-note">{{ lang.t('rentals.perDay') }}</span>
                       </div>
                     </div>
@@ -131,7 +131,7 @@ import { RentalService, Rental } from '../../core/services/rental.service';
                         {{ incentive.capacity }} {{ lang.t('rentals.people') }}
                       </div>
                       <div class="rental-price">
-                        <span class="price-value">{{ incentive.price_per_day | number }} FCFA</span>
+                        <span class="price-value">{{ incentive.price_per_day | currencyConverter }}</span>
                         <span class="price-note">{{ getPriceNote(incentive) }}</span>
                       </div>
                     </div>
@@ -190,7 +190,7 @@ import { RentalService, Rental } from '../../core/services/rental.service';
                         {{ boat.capacity }} {{ lang.t('rentals.guests') }}
                       </div>
                       <div class="rental-price">
-                        <span class="price-value">{{ boat.price_per_day | number }} FCFA</span>
+                        <span class="price-value">{{ boat.price_per_day | currencyConverter }}</span>
                         <span class="price-note">{{ getPriceNote(boat) }}</span>
                       </div>
                     </div>

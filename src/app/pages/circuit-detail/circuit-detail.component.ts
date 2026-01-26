@@ -1,10 +1,11 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DecimalPipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { Circuit, CircuitService, ItineraryDay } from '../../core/services/circuit.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 interface DayWithImage extends ItineraryDay {
   excursion_image?: string;
@@ -13,7 +14,7 @@ interface DayWithImage extends ItineraryDay {
 @Component({
   selector: 'app-circuit-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [CommonModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero" [style.background-image]="'url(' + (circuit()?.image_url || '') + ')'">
       <div class="hero-overlay"></div>
@@ -75,7 +76,7 @@ interface DayWithImage extends ItineraryDay {
               <div class="price-card">
                 <div class="price-header">
                   <span class="price-label">{{ lang.t('circuits.from') }}</span>
-                  <div class="price-value">{{ circuit()!.price | number }} <span class="currency">FCFA</span></div>
+                  <div class="price-value">{{ circuit()!.price | currencyConverter }}</div>
                   <span class="price-note">{{ getPriceNote() }}</span>
                 </div>
                 <a [routerLink]="['/booking', circuit()!.slug]" class="btn btn-primary btn-large">

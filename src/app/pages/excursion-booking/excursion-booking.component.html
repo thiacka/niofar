@@ -21,7 +21,7 @@
                         <h3>{{ getTitle() }}</h3>
                         <span class="duration">{{ getDuration() }}</span>
                         <div class="price">
-                            <span class="price-value">{{ excursion()!.price | number }} FCFA</span>
+                            <span class="price-value">{{ excursion()!.price | currencyConverter }}</span>
                             <span class="price-note">{{ getPriceNote() }}</span>
                         </div>
                     </div>
@@ -159,7 +159,7 @@
                             @if (appliedPromotion()!.discount_type === 'percentage') {
                             -{{ appliedPromotion()!.discount_value }}%
                             } @else {
-                            -{{ appliedPromotion()!.discount_value | number }} FCFA
+                            -{{ appliedPromotion()!.discount_value | currencyConverter }}
                             }
                         </div>
                         }
@@ -183,7 +183,7 @@
                         </div>
                         <div class="estimate-total">
                             <span>{{ lang.t('booking.estimatedTotal') }}</span>
-                            <span class="total-value">{{ estimatedTotal() | number }} FCFA</span>
+                            <span class="total-value">{{ estimatedTotal() | currencyConverter }}</span>
                         </div>
                     </div>
 
