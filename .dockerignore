@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+README.md
+.env
+.env.local
+.angular
+certbot
+docker-compose.yml
+Dockerfile
+nginx.conf
+init-letsencrypt.sh
+.bolt
+.claude
