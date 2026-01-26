@@ -3,13 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DecimalPipe, CommonModule } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
-import { CircuitStageService, CircuitStage } from '../../core/services/circuit-stage.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
-import { Circuit, CircuitService } from '../../core/services/circuit.service';
+import { Circuit, CircuitService, ItineraryDay } from '../../core/services/circuit.service';
 
-interface DayStages {
-  dayNumber: number;
-  stages: CircuitStage[];
+interface DayWithImage extends ItineraryDay {
+  excursion_image?: string;
 }
 
 @Component({
@@ -98,7 +96,7 @@ interface DayStages {
         </div>
       </section>
 
-      @if (groupedStages().length > 0) {
+      @if (itineraryDays().length > 0) {
         <section class="itinerary-section section" style="background: var(--color-background-alt);">
           <div class="container">
             <div class="section-header" appScrollAnimate>
@@ -107,73 +105,76 @@ interface DayStages {
             </div>
 
             <div class="itinerary-timeline">
-              @for (dayGroup of groupedStages(); track dayGroup.dayNumber; let dayIndex = $index) {
-                <div class="day-section" appScrollAnimate [animationDelay]="dayIndex * 100">
-                  <div class="day-header">
-                    <div class="day-number">
-                      <span>{{ lang.t('circuits.day') }} {{ dayGroup.dayNumber }}</span>
+              @for (day of itineraryDays(); track day.day; let dayIndex = $index; let isLast = $last) {
+                <div class="day-card" appScrollAnimate [animationDelay]="dayIndex * 100">
+                  <div class="day-card-inner">
+                    <div class="day-image-section">
+                      <img [src]="day.excursion_image || circuit()!.image_url" [alt]="getDayTitle(day)" class="day-image" />
+                      <div class="day-badge">
+                        <span class="day-label">{{ lang.t('circuits.day') }}</span>
+                        <span class="day-number-large">{{ day.day }}</span>
+                      </div>
+                    </div>
+
+                    <div class="day-content-section">
+                      <div class="day-header-content">
+                        <h3 class="day-title">{{ getDayTitle(day) }}</h3>
+                        @if (getDayLocation(day)) {
+                          <div class="day-location">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                              <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            <span>{{ getDayLocation(day) }}</span>
+                          </div>
+                        }
+                      </div>
+
+                      <p class="day-description">{{ getDayDescription(day) }}</p>
+
+                      <div class="day-details-grid">
+                        @if (getDayAccommodation(day)) {
+                          <div class="day-detail-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/>
+                              <path d="M3 9V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/>
+                              <path d="M9 21v-6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v6"/>
+                            </svg>
+                            <div>
+                              <span class="detail-label">{{ lang.t('booking.accommodation') }}</span>
+                              <span class="detail-value">{{ getDayAccommodation(day) }}</span>
+                            </div>
+                          </div>
+                        }
+
+                        @if (getDayMeals(day)) {
+                          <div class="day-detail-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2"/>
+                              <path d="M6 8h8"/>
+                              <path d="M6 12h8"/>
+                              <path d="M6 16h8"/>
+                              <path d="M2 8h2"/>
+                              <path d="M2 12h2"/>
+                              <path d="M2 16h2"/>
+                            </svg>
+                            <div>
+                              <span class="detail-label">{{ lang.t('booking.meals') }}</span>
+                              <span class="detail-value">{{ getDayMeals(day) }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
                     </div>
                   </div>
 
-                  <div class="stages-container">
-                    @for (stage of dayGroup.stages; track stage.id; let stageIndex = $index) {
-                      <div class="stage-card">
-                        <div class="stage-timeline">
-                          <div class="timeline-dot"></div>
-                          @if (stageIndex < dayGroup.stages.length - 1) {
-                            <div class="timeline-line"></div>
-                          }
-                        </div>
-
-                        <div class="stage-content">
-                          <div class="stage-time">
-                            @if (stage.start_time) {
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                              </svg>
-                              {{ formatTime(stage.start_time) }}
-                              @if (stage.end_time) {
-                                - {{ formatTime(stage.end_time) }}
-                              }
-                            }
-                          </div>
-
-                          <h4>{{ getStageTitle(stage) }}</h4>
-
-                          @if (getStageLocation(stage)) {
-                            <div class="stage-location">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                              </svg>
-                              {{ getStageLocation(stage) }}
-                            </div>
-                          }
-
-                          <p class="stage-description">{{ getStageDescription(stage) }}</p>
-
-                          @if (stage.images && stage.images.length > 0) {
-                            <div class="stage-images">
-                              @for (image of stage.images; track image) {
-                                <img [src]="image" [alt]="getStageTitle(stage)" />
-                              }
-                            </div>
-                          }
-
-                          @if (stage.duration_minutes > 0) {
-                            <div class="stage-duration">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                              </svg>
-                              {{ formatDuration(stage.duration_minutes) }}
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
+                  @if (!isLast) {
+                    <div class="day-connector">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    </div>
+                  }
                 </div>
               }
             </div>
@@ -413,124 +414,178 @@ interface DayStages {
     }
 
     .itinerary-timeline {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
-    .day-section {
-      margin-bottom: var(--spacing-4xl);
+    .day-card {
+      position: relative;
+      margin-bottom: var(--spacing-3xl);
     }
 
-    .day-header {
-      margin-bottom: var(--spacing-xl);
-    }
-
-    .day-number {
-      display: inline-block;
-      background: var(--color-primary);
-      color: var(--color-white);
-      padding: var(--spacing-sm) var(--spacing-xl);
-      border-radius: var(--radius-full);
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .stages-container {
+    .day-card-inner {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 0;
       background: var(--color-white);
       border-radius: var(--radius-xl);
-      padding: var(--spacing-2xl);
-      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
     }
 
-    .stage-card {
-      display: grid;
-      grid-template-columns: 40px 1fr;
-      gap: var(--spacing-lg);
-      padding: var(--spacing-xl) 0;
+    .day-card-inner:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(61, 43, 31, 0.15);
     }
 
-    .stage-card:not(:last-child) {
-      border-bottom: 1px solid rgba(61, 43, 31, 0.1);
-    }
-
-    .stage-timeline {
+    .day-image-section {
       position: relative;
+      overflow: hidden;
+    }
+
+    .day-image {
+      width: 100%;
+      height: 100%;
+      min-height: 350px;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+
+    .day-card-inner:hover .day-image {
+      transform: scale(1.05);
+    }
+
+    .day-badge {
+      position: absolute;
+      top: var(--spacing-lg);
+      left: var(--spacing-lg);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: var(--color-white);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: var(--spacing-xs);
+      min-width: 70px;
     }
 
-    .timeline-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--color-secondary);
-      border: 3px solid var(--color-white);
-      box-shadow: 0 0 0 2px var(--color-secondary);
-      z-index: 1;
+    .day-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.9;
+      font-weight: 600;
     }
 
-    .timeline-line {
-      position: absolute;
-      top: 16px;
-      width: 2px;
-      height: calc(100% + var(--spacing-xl) * 2);
-      background: linear-gradient(to bottom, var(--color-secondary), rgba(43, 138, 138, 0.3));
+    .day-number-large {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
     }
 
-    .stage-content h4 {
+    .day-content-section {
+      padding: var(--spacing-2xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    .day-header-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .day-title {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
       color: var(--color-primary);
-      margin-bottom: var(--spacing-sm);
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0;
     }
 
-    .stage-time {
+    .day-location {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      font-size: 0.9rem;
+      gap: var(--spacing-sm);
       color: var(--color-secondary);
       font-weight: 600;
-      margin-bottom: var(--spacing-sm);
+      font-size: 0.95rem;
     }
 
-    .stage-location {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xs);
-      font-size: 0.85rem;
-      color: var(--color-text-light);
-      margin-bottom: var(--spacing-md);
+    .day-location svg {
+      flex-shrink: 0;
     }
 
-    .stage-description {
+    .day-description {
       color: var(--color-text);
-      line-height: 1.7;
-      margin-bottom: var(--spacing-lg);
+      line-height: 1.8;
+      font-size: 1rem;
+      margin: 0;
     }
 
-    .stage-images {
+    .day-details-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 2px solid var(--color-background-alt);
+    }
+
+    .day-detail-item {
+      display: flex;
+      align-items: flex-start;
       gap: var(--spacing-md);
-      margin-bottom: var(--spacing-lg);
     }
 
-    .stage-images img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: var(--radius-md);
+    .day-detail-item svg {
+      flex-shrink: 0;
+      color: var(--color-accent);
+      margin-top: 2px;
     }
 
-    .stage-duration {
-      display: inline-flex;
-      align-items: center;
+    .day-detail-item > div {
+      display: flex;
+      flex-direction: column;
       gap: var(--spacing-xs);
-      padding: var(--spacing-xs) var(--spacing-md);
-      background: var(--color-background-alt);
-      border-radius: var(--radius-full);
-      font-size: 0.85rem;
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       color: var(--color-text-light);
+      font-weight: 600;
+    }
+
+    .detail-value {
+      font-size: 0.95rem;
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    .day-connector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+      color: var(--color-secondary);
+      opacity: 0.5;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
     }
 
     .cta-section {
@@ -601,16 +656,58 @@ interface DayStages {
       .hero-content h1 {
         font-size: 2rem;
       }
+
+      .day-card-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .day-image-section {
+        min-height: 280px;
+      }
+
+      .day-image {
+        min-height: 280px;
+      }
+
+      .day-title {
+        font-size: 1.5rem;
+      }
+
+      .day-content-section {
+        padding: var(--spacing-xl);
+      }
     }
 
     @media (max-width: 600px) {
-      .stage-card {
-        grid-template-columns: 30px 1fr;
-        gap: var(--spacing-md);
+      .day-badge {
+        top: var(--spacing-md);
+        left: var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-md);
+        min-width: 60px;
       }
 
-      .stage-images {
+      .day-label {
+        font-size: 0.65rem;
+      }
+
+      .day-number-large {
+        font-size: 1.5rem;
+      }
+
+      .day-title {
+        font-size: 1.3rem;
+      }
+
+      .day-content-section {
+        padding: var(--spacing-lg);
+      }
+
+      .day-details-grid {
         grid-template-columns: 1fr;
+      }
+
+      .day-connector {
+        height: 40px;
       }
     }
   `]
@@ -619,29 +716,11 @@ export class CircuitDetailComponent implements OnInit {
   lang = inject(LanguageService);
   private route = inject(ActivatedRoute);
   private circuitService = inject(CircuitService);
-  private stageService = inject(CircuitStageService);
+  private excursionService = inject(ExcursionService);
 
   circuit = signal<Circuit | null>(null);
-  stages = signal<CircuitStage[]>([]);
+  itineraryDays = signal<DayWithImage[]>([]);
   isLoading = signal(true);
-
-  groupedStages = computed(() => {
-    const allStages = this.stages();
-    const grouped = new Map<number, CircuitStage[]>();
-
-    allStages.forEach(stage => {
-      const existing = grouped.get(stage.day_number) || [];
-      existing.push(stage);
-      grouped.set(stage.day_number, existing);
-    });
-
-    const result: DayStages[] = [];
-    grouped.forEach((stages, dayNumber) => {
-      result.push({ dayNumber, stages });
-    });
-
-    return result.sort((a, b) => a.dayNumber - b.dayNumber);
-  });
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -656,12 +735,21 @@ export class CircuitDetailComponent implements OnInit {
 
   async loadCircuit(slug: string): Promise<void> {
     this.isLoading.set(true);
-    const excursion = await this.circuitService.getCircuitBySlug(slug);
-    this.circuit.set(excursion);
+    const circuit = await this.circuitService.getCircuitBySlug(slug);
+    this.circuit.set(circuit);
 
-    if (excursion) {
-      const stages = await this.stageService.getStagesByExcursionId(excursion.id);
-      this.stages.set(stages);
+    if (circuit && circuit.itinerary && circuit.itinerary.length > 0) {
+      const excursions = await this.excursionService.loadExcursions();
+      const excursionMap = new Map(excursions.map(e => [e.id, e]));
+
+      const daysWithImages = circuit.itinerary.map(day => ({
+        ...day,
+        excursion_image: day.excursion_id && excursionMap.has(day.excursion_id)
+          ? excursionMap.get(day.excursion_id)!.image_url
+          : circuit.image_url
+      }));
+
+      this.itineraryDays.set(daysWithImages);
     }
 
     this.isLoading.set(false);
@@ -698,39 +786,33 @@ export class CircuitDetailComponent implements OnInit {
   }
 
   getIncludedServices(): string[] {
-    return [
-      this.lang.t('booking.includedGuide'),
-      this.lang.t('booking.includedTransport'),
-      this.lang.t('booking.includedEntrance')
-    ];
+    const circuit = this.circuit();
+    if (!circuit) return [];
+
+    const services = this.lang.language() === 'fr'
+      ? circuit.included_services_fr
+      : circuit.included_services_en;
+
+    return Array.isArray(services) ? services : [];
   }
 
-  getStageTitle(stage: CircuitStage): string {
-    return this.lang.language() === 'fr' ? stage.title_fr : stage.title_en;
+  getDayTitle(day: ItineraryDay): string {
+    return this.lang.language() === 'fr' ? day.title_fr : day.title_en;
   }
 
-  getStageDescription(stage: CircuitStage): string {
-    return this.lang.language() === 'fr' ? stage.description_fr : stage.description_en;
+  getDayDescription(day: ItineraryDay): string {
+    return this.lang.language() === 'fr' ? day.description_fr : day.description_en;
   }
 
-  getStageLocation(stage: CircuitStage): string {
-    return this.lang.language() === 'fr' ? stage.location_fr : stage.location_en;
+  getDayLocation(day: ItineraryDay): string {
+    return this.lang.language() === 'fr' ? (day.location_fr || '') : (day.location_en || '');
   }
 
-  formatTime(time: string): string {
-    if (!time) return '';
-    return time.substring(0, 5);
+  getDayAccommodation(day: ItineraryDay): string {
+    return this.lang.language() === 'fr' ? (day.accommodation_fr || '') : (day.accommodation_en || '');
   }
 
-  formatDuration(minutes: number): string {
-    if (minutes < 60) {
-      return `${minutes} min`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (mins === 0) {
-      return `${hours}h`;
-    }
-    return `${hours}h${mins}`;
+  getDayMeals(day: ItineraryDay): string {
+    return this.lang.language() === 'fr' ? (day.meals_fr || '') : (day.meals_en || '');
   }
 }
