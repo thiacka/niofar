@@ -1,14 +1,14 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-excursions',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -74,7 +74,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
                   <div class="excursion-footer">
                     <div class="excursion-price">
                       <span class="price-label">{{ lang.t('excursions.from') }}</span>
-                      <span class="price-value">{{ excursion.price | number }} FCFA</span>
+                      <span class="price-value">{{ excursion.price | currencyConverter }}</span>
                       <span class="price-note">{{ getPriceNote(excursion) }}</span>
                     </div>
                     <a [routerLink]="['/excursion-booking', excursion.slug]" class="btn btn-primary">{{ lang.t('excursions.book') }}</a>

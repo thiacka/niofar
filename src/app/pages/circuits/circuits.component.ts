@@ -1,16 +1,16 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { CircuitStageService } from '../../core/services/circuit-stage.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-circuits',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -76,7 +76,7 @@ import { CircuitStageService } from '../../core/services/circuit-stage.service';
                   <div class="circuit-footer">
                     <div class="circuit-price">
                       <span class="price-label">{{ lang.t('circuits.from') }}</span>
-                      <span class="price-value">{{ circuit.price | number }} FCFA</span>
+                      <span class="price-value">{{ circuit.price | currencyConverter }}</span>
                       <span class="price-note">{{ getPriceNote(circuit) }}</span>
                     </div>
                     <a [routerLink]="['/circuits', circuit.slug]" class="btn btn-primary">{{ lang.t('circuits.viewDetails') }}</a>

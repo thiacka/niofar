@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-booking-lookup',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe],
+  imports: [FormsModule, DatePipe, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -131,7 +132,7 @@ import { BookingService } from '../../core/services/booking.service';
                 </div>
                 <div class="info-item">
                   <span class="label">{{ lang.t('booking.estimatedTotal') }}</span>
-                  <span class="value total">{{ booking()!.estimated_total | number }} FCFA</span>
+                  <span class="value total">{{ booking()!.estimated_total | currencyConverter }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">{{ lang.t('bookingLookup.status') }}</span>

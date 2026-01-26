@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
 import { EditModeService } from '../../../core/services/edit-mode.service';
+import { CurrencyService, type Currency } from '../../../core/services/currency.service';
 
 @Component({
   selector: 'app-header',
@@ -43,6 +44,27 @@ import { EditModeService } from '../../../core/services/edit-mode.service';
         </nav>
 
         <div class="header-actions">
+          <div class="currency-switch">
+            <button
+              class="currency-btn"
+              [class.active]="currencyService.getCurrency()() === 'XOF'"
+              (click)="currencyService.setCurrency('XOF')">
+              CFA
+            </button>
+            <button
+              class="currency-btn"
+              [class.active]="currencyService.getCurrency()() === 'EUR'"
+              (click)="currencyService.setCurrency('EUR')">
+              €
+            </button>
+            <button
+              class="currency-btn"
+              [class.active]="currencyService.getCurrency()() === 'USD'"
+              (click)="currencyService.setCurrency('USD')">
+              $
+            </button>
+          </div>
+
           <button class="lang-switch" (click)="lang.toggleLanguage()">
             {{ lang.language() === 'en' ? 'FR' : 'EN' }}
           </button>
@@ -153,6 +175,40 @@ import { EditModeService } from '../../../core/services/edit-mode.service';
       gap: var(--spacing-md);
     }
 
+    .currency-switch {
+      display: flex;
+      background: var(--color-white);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .header:not(.scrolled) .currency-switch {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .currency-btn {
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      min-width: 42px;
+    }
+
+    .currency-btn:not(:last-child) {
+      border-right: 1px solid var(--color-primary);
+    }
+
+    .currency-btn.active,
+    .currency-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
     .lang-switch {
       padding: var(--spacing-xs) var(--spacing-md);
       font-size: 0.875rem;
@@ -249,6 +305,7 @@ import { EditModeService } from '../../../core/services/edit-mode.service';
 export class HeaderComponent {
   lang = inject(LanguageService);
   editMode = inject(EditModeService);
+  currencyService = inject(CurrencyService);
   mobileMenuOpen = signal(false);
   isScrolled = signal(false);
 

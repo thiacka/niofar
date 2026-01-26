@@ -1,16 +1,16 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService } from '../../core/services/booking.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 
 @Component({
   selector: 'app-excursion-booking',
-  imports: [FormsModule, RouterLink, DecimalPipe, ScrollAnimateDirective],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   templateUrl: './excursion-booking.component.html',
   styleUrl: './excursion-booking.component.css',
 })
