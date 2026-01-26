@@ -5,10 +5,16 @@ export interface ItineraryDay {
   day: number;
   title_fr: string;
   title_en: string;
-  excursion_ids: string[];
+  description_fr: string;
+  description_en: string;
+  location_fr?: string;
+  location_en?: string;
   accommodation_fr?: string;
   accommodation_en?: string;
-  meals_included: string[];
+  meals_fr?: string;
+  meals_en?: string;
+  excursion_id?: string;
+  image_url?: string;
 }
 
 export interface Circuit {

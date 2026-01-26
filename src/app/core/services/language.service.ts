@@ -187,6 +187,8 @@ const translations: Translations = {
   'booking.includedGuide': { en: 'Professional local guide', fr: 'Guide local professionnel' },
   'booking.includedTransport': { en: 'Transportation', fr: 'Transport' },
   'booking.includedEntrance': { en: 'Entrance fees', fr: 'Frais d\'entree' },
+  'booking.accommodation': { en: 'Accommodation', fr: 'Hebergement' },
+  'booking.meals': { en: 'Meals', fr: 'Repas' },
   'booking.backToCircuits': { en: 'Back to all tours', fr: 'Retour aux circuits' },
   'booking.notFound': { en: 'Tour not found', fr: 'Circuit non trouve' },
   'booking.browseCircuits': { en: 'Browse all tours', fr: 'Voir tous les circuits' },
