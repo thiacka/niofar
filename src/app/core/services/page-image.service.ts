@@ -99,7 +99,7 @@ export class PageImageService {
       .from('page_images')
       .insert(image)
       .select()
-      .maybeSingle();
+      .single();
 
     if (error) {
       console.error('Error creating image:', error);
