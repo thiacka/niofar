@@ -44,6 +44,10 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
         </nav>
 
         <div class="header-actions">
+          <button class="lang-switch" (click)="lang.toggleLanguage()">
+            {{ lang.language() === 'en' ? 'FR' : 'EN' }}
+          </button>
+
           <div class="currency-switch">
             <button
               class="currency-btn"
@@ -64,10 +68,6 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
               $
             </button>
           </div>
-
-          <button class="lang-switch" (click)="lang.toggleLanguage()">
-            {{ lang.language() === 'en' ? 'FR' : 'EN' }}
-          </button>
 
           <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen()">
             <span></span>
