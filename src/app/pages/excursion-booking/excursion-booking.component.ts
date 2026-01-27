@@ -219,7 +219,7 @@ export class ExcursionBookingComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const excursionSlug = params.get('circuitId');
+      const excursionSlug = params.get('excursionId');
       if (excursionSlug) {
         this.loadExcursion(excursionSlug);
       } else {
