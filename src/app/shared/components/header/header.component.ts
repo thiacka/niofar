@@ -48,26 +48,11 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
             {{ lang.language() === 'en' ? 'FR' : 'EN' }}
           </button>
 
-          <div class="currency-switch">
-            <button
-              class="currency-btn"
-              [class.active]="currencyService.getCurrency()() === 'XOF'"
-              (click)="currencyService.setCurrency('XOF')">
-              CFA
-            </button>
-            <button
-              class="currency-btn"
-              [class.active]="currencyService.getCurrency()() === 'EUR'"
-              (click)="currencyService.setCurrency('EUR')">
-              €
-            </button>
-            <button
-              class="currency-btn"
-              [class.active]="currencyService.getCurrency()() === 'USD'"
-              (click)="currencyService.setCurrency('USD')">
-              $
-            </button>
-          </div>
+          <select class="currency-select" [value]="currencyService.getCurrency()()" (change)="onCurrencyChange($event)">
+            <option value="XOF">CFA</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+          </select>
 
           <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen()">
             <span></span>
@@ -173,40 +158,7 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
       display: flex;
       align-items: center;
       gap: var(--spacing-md);
-    }
-
-    .currency-switch {
-      display: flex;
-      background: var(--color-white);
-      border: 2px solid var(--color-primary);
-      border-radius: var(--radius-full);
-      overflow: hidden;
-    }
-
-    .header:not(.scrolled) .currency-switch {
-      background: rgba(255,255,255,0.9);
-    }
-
-    .currency-btn {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--color-primary);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      min-width: 42px;
-    }
-
-    .currency-btn:not(:last-child) {
-      border-right: 1px solid var(--color-primary);
-    }
-
-    .currency-btn.active,
-    .currency-btn:hover {
-      background: var(--color-primary);
-      color: var(--color-white);
+      margin-left: var(--spacing-xl);
     }
 
     .lang-switch {
@@ -228,6 +180,34 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
     .lang-switch:hover {
       background: var(--color-primary);
       color: var(--color-white);
+    }
+
+    .currency-select {
+      padding: var(--spacing-xs) var(--spacing-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-primary);
+      background: var(--color-white);
+      border: 2px solid var(--color-primary);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+
+    .header:not(.scrolled) .currency-select {
+      background: rgba(255,255,255,0.9);
+    }
+
+    .currency-select:hover,
+    .currency-select:focus {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .currency-select option {
+      background: var(--color-white);
+      color: var(--color-text);
     }
 
     .mobile-menu-btn {
@@ -323,5 +303,10 @@ export class HeaderComponent {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+  }
+
+  onCurrencyChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.currencyService.setCurrency(select.value as Currency);
   }
 }
