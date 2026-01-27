@@ -36,7 +36,7 @@ check_requirements() {
         exit 1
     fi
 
-    if ! command -v docker-compose &> /dev/null; then
+    if ! command -v docker compose &> /dev/null; then
         print_error "Docker Compose n'est pas installé"
         exit 1
     fi
@@ -55,7 +55,7 @@ init_deployment() {
     check_requirements
 
     print_info "Construction de l'image Docker..."
-    docker-compose build
+    docker compose build
 
     print_info "Initialisation des certificats SSL..."
     chmod +x init-letsencrypt.sh
@@ -72,16 +72,16 @@ update_deployment() {
     git pull
 
     print_info "Reconstruction de l'image..."
-    docker-compose build
+    docker compose build
 
     print_info "Redémarrage des services..."
-    docker-compose up -d --force-recreate
+    docker compose up -d --force-recreate
 
     print_info "Attente du démarrage..."
     sleep 5
 
     print_info "Rechargement de nginx..."
-    docker-compose exec web nginx -s reload
+    docker compose exec web nginx -s reload
 
     print_header "MISE À JOUR TERMINÉE"
 }
@@ -90,7 +90,7 @@ restart_services() {
     print_header "REDÉMARRAGE DES SERVICES"
 
     print_info "Redémarrage..."
-    docker-compose restart
+    docker compose restart
 
     print_info "Attente du démarrage..."
     sleep 5
@@ -102,7 +102,7 @@ show_status() {
     print_header "STATUT DES SERVICES"
 
     print_info "Conteneurs actifs:"
-    docker-compose ps
+    docker compose ps
 
     echo ""
     print_info "Utilisation des ressources:"
@@ -111,7 +111,7 @@ show_status() {
     echo ""
     print_info "Certificat SSL:"
     if [ -d "certbot/conf/live/nio-far-tourisme.com" ]; then
-        docker-compose run --rm certbot certificates
+        docker compose run --rm certbot certificates
     else
         print_warning "Aucun certificat trouvé"
     fi
@@ -119,7 +119,7 @@ show_status() {
 
 show_logs() {
     print_header "LOGS DES SERVICES"
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 show_help() {
