@@ -39,7 +39,7 @@ fi
 echo -e "${GREEN}Creating dummy certificate for ${domains[0]}...${NC}"
 path="/etc/letsencrypt/live/${domains[0]}"
 mkdir -p "$data_path/conf/live/${domains[0]}"
-docker-compose run --rm --entrypoint "\
+docker compose run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
@@ -48,12 +48,12 @@ echo ""
 
 # Start nginx with dummy certificate
 echo -e "${GREEN}Starting nginx...${NC}"
-docker-compose up --force-recreate -d web
+docker compose up --force-recreate -d web
 echo ""
 
 # Delete dummy certificate
 echo -e "${GREEN}Deleting dummy certificate for ${domains[0]}...${NC}"
-docker-compose run --rm --entrypoint "\
+docker compose run --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/live/${domains[0]} && \
   rm -Rf /etc/letsencrypt/archive/${domains[0]} && \
   rm -Rf /etc/letsencrypt/renewal/${domains[0]}.conf" certbot
@@ -75,7 +75,7 @@ if [ $staging != "0" ]; then
   echo -e "${YELLOW}Using staging server (test mode)${NC}"
 fi
 
-docker-compose run --rm --entrypoint "\
+docker compose run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     $staging_arg \
     $domain_args \
@@ -88,7 +88,7 @@ echo ""
 
 # Reload nginx to load the new certificate
 echo -e "${GREEN}Reloading nginx...${NC}"
-docker-compose exec web nginx -s reload
+docker compose exec web nginx -s reload
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
