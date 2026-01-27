@@ -80,7 +80,7 @@ const translations: Translations = {
   'excursions.intro': { en: 'Perfect for travelers with limited time or those who want to explore specific destinations. Our day excursions offer authentic experiences with expert local guides.', fr: 'Parfaites pour les voyageurs ayant peu de temps ou ceux qui souhaitent explorer des destinations specifiques. Nos excursions d\'une journee offrent des experiences authentiques avec des guides locaux experts.' },
   'excursions.highlights': { en: 'Highlights', fr: 'Points forts' },
   'excursions.from': { en: 'From', fr: 'A partir de' },
-  'excursions.book': { en: 'Book this excursion', fr: 'Réserver cette excursion' },
+  'excursions.book': { en: 'Book', fr: 'Réserver' },
   'excursions.custom.title': { en: 'Custom Day Trip', fr: 'Excursion Sur Mesure' },
   'excursions.custom.text': { en: 'Want to create your own day adventure? We can design a personalized excursion based on your interests, whether it\'s culture, nature, food, or local crafts.', fr: 'Vous souhaitez creer votre propre aventure d\'une journee ? Nous pouvons concevoir une excursion personnalisee en fonction de vos interets, qu\'il s\'agisse de culture, de nature, de gastronomie ou d\'artisanat local.' },
   'excursions.custom.cta': { en: 'Request a custom excursion', fr: 'Demander une excursion sur mesure' },
