@@ -157,6 +157,10 @@ const translations: Translations = {
 
   'booking.title': { en: 'Book Your Tour', fr: 'Réservez Votre Circuit' },
   'booking.subtitle': { en: 'Complete the form below to request your booking', fr: 'Remplissez le formulaire ci-dessous pour demander votre reservation' },
+  'excursionBooking.title': { en: 'Book Your Excursion', fr: 'Réservez Votre Excursion' },
+  'excursionBooking.subtitle': { en: 'Complete the form below to request your booking', fr: 'Remplissez le formulaire ci-dessous pour demander votre reservation' },
+  'excursionBooking.backToExcursions': { en: 'Back to all excursions', fr: 'Retour aux excursions' },
+  'excursionBooking.browseExcursions': { en: 'Browse all excursions', fr: 'Voir toutes les excursions' },
   'booking.details': { en: 'Your Information', fr: 'Vos Informations' },
   'booking.firstName': { en: 'First Name', fr: 'Prenom' },
   'booking.lastName': { en: 'Last Name', fr: 'Nom' },
