@@ -31,6 +31,48 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
         <div class="section-header" appScrollAnimate>
           <h2>{{ lang.t('rentals.vehicles.title') }}</h2>
           <p>{{ lang.t('rentals.vehicles.description') }}</p>
+          <div class="vehicle-types">
+            <div class="vehicle-type-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                <circle cx="6.5" cy="16.5" r="2.5"/>
+                <circle cx="16.5" cy="16.5" r="2.5"/>
+              </svg>
+              <span>4x4</span>
+            </div>
+            <div class="vehicle-type-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2l.64-2.54c.24-.959.24-1.962 0-2.92l-1.07-4.27A3 3 0 0 0 17.66 5H4a2 2 0 0 0-2 2v10h2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <path d="M9 17h6"/>
+                <circle cx="17" cy="17" r="2"/>
+              </svg>
+              <span>{{ lang.language() === 'fr' ? 'Berlines' : 'Sedans' }}</span>
+            </div>
+            <div class="vehicle-type-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 6v6"/>
+                <path d="M15 6v6"/>
+                <path d="M2 12h19.6"/>
+                <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/>
+                <circle cx="7" cy="18" r="2"/>
+                <circle cx="17" cy="18" r="2"/>
+              </svg>
+              <span>Minibus</span>
+            </div>
+            <div class="vehicle-type-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 6v6"/>
+                <path d="M15 6v6"/>
+                <path d="M2 12h19.6"/>
+                <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/>
+                <circle cx="7" cy="18" r="2"/>
+                <path d="M9 18h5"/>
+                <circle cx="16" cy="18" r="2"/>
+              </svg>
+              <span>Bus</span>
+            </div>
+          </div>
         </div>
 
         @if (isLoadingVehicles()) {
@@ -89,6 +131,15 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
     <section class="rentals-incentives section">
       <div class="container">
         <div class="section-header" appScrollAnimate>
+          <div class="section-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <polyline points="16 12 18 14 22 10"/>
+            </svg>
+          </div>
           <h2>{{ lang.t('rentals.incentives.title') }}</h2>
           <p>{{ lang.t('rentals.incentives.description') }}</p>
         </div>
@@ -148,6 +199,15 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
     <section class="rentals-boats section" style="background: var(--color-background-alt);">
       <div class="container">
         <div class="section-header" appScrollAnimate>
+          <div class="section-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 .6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76"/>
+              <path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/>
+              <path d="M12 10v4"/>
+              <path d="M12 2v3"/>
+            </svg>
+          </div>
           <h2>{{ lang.t('rentals.boats.title') }}</h2>
           <p>{{ lang.t('rentals.boats.description') }}</p>
         </div>
@@ -268,6 +328,19 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
       margin-bottom: var(--spacing-3xl);
     }
 
+    .section-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-lg);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      border-radius: 50%;
+      color: var(--color-white);
+      box-shadow: var(--shadow-lg);
+    }
+
     .section-header h2 {
       margin-bottom: var(--spacing-md);
     }
@@ -277,6 +350,42 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
       font-size: 1.125rem;
       max-width: 700px;
       margin: 0 auto;
+    }
+
+    .vehicle-types {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+
+    .vehicle-type-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-xl);
+      background: var(--color-white);
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-md);
+      font-weight: 600;
+      color: var(--color-primary);
+      transition: all var(--transition-base);
+    }
+
+    .vehicle-type-badge svg {
+      color: var(--color-secondary);
+    }
+
+    .vehicle-type-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .vehicle-type-badge:hover svg {
+      color: var(--color-white);
     }
 
     .rentals-grid {
@@ -489,9 +598,44 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
       color: var(--color-text-light);
     }
 
+    @media (max-width: 768px) {
+      .vehicle-types {
+        gap: var(--spacing-md);
+      }
+
+      .vehicle-type-badge {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        font-size: 0.9rem;
+      }
+
+      .vehicle-type-badge svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .section-icon {
+        width: 64px;
+        height: 64px;
+      }
+
+      .section-icon svg {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
     @media (max-width: 480px) {
       .rentals-grid {
         grid-template-columns: 1fr;
+      }
+
+      .vehicle-types {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .vehicle-type-badge {
+        justify-content: center;
       }
     }
   `]
