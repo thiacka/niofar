@@ -543,7 +543,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   currentSlide = signal(0);
   prevSlide = signal(-1);
-  discoverImage = signal('https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800');
+  discoverImage = signal('https://media.istockphoto.com/id/1395604867/fr/photo/exp%C3%A9rience-de-safari-et-famille-de-girafes-dans-la-r%C3%A9serve-de-vie-sauvage-dafrique-de.jpg?s=612x612&w=0&k=20&c=G9mXb-ZD7rOnMtccGAjq0AGm6iefQ9HE0mqoztLXy-k=');
   experiencesGallery = signal<Array<{ image: string; labelKey: string }>>([
     { image: 'https://media.istockphoto.com/id/2207596598/fr/photo/figurines-africaines-en-bois-en-vente-sur-le-march%C3%A9-%C3%A0-joal-fadiuth-au-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=Ua7ezVZq8GVYn7c_UCW6Aw2mI0GNmFCrauWy-ZtUxF0=', labelKey: 'experiences.cultural.title' },
     { image: 'https://media.istockphoto.com/id/1200689275/fr/photo/extrait-du-sel-du-lac.jpg?s=612x612&w=0&k=20&c=R47um58ZljNs53AN00PUnrHFiM9CWEg5Zz5c0fpMpeU=', labelKey: 'experiences.nature.title' },
@@ -554,25 +554,25 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   slides: HeroSlide[] = [
     {
-      image: 'https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://media.istockphoto.com/id/2193209869/fr/photo/le-pêcheur-au-bord-du-lac-retba-lac-rose-près-de-dakar-sénégal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=Bq5SoLlcQNEjsRXrcli6p7_Ia0rhT2MLGc7FrFVLxGg=',
       titleKey: 'hero.slide1.title',
       subtitleKey: 'hero.slide1.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://media.istockphoto.com/id/1174741506/fr/photo/gor%C3%A9e-island-in-dakar-senegal.jpg?s=612x612&w=0&k=20&c=PZSA07Mf62lbWPp1EwOukqtZpCqmvcFk6N-rgG9upnM=',
       titleKey: 'hero.slide2.title',
       subtitleKey: 'hero.slide2.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://media.istockphoto.com/id/1161760399/fr/photo/senegal-joal-fadiouth-ancient-millet-loft-on-piles.jpg?s=612x612&w=0&k=20&c=SUrFoFP1dp04J4bBngEV6DC-RPm2w9ZD1njY0SPqlDQ=',
       titleKey: 'hero.slide3.title',
       subtitleKey: 'hero.slide3.subtitle',
       route: '/circuits'
     },
     {
-      image: 'https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      image: 'https://media.istockphoto.com/id/2202664343/fr/photo/p%C3%AAcheur-s%C3%A9n%C3%A9galais-dans-le-bateau-attrapant-des-poissons-avec-des-filets-pr%C3%A8s-du-pont-de-fer.jpg?s=612x612&w=0&k=20&c=4kqHVVhnKdhdH1oVvS1vJqOAtAB2H1Sxb4-BBWcrIJU=',
       titleKey: 'hero.slide4.title',
       subtitleKey: 'hero.slide4.subtitle',
       route: '/circuits'

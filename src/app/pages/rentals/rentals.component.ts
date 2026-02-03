@@ -282,7 +282,7 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&cs=tinysrgb&w=1920') center/cover no-repeat;
+      background: url('https://media.istockphoto.com/id/1218922039/fr/photo/personnes-travaillant-et-trafic-%C3%A0-dakar-la-capitale-du-s%C3%A9n%C3%A9gal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=53eOKujkWl6U8PRNKSeGulSgwWPzNcld4FcZ2xlLUVM=') center/cover no-repeat;
     }
 
     .hero-overlay {

@@ -69,7 +69,7 @@ import { PageImageService } from '../../core/services/page-image.service';
 
           <div class="experience-card">
             <div class="experience-image">
-              <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegalese lifestyle" />
+              <img src="https://media.istockphoto.com/id/1399319461/fr/photo/touriste-gar%C3%A7on-et-bateau-bateau-de-p%C3%AAche-au-march%C3%A9-soumbedioune-dakar-s%C3%A9n%C3%A9gal-afrique.jpg?s=612x612&w=0&k=20&c=F6m28zFsRhvCB8jLazMrS4v4QW9jLKDdHAUo8DUy-dY=" alt="Senegalese lifestyle" />
             </div>
             <div class="experience-content">
               <div class="experience-icon">
@@ -95,19 +95,19 @@ import { PageImageService } from '../../core/services/page-image.service';
         </div>
         <div class="gallery-grid">
           <div class="gallery-item large">
-            <img src="https://images.pexels.com/photos/14604774/pexels-photo-14604774.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Senegal sunset" />
+            <img src="https://media.istockphoto.com/id/2257948949/fr/photo/la-silhouette-de-l%C3%AEle-joal-fadiouth-avec-%C3%A9glise-et-mosqu%C3%A9e-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=38iGOMX9QLjVXWwNG0JuUAXsIFkZwdKwaSeCPv3lJ3k=" alt="Senegal sunset" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/13419505/pexels-photo-13419505.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Senegal nature" />
+            <img src="https://media.istockphoto.com/id/2238524706/fr/photo/baobab-tress-et-village.jpg?s=612x612&w=0&k=20&c=v84M6g6W27QvTBLe8aYx9vTzwutWugIHmWKTna5hSLc=" alt="Senegal nature" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Local culture" />
+            <img src="https://media.istockphoto.com/id/615491898/fr/photo/porte-dentr%C3%A9e-du-parc-naturel-de-bandia-au-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=pdgbMx6oJLTUap9VHWZBT0YRGN974z42e09Vclb-h1U=" alt="Local culture" />
           </div>
           <div class="gallery-item">
             <img src="https://media.istockphoto.com/id/1039841242/fr/photo/homme-non-identifi%C3%A9-de-diola-dans-un-costume-de-foin-se-d%C3%A9place-au-cours-dune-danse.jpg?s=612x612&w=0&k=20&c=SageibHHel3p9so3fGyu9EC_Lz-rzIFyhcTaPKV2Ojk=" alt="Village life" />
           </div>
           <div class="gallery-item">
-            <img src="https://images.pexels.com/photos/17836961/pexels-photo-17836961.jpeg?auto=compress&cs=tinysrgb&w=600" alt="People of Senegal" />
+            <img src="https://media.istockphoto.com/id/2193209851/fr/photo/bateau-dans-le-lac-retba-lac-rose-proche-dakar-s%C3%A9n%C3%A9gal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=_d9VaAH2eJvkrnabSXwbI5JLNj8uni54DA_-eI6N_Eo=" alt="People of Senegal" />
           </div>
         </div>
       </div>
@@ -287,10 +287,10 @@ export class ExperiencesComponent implements OnInit {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
 
-  heroImage = signal('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=1920');
-  cultureImage = signal('https://images.pexels.com/photos/16971929/pexels-photo-16971929.jpeg?auto=compress&cs=tinysrgb&w=800');
-  natureImage = signal('https://images.pexels.com/photos/12715636/pexels-photo-12715636.jpeg?auto=compress&cs=tinysrgb&w=800');
-  gastronomyImage = signal('https://images.pexels.com/photos/16558028/pexels-photo-16558028.jpeg?auto=compress&cs=tinysrgb&w=800');
+  heroImage = signal('https://media.istockphoto.com/id/1179642381/fr/photo/silhouette-de-baobab.jpg?s=612x612&w=0&k=20&c=JTZmggPXIKGc0-1KT_4rLRgK4WwgcLGcw-MSoOOR1mc=');
+  cultureImage = signal('https://media.istockphoto.com/id/482455561/fr/photo/march%C3%A9-afrique.jpg?s=612x612&w=0&k=20&c=uO8GSzhHc7WC5RBAvXZE4tDCfle_GnfxMQtP33-k3AM=');
+  natureImage = signal('https://media.istockphoto.com/id/2176188076/fr/photo/troupeau-dimpalas-broutant-dans-la-savane.jpg?s=612x612&w=0&k=20&c=M5CCkJaAptZbrZsZA3g6PcSsa2BdzkY6n4k-9kHYCZE=');
+  gastronomyImage = signal('https://media.istockphoto.com/id/2190163215/fr/photo/faux-lions-danse-nationale-des-masques-au-s%C3%A9n%C3%A9gal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=QAwznwjgWUREdbRHOaUejeMT94r3kOLH7tcFiDXXWwE=');
 
   ngOnInit(): void {
     this.loadImages();
