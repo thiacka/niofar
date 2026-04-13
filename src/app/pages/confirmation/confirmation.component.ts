@@ -100,6 +100,15 @@ import { BookingService, BookingResponse } from '../../core/services/booking.ser
 
             <div class="actions">
               <a routerLink="/" class="btn btn-outline">{{ lang.t('confirmation.backHome') }}</a>
+              <button class="btn btn-calendar" (click)="downloadIcs()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                {{ lang.t('confirmation.addCalendar') }}
+              </button>
               <a routerLink="/circuits" class="btn btn-primary">{{ lang.t('confirmation.viewCircuits') }}</a>
             </div>
           </div>
@@ -309,6 +318,22 @@ import { BookingService, BookingResponse } from '../../core/services/booking.ser
       display: flex;
       gap: var(--spacing-md);
       justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-calendar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--color-background-alt);
+      border: 2px solid var(--color-secondary);
+      color: var(--color-secondary);
+      cursor: pointer;
+    }
+
+    .btn-calendar:hover {
+      background: var(--color-secondary);
+      color: var(--color-white);
     }
 
     .btn-outline {
@@ -360,6 +385,49 @@ export class ConfirmationComponent implements OnInit {
 
   booking = signal<BookingResponse | null>(null);
   isLoading = signal(true);
+
+  downloadIcs(): void {
+    const b = this.booking();
+    if (!b) return;
+
+    const formatIcsDate = (dateStr: string): string =>
+      dateStr.replace(/-/g, '').slice(0, 8);
+
+    const start = formatIcsDate(b.start_date);
+    const end = b.end_date ? formatIcsDate(b.end_date) : start;
+    const isFr = this.lang.language() === 'fr';
+    const summary = isFr
+      ? `Voyage NIO FAR — ${b.excursion_title}`
+      : `NIO FAR Trip — ${b.excursion_title}`;
+    const description = isFr
+      ? `Référence\\: ${b.reference_number}\\nContact\\: +221 71 152 54 36`
+      : `Reference\\: ${b.reference_number}\\nContact\\: +221 71 152 54 36`;
+
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//NIO FAR Tourisme//FR',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `DTSTART;VALUE=DATE:${start}`,
+      `DTEND;VALUE=DATE:${end}`,
+      `SUMMARY:${summary}`,
+      `DESCRIPTION:${description}`,
+      'LOCATION:Saly Portudal\\, M\'bour\\, Sénégal',
+      'ORGANIZER;CN=NIO FAR Tourisme:mailto:contact@niofartourisme.com',
+      `UID:${b.reference_number}@niofartourisme.com`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `niofar-${b.reference_number}.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(async params => {

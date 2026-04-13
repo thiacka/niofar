@@ -249,6 +249,7 @@ const translations: Translations = {
   'confirmation.step2': { en: 'Our team will review your booking within 24 hours', fr: 'Notre equipe examinera votre reservation dans les 24 heures' },
   'confirmation.step3': { en: 'We will contact you to finalize the details', fr: 'Nous vous contacterons pour finaliser les details' },
   'confirmation.backHome': { en: 'Back to Home', fr: 'Retour a l\'accueil' },
+  'confirmation.addCalendar': { en: 'Add to calendar', fr: 'Ajouter au calendrier' },
   'confirmation.viewCircuits': { en: 'Explore more tours', fr: 'Decouvrir plus de circuits' },
 
   'admin.loginTitle': { en: 'Admin Panel', fr: 'Panneau d\'administration' },
