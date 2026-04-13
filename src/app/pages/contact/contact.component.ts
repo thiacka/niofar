@@ -108,7 +108,7 @@ import { ContactMessage } from '../../core/models/contact.model';
                   </div>
                   <div class="info-content">
                     <span class="info-label">{{ lang.t('contact.whatsapp') }}</span>
-                    <span class="info-value">+221 XX XXX XX XX</span>
+                    <a href="https://wa.me/221711525436" target="_blank" rel="noopener" class="info-value whatsapp-link">+221 71 152 54 36</a>
                   </div>
                 </div>
 
@@ -344,6 +344,16 @@ import { ContactMessage } from '../../core/models/contact.model';
     .info-value {
       font-weight: 600;
       color: var(--color-text);
+    }
+
+    .whatsapp-link {
+      color: #25D366;
+      text-decoration: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .whatsapp-link:hover {
+      opacity: 0.8;
     }
 
     .map-container {

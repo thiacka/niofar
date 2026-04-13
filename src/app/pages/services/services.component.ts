@@ -32,10 +32,10 @@ import { PageImageService } from '../../core/services/page-image.service';
             <h2>{{ lang.t('services.excursions.title') }}</h2>
             <p>{{ lang.t('services.excursions.text') }}</p>
             <ul class="service-features">
-              <li>Villages & local communities</li>
-              <li>Markets & artisans</li>
-              <li>National parks & nature reserves</li>
-              <li>Iconic landmarks</li>
+              <li>{{ lang.t('services.excursions.feature1') }}</li>
+              <li>{{ lang.t('services.excursions.feature2') }}</li>
+              <li>{{ lang.t('services.excursions.feature3') }}</li>
+              <li>{{ lang.t('services.excursions.feature4') }}</li>
             </ul>
           </div>
         </div>
@@ -57,10 +57,10 @@ import { PageImageService } from '../../core/services/page-image.service';
             <h2>{{ lang.t('services.transfers.title') }}</h2>
             <p>{{ lang.t('services.transfers.text') }}</p>
             <ul class="service-features">
-              <li>AIBD Airport pickup & drop-off</li>
-              <li>Professional, vetted drivers</li>
-              <li>Comfortable air-conditioned vehicles</li>
-              <li>24/7 availability</li>
+              <li>{{ lang.t('services.transfers.feature1') }}</li>
+              <li>{{ lang.t('services.transfers.feature2') }}</li>
+              <li>{{ lang.t('services.transfers.feature3') }}</li>
+              <li>{{ lang.t('services.transfers.feature4') }}</li>
             </ul>
           </div>
         </div>
@@ -83,10 +83,10 @@ import { PageImageService } from '../../core/services/page-image.service';
             <h2>{{ lang.t('services.accommodation.title') }}</h2>
             <p>{{ lang.t('services.accommodation.text') }}</p>
             <ul class="service-features">
-              <li>Boutique hotels & lodges</li>
-              <li>Traditional guesthouses</li>
-              <li>Eco-friendly options</li>
-              <li>Beachfront properties</li>
+              <li>{{ lang.t('services.accommodation.feature1') }}</li>
+              <li>{{ lang.t('services.accommodation.feature2') }}</li>
+              <li>{{ lang.t('services.accommodation.feature3') }}</li>
+              <li>{{ lang.t('services.accommodation.feature4') }}</li>
             </ul>
           </div>
         </div>

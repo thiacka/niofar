@@ -63,6 +63,25 @@ const translations: Translations = {
   'services.accommodation.title': { en: 'Accommodation booking', fr: 'Reservation d\'hebergements' },
   'services.accommodation.text': { en: 'Carefully selected hotels, lodges and guesthouses known for their charm and local hospitality.', fr: 'Hotels, lodges et maisons d\'hotes soigneusement selectionnes pour leur charme et leur hospitalite locale.' },
 
+  'services.excursions.feature1': { en: 'Villages & local communities', fr: 'Villages & communautes locales' },
+  'services.excursions.feature2': { en: 'Markets & artisans', fr: 'Marches & artisans' },
+  'services.excursions.feature3': { en: 'National parks & nature reserves', fr: 'Parcs nationaux & reserves naturelles' },
+  'services.excursions.feature4': { en: 'Iconic landmarks', fr: 'Sites emblematiques' },
+  'services.transfers.feature1': { en: 'AIBD Airport pickup & drop-off', fr: 'Prise en charge & depot aeroport AIBD' },
+  'services.transfers.feature2': { en: 'Professional, vetted drivers', fr: 'Chauffeurs professionnels et verifies' },
+  'services.transfers.feature3': { en: 'Comfortable air-conditioned vehicles', fr: 'Vehicules confortables et climatises' },
+  'services.transfers.feature4': { en: '24/7 availability', fr: 'Disponibilite 24h/24 et 7j/7' },
+  'services.accommodation.feature1': { en: 'Boutique hotels & lodges', fr: 'Hotels boutique & lodges' },
+  'services.accommodation.feature2': { en: 'Traditional guesthouses', fr: 'Maisons d\'hotes traditionnelles' },
+  'services.accommodation.feature3': { en: 'Eco-friendly options', fr: 'Options eco-responsables' },
+  'services.accommodation.feature4': { en: 'Beachfront properties', fr: 'Hebergements en bord de mer' },
+
+  'experiences.gallery.title': { en: 'Gallery', fr: 'Galerie' },
+
+  'notFound.title': { en: 'Page Not Found', fr: 'Page Introuvable' },
+  'notFound.text': { en: 'The page you are looking for does not exist or has been moved.', fr: 'La page que vous cherchez n\'existe pas ou a ete deplacee.' },
+  'notFound.cta': { en: 'Back to home', fr: 'Retour a l\'accueil' },
+
   'experiences.title': { en: 'Live the Experience', fr: 'Vivez l\'Experience' },
   'experiences.subtitle': { en: 'Travel beyond tourism. Live moments of sharing, discovery and immersion.', fr: 'Voyagez au-dela du tourisme. Vivez des moments de partage, de decouverte et d\'immersion.' },
   'experiences.cultural.title': { en: 'Cultural encounters', fr: 'Rencontres culturelles' },

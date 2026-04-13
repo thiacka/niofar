@@ -1033,9 +1033,10 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  login(): void {
+  async login(): Promise<void> {
     this.loginError.set(false);
-    if (this.adminService.login(this.password)) {
+    const success = await this.adminService.login(this.password);
+    if (success) {
       this.loadData();
     } else {
       this.loginError.set(true);

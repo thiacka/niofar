@@ -462,7 +462,6 @@ export class CircuitsComponent implements OnInit {
   async loadCircuits(): Promise<void> {
     this.isLoading.set(true);
     const data = await this.circuitService.loadCircuits();
-    console.log('Loaded circuits:', data);
     this.circuits.set(data);
     this.isLoading.set(false);
   }

@@ -36,11 +36,22 @@ export interface ContactMessage {
 export class AdminService {
   private supabase = inject(SupabaseService);
 
-  private adminPasswordHash = 'niofar2024admin';
+  // SHA-256 hash of the admin password (computed via Web Crypto API)
+  private readonly adminPasswordHash = 'b8ff9b2af9b3550745872925ce0373271b91c60ab21a25bd5a0b945ebbcf2708';
   isAuthenticated = signal(false);
 
-  login(password: string): boolean {
-    if (password === this.adminPasswordHash) {
+  private async hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+
+  async login(password: string): Promise<boolean> {
+    const hash = await this.hashPassword(password);
+    if (hash === this.adminPasswordHash) {
       this.isAuthenticated.set(true);
       sessionStorage.setItem('admin-auth', 'true');
       return true;

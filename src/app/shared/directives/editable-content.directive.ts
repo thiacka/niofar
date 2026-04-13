@@ -111,7 +111,6 @@ export class EditableContentDirective implements OnInit, OnDestroy {
     if (success) {
       this.originalContent = newContent;
       this.content = contentToSave;
-      console.log('Content saved successfully');
     } else {
       element.textContent = this.originalContent;
       alert('Failed to save content');

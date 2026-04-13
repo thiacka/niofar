@@ -91,7 +91,7 @@ import { PageImageService } from '../../core/services/page-image.service';
     <section class="gallery section" style="background: var(--color-background-alt);">
       <div class="container">
         <div class="section-title">
-          <h2>Gallery</h2>
+          <h2>{{ lang.t('experiences.gallery.title') }}</h2>
         </div>
         <div class="gallery-grid">
           <div class="gallery-item large">
