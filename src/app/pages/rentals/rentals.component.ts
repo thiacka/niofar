@@ -4,6 +4,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { RentalService, Rental } from '../../core/services/rental.service';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-rentals',
@@ -643,6 +644,7 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
 export class RentalsComponent implements OnInit {
   lang = inject(LanguageService);
   rentalService = inject(RentalService);
+  private seo = inject(SeoService);
 
   vehicles = signal<Rental[]>([]);
   incentives = signal<Rental[]>([]);
@@ -653,6 +655,13 @@ export class RentalsComponent implements OnInit {
   isLoadingBoats = signal(true);
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Location de Véhicules au Sénégal | 4x4, Minibus & Bateaux',
+      titleEn: 'Vehicle Rental in Senegal | 4x4, Minibus & Boats',
+      descriptionFr: 'Location de 4x4, berlines, minibus et bus avec chauffeurs professionnels. Incentives entreprises et croisières fluviales au Sénégal.',
+      descriptionEn: '4x4, sedan, minibus and bus rental with professional drivers. Corporate incentives and river cruises in Senegal.',
+      path: '/rentals'
+    });
     this.loadRentals();
   }
 

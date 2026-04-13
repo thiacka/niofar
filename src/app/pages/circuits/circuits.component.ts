@@ -6,6 +6,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { CircuitStageService } from '../../core/services/circuit-stage.service';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-circuits',
@@ -449,13 +450,21 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
 })
 export class CircuitsComponent implements OnInit {
   lang = inject(LanguageService);
-    circuitService = inject(CircuitService);
-    stageService = inject(CircuitStageService);
+  circuitService = inject(CircuitService);
+  stageService = inject(CircuitStageService);
+  private seo = inject(SeoService);
 
   circuits = signal<Circuit[]>([]);
   isLoading = signal(true);
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Circuits Touristiques au Sénégal | Tours Multi-Jours',
+      titleEn: 'Tours & Discovery in Senegal | Multi-Day Tours',
+      descriptionFr: 'Découvrez le Sénégal en profondeur avec nos circuits de plusieurs jours. Itinéraires soigneusement conçus avec des guides locaux passionnés.',
+      descriptionEn: 'Discover Senegal in depth with our multi-day tours. Carefully crafted itineraries with passionate local guides.',
+      path: '/circuits'
+    });
     this.loadCircuits();
   }
 

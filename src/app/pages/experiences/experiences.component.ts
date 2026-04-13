@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { PageImageService } from '../../core/services/page-image.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-experiences',
@@ -286,6 +287,7 @@ import { PageImageService } from '../../core/services/page-image.service';
 export class ExperiencesComponent implements OnInit {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
+  private seo = inject(SeoService);
 
   heroImage = signal('https://media.istockphoto.com/id/1179642381/fr/photo/silhouette-de-baobab.jpg?s=612x612&w=0&k=20&c=JTZmggPXIKGc0-1KT_4rLRgK4WwgcLGcw-MSoOOR1mc=');
   cultureImage = signal('https://media.istockphoto.com/id/482455561/fr/photo/march%C3%A9-afrique.jpg?s=612x612&w=0&k=20&c=uO8GSzhHc7WC5RBAvXZE4tDCfle_GnfxMQtP33-k3AM=');
@@ -293,6 +295,13 @@ export class ExperiencesComponent implements OnInit {
   gastronomyImage = signal('https://media.istockphoto.com/id/2190163215/fr/photo/faux-lions-danse-nationale-des-masques-au-s%C3%A9n%C3%A9gal-afrique-de-louest.jpg?s=612x612&w=0&k=20&c=QAwznwjgWUREdbRHOaUejeMT94r3kOLH7tcFiDXXWwE=');
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Vivre l\'Expérience Sénégalaise | Culture, Nature & Traditions',
+      titleEn: 'Live the Senegalese Experience | Culture, Nature & Traditions',
+      descriptionFr: 'Rencontres culturelles, faune et flore, traditions locales et art de vivre sénégalais. Des expériences qui restent gravées pour toujours.',
+      descriptionEn: 'Cultural encounters, wildlife, local traditions and Senegalese way of life. Experiences that stay with you forever.',
+      path: '/experiences'
+    });
     this.loadImages();
   }
 

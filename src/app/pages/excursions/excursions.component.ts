@@ -4,6 +4,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-excursions',
@@ -422,11 +423,19 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
 export class ExcursionsComponent implements OnInit {
   lang = inject(LanguageService);
   excursionService = inject(ExcursionService);
+  private seo = inject(SeoService);
 
   excursions = signal<Excursion[]>([]);
   isLoading = signal(true);
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Excursions Journalières au Sénégal | Lac Rose, Gorée, Casamance',
+      titleEn: 'Daily Excursions in Senegal | Pink Lake, Gorée, Casamance',
+      descriptionFr: 'Excursions d\'une journée au Lac Rose, Île de Gorée, Casamance et plus. Guides locaux passionnés, prix compétitifs. Réservez en ligne avec NIO FAR.',
+      descriptionEn: 'Day excursions to Pink Lake, Gorée Island, Casamance and more. Passionate local guides, competitive prices. Book online with NIO FAR.',
+      path: '/excursions'
+    });
     this.loadExcursions();
   }
 

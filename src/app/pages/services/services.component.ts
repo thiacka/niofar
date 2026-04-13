@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { PageImageService } from '../../core/services/page-image.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-services',
@@ -222,6 +223,7 @@ import { PageImageService } from '../../core/services/page-image.service';
 export class ServicesComponent implements OnInit {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
+  private seo = inject(SeoService);
 
   heroImage = signal('https://images.pexels.com/photos/3889843/pexels-photo-3889843.jpeg?auto=compress&cs=tinysrgb&w=1920');
   excursionsImage = signal('https://images.pexels.com/photos/3889827/pexels-photo-3889827.jpeg?auto=compress&cs=tinysrgb&w=800');
@@ -229,6 +231,13 @@ export class ServicesComponent implements OnInit {
   accommodationImage = signal('https://images.pexels.com/photos/2507007/pexels-photo-2507007.jpeg?auto=compress&cs=tinysrgb&w=800');
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Nos Services | Excursions, Transferts & Hébergements',
+      titleEn: 'Our Services | Excursions, Transfers & Accommodation',
+      descriptionFr: 'NIO FAR propose des excursions sur mesure, des transferts aéroport AIBD et des réservations d\'hébergements au Sénégal.',
+      descriptionEn: 'NIO FAR offers tailor-made excursions, AIBD airport transfers and accommodation bookings in Senegal.',
+      path: '/services'
+    });
     this.loadImages();
   }
 

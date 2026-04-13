@@ -6,6 +6,7 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { Circuit, CircuitService, ItineraryDay } from '../../core/services/circuit.service';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { SeoService } from '../../core/services/seo.service';
 
 interface DayWithImage extends ItineraryDay {
   excursion_image?: string;
@@ -718,6 +719,7 @@ export class CircuitDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private circuitService = inject(CircuitService);
   private excursionService = inject(ExcursionService);
+  private seo = inject(SeoService);
 
   circuit = signal<Circuit | null>(null);
   itineraryDays = signal<DayWithImage[]>([]);
@@ -738,6 +740,35 @@ export class CircuitDetailComponent implements OnInit {
     this.isLoading.set(true);
     const circuit = await this.circuitService.getCircuitBySlug(slug);
     this.circuit.set(circuit);
+
+    if (circuit) {
+      this.seo.setPage({
+        titleFr: circuit.title_fr,
+        titleEn: circuit.title_en,
+        descriptionFr: circuit.description_fr.slice(0, 160),
+        descriptionEn: circuit.description_en.slice(0, 160),
+        image: circuit.image_url,
+        path: `/circuits/${slug}`
+      });
+      this.seo.setJsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'TouristTrip',
+        name: this.lang.language() === 'fr' ? circuit.title_fr : circuit.title_en,
+        description: this.lang.language() === 'fr' ? circuit.description_fr : circuit.description_en,
+        image: circuit.image_url,
+        offers: {
+          '@type': 'Offer',
+          price: circuit.price,
+          priceCurrency: 'XOF',
+          availability: 'https://schema.org/InStock'
+        },
+        provider: {
+          '@type': 'TravelAgency',
+          name: 'NIO FAR Tourisme',
+          url: 'https://nio-far-tourisme.com'
+        }
+      }, `circuit-${slug}`);
+    }
 
     if (circuit && circuit.itinerary && circuit.itinerary.length > 0) {
       const excursions = await this.excursionService.loadExcursions();

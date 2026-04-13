@@ -4,6 +4,7 @@ import { LanguageService } from '../../core/services/language.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { PageImageService } from '../../core/services/page-image.service';
 import { EditableContentDirective } from '../../shared/directives/editable-content.directive';
+import { SeoService } from '../../core/services/seo.service';
 
 interface HeroSlide {
   image: string;
@@ -540,6 +541,7 @@ interface HeroSlide {
 export class HomeComponent implements OnInit, OnDestroy {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
+  private seo = inject(SeoService);
 
   currentSlide = signal(0);
   prevSlide = signal(-1);
@@ -580,6 +582,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Agence de Voyage au Sénégal | Circuits & Excursions',
+      titleEn: 'Travel Agency in Senegal | Tours & Excursions',
+      descriptionFr: 'Découvrez le vrai Sénégal avec NIO FAR. Circuits touristiques, excursions sur mesure, transferts aéroport et hébergements. Agence locale basée à Saly Portudal.',
+      descriptionEn: 'Discover the real Senegal with NIO FAR. Tours, tailor-made excursions, airport transfers and accommodation. Local agency based in Saly Portudal.',
+      path: '/'
+    });
     this.loadImages();
     this.startAutoPlay();
   }

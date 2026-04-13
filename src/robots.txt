@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /booking/
+Disallow: /excursion-booking/
+Disallow: /confirmation/
+Disallow: /booking-lookup
+
+Sitemap: https://nio-far-tourisme.com/sitemap.xml

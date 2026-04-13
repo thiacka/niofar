@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { PageImageService } from '../../core/services/page-image.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-why-nio-far',
@@ -281,11 +282,19 @@ import { PageImageService } from '../../core/services/page-image.service';
 export class WhyNioFarComponent implements OnInit {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
+  private seo = inject(SeoService);
 
   heroImage = signal('https://media.istockphoto.com/id/1253037128/fr/photo/paysage-africain-paisible-s%C3%A9n%C3%A9gal-afrique.jpg?s=612x612&w=0&k=20&c=FgB2IkFcBtMO_pgLI08D0vKZpiPOtHPPmtecvm7jNd4=');
   teamImage = signal('https://media.istockphoto.com/id/2178639991/fr/photo/paumes-lev%C3%A9es-des-mains-dun-groupe-de-personnes-multinationales-des-africains-des-latino.jpg?s=612x612&w=0&k=20&c=KEgGbdjgbZzMlkXaOxnkRExaryk7jRHjOTJll9jS5zk=');
 
   ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Pourquoi Choisir NIO FAR ? Agence de Tourisme Local',
+      titleEn: 'Why Choose NIO FAR? Local Tourism Agency in Senegal',
+      descriptionFr: 'Agence 100% locale, guides passionnés, tourisme responsable et immersion authentique. Découvrez notre engagement pour un voyage enrichissant au Sénégal.',
+      descriptionEn: '100% local agency, passionate guides, responsible tourism and authentic immersion. Discover our commitment to enriching travel in Senegal.',
+      path: '/why-nio-far'
+    });
     this.loadImages();
   }
 

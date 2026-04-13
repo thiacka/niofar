@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LanguageService } from '../../core/services/language.service';
 import { ContactService } from '../../core/services/contact.service';
 import { ContactMessage } from '../../core/models/contact.model';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-contact',
@@ -399,9 +400,20 @@ import { ContactMessage } from '../../core/models/contact.model';
     }
   `]
 })
-export class ContactComponent {
+export class ContactComponent implements OnInit {
   lang = inject(LanguageService);
   private contactService = inject(ContactService);
+  private seo = inject(SeoService);
+
+  ngOnInit(): void {
+    this.seo.setPage({
+      titleFr: 'Contactez NIO FAR | Planifiez Votre Voyage au Sénégal',
+      titleEn: 'Contact NIO FAR | Plan Your Trip to Senegal',
+      descriptionFr: 'Contactez notre équipe pour planifier votre voyage sur mesure au Sénégal. Disponibles par WhatsApp, email ou formulaire en ligne.',
+      descriptionEn: 'Contact our team to plan your tailor-made trip to Senegal. Available by WhatsApp, email or online form.',
+      path: '/contact'
+    });
+  }
 
   formData: ContactMessage = {
     name: '',
