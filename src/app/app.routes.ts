@@ -42,6 +42,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/confirmation/confirmation.component').then(m => m.ConfirmationComponent)
   },
   {
+    path: 'rental-booking/:rentalSlug',
+    loadComponent: () => import('./pages/rental-booking/rental-booking.component').then(m => m.RentalBookingComponent)
+  },
+  {
+    path: 'transfer-booking',
+    loadComponent: () => import('./pages/transfer-booking/transfer-booking.component').then(m => m.TransferBookingComponent)
+  },
+  {
     path: 'booking-lookup',
     loadComponent: () => import('./pages/booking-lookup/booking-lookup.component').then(m => m.BookingLookupComponent)
   },

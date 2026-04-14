@@ -119,7 +119,7 @@ import { SeoService } from '../../core/services/seo.service';
                         <span class="price-note">{{ lang.t('rentals.perDay') }}</span>
                       </div>
                     </div>
-                    <a routerLink="/contact" class="btn btn-primary">{{ lang.t('rentals.contact') }}</a>
+                    <a [routerLink]="['/rental-booking', vehicle.slug]" class="btn btn-primary">{{ lang.t('rentals.bookNow') }}</a>
                   </div>
                 </div>
               </div>
@@ -187,7 +187,7 @@ import { SeoService } from '../../core/services/seo.service';
                         <span class="price-note">{{ getPriceNote(incentive) }}</span>
                       </div>
                     </div>
-                    <a routerLink="/contact" class="btn btn-primary">{{ lang.t('rentals.contact') }}</a>
+                    <a [routerLink]="['/rental-booking', incentive.slug]" class="btn btn-primary">{{ lang.t('rentals.bookNow') }}</a>
                   </div>
                 </div>
               </div>
@@ -255,7 +255,7 @@ import { SeoService } from '../../core/services/seo.service';
                         <span class="price-note">{{ getPriceNote(boat) }}</span>
                       </div>
                     </div>
-                    <a routerLink="/contact" class="btn btn-primary">{{ lang.t('rentals.contact') }}</a>
+                    <a [routerLink]="['/rental-booking', boat.slug]" class="btn btn-primary">{{ lang.t('rentals.bookNow') }}</a>
                   </div>
                 </div>
               </div>
@@ -270,7 +270,10 @@ import { SeoService } from '../../core/services/seo.service';
         <div class="cta-content" appScrollAnimate animationType="fade-in">
           <h2>{{ lang.t('rentals.cta.title') }}</h2>
           <p>{{ lang.t('rentals.cta.text') }}</p>
-          <a routerLink="/contact" class="btn btn-accent">{{ lang.t('rentals.cta.button') }}</a>
+          <div class="cta-buttons">
+            <a routerLink="/transfer-booking" class="btn btn-accent">{{ lang.t('home.services.transfers') }}</a>
+            <a routerLink="/contact" class="btn btn-outline-white">{{ lang.t('rentals.cta.button') }}</a>
+          </div>
         </div>
       </div>
     </section>
@@ -564,6 +567,22 @@ import { SeoService } from '../../core/services/seo.service';
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-outline-white {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.7);
+      color: var(--color-white);
+    }
+    .btn-outline-white:hover {
+      background: rgba(255,255,255,0.15);
     }
 
     @media (max-width: 992px) {
