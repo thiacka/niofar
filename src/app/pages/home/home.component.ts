@@ -174,6 +174,59 @@ interface HeroSlide {
       </div>
     </section>
 
+    <section class="trust-stats section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item" appScrollAnimate [animationDelay]="0">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">{{ lang.t('trust.stats.travelers') }}</span>
+          </div>
+          <div class="stat-item" appScrollAnimate [animationDelay]="100">
+            <span class="stat-number">4.9<span class="stat-unit">/5</span></span>
+            <span class="stat-label">{{ lang.t('trust.stats.rating') }}</span>
+          </div>
+          <div class="stat-item" appScrollAnimate [animationDelay]="200">
+            <span class="stat-number">5+</span>
+            <span class="stat-label">{{ lang.t('trust.stats.years') }}</span>
+          </div>
+          <div class="stat-item" appScrollAnimate [animationDelay]="300">
+            <span class="stat-number">20+</span>
+            <span class="stat-label">{{ lang.t('trust.stats.destinations') }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials section" style="background: var(--color-background-alt);">
+      <div class="container">
+        <div class="section-title" appScrollAnimate>
+          <h2>{{ lang.t('trust.testimonials.title') }}</h2>
+          <p>{{ lang.t('trust.testimonials.subtitle') }}</p>
+        </div>
+        <div class="testimonials-grid">
+          @for (t of testimonials; track t.name; let i = $index) {
+            <div class="testimonial-card" appScrollAnimate [animationDelay]="i * 100">
+              <div class="testimonial-stars">
+                @for (s of [1,2,3,4,5]; track s) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                }
+              </div>
+              <p class="testimonial-text">"{{ lang.language() === 'fr' ? t.textFr : t.textEn }}"</p>
+              <div class="testimonial-author">
+                <div class="author-avatar">{{ t.initials }}</div>
+                <div class="author-info">
+                  <span class="author-name">{{ t.name }}</span>
+                  <span class="author-origin">{{ t.flag }} {{ lang.language() === 'fr' ? t.originFr : t.originEn }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
     <section class="cta-section">
       <div class="container">
         <div class="cta-content" appScrollAnimate animationType="fade-in">
@@ -473,6 +526,121 @@ interface HeroSlide {
       font-size: 0.95rem;
     }
 
+    .trust-stats {
+      background: var(--color-primary);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-xl);
+      text-align: center;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-xl) var(--spacing-md);
+    }
+
+    .stat-number {
+      font-family: var(--font-heading);
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--color-white);
+      line-height: 1;
+    }
+
+    .stat-unit {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xl);
+    }
+
+    .testimonial-card {
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-2xl);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .testimonial-stars {
+      display: flex;
+      gap: 3px;
+      color: #f59e0b;
+    }
+
+    .testimonial-text {
+      color: var(--color-text);
+      line-height: 1.7;
+      font-style: italic;
+      flex: 1;
+      margin: 0;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid rgba(61,43,31,0.1);
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .author-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .author-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--color-text);
+    }
+
+    .author-origin {
+      font-size: 0.82rem;
+      color: var(--color-text-light);
+    }
+
     .cta-section {
       background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
       padding: var(--spacing-4xl) 0;
@@ -488,6 +656,14 @@ interface HeroSlide {
     }
 
     @media (max-width: 992px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .testimonials-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
       .intro-content {
         grid-template-columns: 1fr;
         gap: var(--spacing-2xl);
@@ -507,6 +683,16 @@ interface HeroSlide {
 
       .hero-arrow {
         display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .testimonials-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -542,6 +728,63 @@ export class HomeComponent implements OnInit, OnDestroy {
   lang = inject(LanguageService);
   private imageService = inject(PageImageService);
   private seo = inject(SeoService);
+
+  testimonials = [
+    {
+      name: 'Marie-Claire D.',
+      initials: 'MC',
+      flag: '🇫🇷',
+      originFr: 'Paris, France',
+      originEn: 'Paris, France',
+      textFr: 'Une expérience inoubliable ! L\'équipe NIO FAR nous a fait découvrir un Sénégal authentique, loin des sentiers battus. Le lac Rose, Gorée, Casamance… Chaque journée était une nouvelle merveille.',
+      textEn: 'An unforgettable experience! The NIO FAR team showed us an authentic Senegal, off the beaten track. Pink Lake, Gorée, Casamance… Every day was a new wonder.'
+    },
+    {
+      name: 'Thomas B.',
+      initials: 'TB',
+      flag: '🇧🇪',
+      originFr: 'Bruxelles, Belgique',
+      originEn: 'Brussels, Belgium',
+      textFr: 'Guides locaux excellents, logistique parfaite, prix honnêtes. Nous avons voyagé en famille avec des enfants et tout était pensé dans les moindres détails. On reviendra !',
+      textEn: 'Excellent local guides, perfect logistics, honest prices. We travelled as a family with children and everything was planned to the last detail. We\'ll be back!'
+    },
+    {
+      name: 'Aminata S.',
+      initials: 'AS',
+      flag: '🇨🇮',
+      originFr: 'Abidjan, Côte d\'Ivoire',
+      originEn: 'Abidjan, Ivory Coast',
+      textFr: 'Même venant d\'Afrique, j\'ai découvert le Sénégal sous un angle nouveau grâce à NIO FAR. La chaleur humaine, les rencontres dans les villages… C\'est exactement ce que je cherchais.',
+      textEn: 'Even coming from Africa, I discovered Senegal from a new angle thanks to NIO FAR. The human warmth, the encounters in the villages… It\'s exactly what I was looking for.'
+    },
+    {
+      name: 'Peter & Susan K.',
+      initials: 'PK',
+      flag: '🇬🇧',
+      originFr: 'Londres, Royaume-Uni',
+      originEn: 'London, UK',
+      textFr: 'Service de transfert aéroport impeccable, ponctuel et chauffeur très professionnel. Le circuit 7 jours était parfaitement organisé. Aucun stress du début à la fin.',
+      textEn: 'Impeccable airport transfer service, punctual and very professional driver. The 7-day tour was perfectly organised. No stress from start to finish.'
+    },
+    {
+      name: 'Jean-Paul M.',
+      initials: 'JP',
+      flag: '🇨🇭',
+      originFr: 'Genève, Suisse',
+      originEn: 'Geneva, Switzerland',
+      textFr: 'La réservation en ligne était simple, la réponse très rapide. Sur place, tout correspondait exactement à ce qui était promis. Un vrai professionnalisme qui fait plaisir.',
+      textEn: 'The online booking was simple, the response very quick. On site, everything corresponded exactly to what was promised. Real professionalism, a pleasure.'
+    },
+    {
+      name: 'Fatou N.',
+      initials: 'FN',
+      flag: '🇸🇳',
+      originFr: 'Dakar, Sénégal',
+      originEn: 'Dakar, Senegal',
+      textFr: 'J\'ai offert un circuit NIO FAR à ma famille venue de France. Ils ont été émerveillés. C\'est la meilleure façon de montrer le vrai Sénégal à ceux qu\'on aime.',
+      textEn: 'I gave my family who came from France a NIO FAR tour. They were amazed. It\'s the best way to show the real Senegal to those you love.'
+    }
+  ];
 
   currentSlide = signal(0);
   prevSlide = signal(-1);

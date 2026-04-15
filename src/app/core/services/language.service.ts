@@ -122,6 +122,21 @@ const translations: Translations = {
   'why.promise.text2': { en: 'Every journey is designed around you: your interests, your pace, your dreams. Whether you seek adventure, culture, relaxation, or all three, we create experiences that stay with you forever.', fr: 'Chaque voyage est concu autour de vous : vos interets, votre rythme, vos reves. Que vous cherchiez l\'aventure, la culture, la detente, ou les trois, nous creons des experiences qui restent avec vous pour toujours.' },
   'why.closing': { en: 'Your journey, our commitment.', fr: 'Votre voyage, notre engagement.' },
 
+  'trust.stats.travelers': { en: 'Happy Travelers', fr: 'Voyageurs Satisfaits' },
+  'trust.stats.rating': { en: 'Average Rating', fr: 'Note Moyenne' },
+  'trust.stats.years': { en: 'Years of Experience', fr: 'Ans d\'Expérience' },
+  'trust.stats.destinations': { en: 'Destinations', fr: 'Destinations' },
+  'trust.testimonials.title': { en: 'What Our Travelers Say', fr: 'Ce que disent nos voyageurs' },
+  'trust.testimonials.subtitle': { en: 'Authentic experiences shared by our clients', fr: 'Expériences authentiques partagées par nos clients' },
+
+  'share.title': { en: 'Share this tour', fr: 'Partager ce circuit' },
+  'share.copied': { en: 'Link copied!', fr: 'Lien copié !' },
+
+  'faq.title': { en: 'Frequently Asked Questions', fr: 'Questions Fréquentes' },
+  'faq.subtitle': { en: 'Everything you need to know before booking', fr: 'Tout ce que vous devez savoir avant de réserver' },
+  'faq.contact': { en: 'Still have questions? Contact us', fr: 'Encore des questions ? Contactez-nous' },
+  'faq.nav': { en: 'FAQ', fr: 'FAQ' },
+
   'contact.title': { en: 'Let\'s plan your journey together', fr: 'Planifions votre voyage ensemble' },
   'contact.name': { en: 'Name', fr: 'Nom' },
   'contact.email': { en: 'Email', fr: 'Email' },
