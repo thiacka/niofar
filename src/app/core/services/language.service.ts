@@ -122,6 +122,14 @@ const translations: Translations = {
   'why.promise.text2': { en: 'Every journey is designed around you: your interests, your pace, your dreams. Whether you seek adventure, culture, relaxation, or all three, we create experiences that stay with you forever.', fr: 'Chaque voyage est concu autour de vous : vos interets, votre rythme, vos reves. Que vous cherchiez l\'aventure, la culture, la detente, ou les trois, nous creons des experiences qui restent avec vous pour toujours.' },
   'why.closing': { en: 'Your journey, our commitment.', fr: 'Votre voyage, notre engagement.' },
 
+  'cookie.message': {
+    en: 'We use cookies to improve your experience and measure traffic (Google Analytics). No personal data is sold.',
+    fr: 'Nous utilisons des cookies pour améliorer votre expérience et mesurer l\'audience (Google Analytics). Aucune donnée personnelle n\'est vendue.'
+  },
+  'cookie.accept': { en: 'Accept', fr: 'Accepter' },
+  'cookie.decline': { en: 'Decline', fr: 'Refuser' },
+  'cookie.customize': { en: 'Manage preferences', fr: 'Gérer les préférences' },
+
   'payment.title': { en: 'Secure Payment', fr: 'Paiement Sécurisé' },
   'payment.subtitle': { en: 'Choose your preferred payment method', fr: 'Choisissez votre mode de paiement' },
   'payment.reference': { en: 'Booking Reference', fr: 'Référence de réservation' },

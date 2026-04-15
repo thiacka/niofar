@@ -19,6 +19,51 @@ export interface Booking {
   status: string;
   reference_number: string;
   created_at: string;
+  paid_at: string | null;
+}
+
+export interface RentalBooking {
+  id: string;
+  rental_id: string;
+  rental_title: string;
+  rental_type: 'vehicle' | 'incentive' | 'boat';
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  country: string;
+  start_date: string;
+  days: number;
+  with_driver: boolean;
+  pickup_location: string | null;
+  special_requests: string | null;
+  estimated_total: number;
+  status: string;
+  reference_number: string;
+  created_at: string;
+  paid_at: string | null;
+}
+
+export interface TransferBooking {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  country: string;
+  direction: 'airport_to_hotel' | 'hotel_to_airport';
+  flight_date: string;
+  flight_time: string;
+  flight_number: string | null;
+  hotel_name: string;
+  passengers: number;
+  luggage: number;
+  vehicle_type: string;
+  special_requests: string | null;
+  status: string;
+  reference_number: string;
+  created_at: string;
+  paid_at: string | null;
 }
 
 export interface ContactMessage {
@@ -137,6 +182,90 @@ export class AdminService {
 
     if (error) {
       console.error('Error deleting contact message:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async getRentalBookings(): Promise<RentalBooking[]> {
+    const { data, error } = await this.supabase.client
+      .from('rental_bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching rental bookings:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async updateRentalBookingStatus(id: string, status: string): Promise<boolean> {
+    const { error } = await this.supabase.client
+      .from('rental_bookings')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating rental booking status:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async deleteRentalBooking(id: string): Promise<boolean> {
+    const { error } = await this.supabase.client
+      .from('rental_bookings')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting rental booking:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async getTransferBookings(): Promise<TransferBooking[]> {
+    const { data, error } = await this.supabase.client
+      .from('transfer_bookings')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching transfer bookings:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async updateTransferBookingStatus(id: string, status: string): Promise<boolean> {
+    const { error } = await this.supabase.client
+      .from('transfer_bookings')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating transfer booking status:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async deleteTransferBooking(id: string): Promise<boolean> {
+    const { error } = await this.supabase.client
+      .from('transfer_bookings')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting transfer booking:', error);
       return false;
     }
 

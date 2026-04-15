@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/">
     <title>NIO FAR - Travel Services | Discover the Real Senegal</title>
+
+    <!-- Performance: preconnect to external origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://ukecyldurjcnpcxdhfcc.supabase.co" />
+    <link rel="preconnect" href="https://media.istockphoto.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <meta name="description" content="NIO FAR Travel Services - Authentic travel experiences in Senegal. Tailor-made excursions, airport transfers, and local accommodations. Discover the real Senegal with us." />
     <meta name="keywords" content="Senegal travel, Senegal tourism, Dakar excursions, African travel, authentic travel, NIO FAR" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>" />
@@ -47,6 +54,24 @@
       },
       "sameAs": []
     }
+    </script>
+
+    <!-- Google Analytics 4 — chargé uniquement après consentement cookie (géré par CookieBannerComponent) -->
+    <!-- Le measurement ID est défini ici mais gtag() est initialisé par le service Angular -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GA est bloqué par défaut — activé par CookieBannerComponent si consentement donné
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'wait_for_update': 500
+      });
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-L1YS1Z3S8R"></script>
+    <script>
+      gtag('js', new Date());
+      gtag('config', 'G-L1YS1Z3S8R', { send_page_view: false });
     </script>
   </head>
   <body>

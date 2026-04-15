@@ -111,7 +111,7 @@ interface DayWithImage extends ItineraryDay {
                 <div class="day-card" appScrollAnimate [animationDelay]="dayIndex * 100">
                   <div class="day-card-inner">
                     <div class="day-image-section">
-                      <img [src]="day.excursion_image || circuit()!.image_url" [alt]="getDayTitle(day)" class="day-image" />
+                      <img [src]="day.excursion_image || circuit()!.image_url" [alt]="getDayTitle(day)" class="day-image" loading="lazy" decoding="async" />
                       <div class="day-badge">
                         <span class="day-label">{{ lang.t('circuits.day') }}</span>
                         <span class="day-number-large">{{ day.day }}</span>

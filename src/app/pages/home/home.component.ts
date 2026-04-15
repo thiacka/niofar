@@ -98,7 +98,7 @@ interface HeroSlide {
             <a routerLink="/why-nio-far" class="btn btn-secondary">{{ lang.t('nav.about') }}</a>
           </div>
           <div class="intro-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img [src]="discoverImage()" alt="Senegal landscape" />
+            <img [src]="discoverImage()" alt="Senegal landscape" loading="lazy" decoding="async" />
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@ interface HeroSlide {
         <div class="gallery-grid">
           @for (item of experiencesGallery(); track item.image; let i = $index) {
             <div class="gallery-item" appScrollAnimate animationType="scale" [animationDelay]="i * 100">
-              <img [src]="item.image" [alt]="lang.t(item.labelKey)" />
+              <img [src]="item.image" [alt]="lang.t(item.labelKey)" loading="lazy" decoding="async" />
               <div class="gallery-overlay">
                 <span>{{ lang.t(item.labelKey) }}</span>
               </div>

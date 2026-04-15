@@ -54,7 +54,7 @@ import { SeoService } from '../../core/services/seo.service';
             @for (circuit of circuits(); track circuit.id; let i = $index) {
               <div class="circuit-card" appScrollAnimate [animationDelay]="i * 100">
                 <div class="circuit-image">
-                  <img [src]="circuit.image_url" [alt]="getTitle(circuit)" />
+                  <img [src]="circuit.image_url" [alt]="getTitle(circuit)" loading="lazy" decoding="async" />
                   <div class="circuit-duration">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/>
@@ -99,7 +99,7 @@ import { SeoService } from '../../core/services/seo.service';
             <a routerLink="/contact" class="btn btn-secondary">{{ lang.t('circuits.custom.cta') }}</a>
           </div>
           <div class="custom-image" appScrollAnimate animationType="fade-left" [animationDelay]="200">
-            <img src="https://media.istockphoto.com/id/472667440/fr/photo/carte-avec-drapeau-du-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=WO3M11Rq6jnoU8SFQt9tJ-MJqb-JvlNy6VEPTm1BhF0=" alt="Custom circuit" />
+            <img src="https://media.istockphoto.com/id/472667440/fr/photo/carte-avec-drapeau-du-s%C3%A9n%C3%A9gal.jpg?s=612x612&w=0&k=20&c=WO3M11Rq6jnoU8SFQt9tJ-MJqb-JvlNy6VEPTm1BhF0=" alt="Custom circuit" loading="lazy" decoding="async" />
           </div>
         </div>
       </div>

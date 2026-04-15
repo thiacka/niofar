@@ -89,7 +89,7 @@ import { SeoService } from '../../core/services/seo.service';
             @for (vehicle of vehicles(); track vehicle.id; let i = $index) {
               <div class="rental-card" appScrollAnimate [animationDelay]="i * 100">
                 <div class="rental-image">
-                  <img [src]="vehicle.image_url" [alt]="getName(vehicle)" />
+                  <img [src]="vehicle.image_url" [alt]="getName(vehicle)" loading="lazy" decoding="async" />
                   <div class="rental-category">{{ vehicle.category }}</div>
                 </div>
                 <div class="rental-content">
@@ -158,7 +158,7 @@ import { SeoService } from '../../core/services/seo.service';
             @for (incentive of incentives(); track incentive.id; let i = $index) {
               <div class="rental-card" appScrollAnimate [animationDelay]="i * 100">
                 <div class="rental-image">
-                  <img [src]="incentive.image_url" [alt]="getName(incentive)" />
+                  <img [src]="incentive.image_url" [alt]="getName(incentive)" loading="lazy" decoding="async" />
                 </div>
                 <div class="rental-content">
                   <h3>{{ getName(incentive) }}</h3>
@@ -226,7 +226,7 @@ import { SeoService } from '../../core/services/seo.service';
             @for (boat of boats(); track boat.id; let i = $index) {
               <div class="rental-card" appScrollAnimate [animationDelay]="i * 100">
                 <div class="rental-image">
-                  <img [src]="boat.image_url" [alt]="getName(boat)" />
+                  <img [src]="boat.image_url" [alt]="getName(boat)" loading="lazy" decoding="async" />
                 </div>
                 <div class="rental-content">
                   <h3>{{ getName(boat) }}</h3>

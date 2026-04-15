@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { EditModeBannerComponent } from './shared/components/edit-mode-banner/edit-mode-banner.component';
+import { CookieBannerComponent } from './shared/components/cookie-banner/cookie-banner.component';
 import { LanguageService } from './core/services/language.service';
 import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -10,7 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, EditModeBannerComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, EditModeBannerComponent, CookieBannerComponent],
   template: `
     @if (!isAdminRoute()) {
       <app-edit-mode-banner />
@@ -21,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     </main>
     @if (!isAdminRoute()) {
       <app-footer />
+      <app-cookie-banner (consentGiven)="onConsentGiven($event)" />
       <a
         [href]="whatsappUrl()"
         target="_blank"
@@ -112,10 +114,30 @@ export class AppComponent {
   isAdminRoute = toSignal(
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      map(() => this.router.url.startsWith('/admin'))
+      map((event) => {
+        this.trackPageView((event as NavigationEnd).urlAfterRedirects);
+        return this.router.url.startsWith('/admin');
+      })
     ),
     { initialValue: this.router.url.startsWith('/admin') }
   );
+
+  onConsentGiven(granted: boolean): void {
+    if (granted) {
+      const gtag = (window as any).gtag;
+      if (typeof gtag === 'function') {
+        gtag('consent', 'update', { analytics_storage: 'granted' });
+        gtag('event', 'page_view', { page_path: this.router.url });
+      }
+    }
+  }
+
+  private trackPageView(url: string): void {
+    const gtag = (window as any).gtag;
+    if (typeof gtag === 'function') {
+      gtag('event', 'page_view', { page_path: url });
+    }
+  }
 
   whatsappUrl(): string {
     const message = this.lang.language() === 'fr'
