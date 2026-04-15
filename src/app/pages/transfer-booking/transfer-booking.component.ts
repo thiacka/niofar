@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
@@ -34,21 +34,6 @@ import { BookingService, TransferBookingRequest } from '../../core/services/book
               </svg>
               {{ lang.t('nav.services') }}
             </a>
-
-            @if (successMessage()) {
-              <div class="alert alert-success">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                <span>
-                  {{ lang.t('transferBooking.success') }}
-                  @if (bookingReference()) {
-                    — <strong>{{ bookingReference() }}</strong>
-                  }
-                </span>
-              </div>
-            }
 
             @if (errorMessage()) {
               <div class="alert alert-error">{{ lang.t('transferBooking.error') }}</div>
@@ -515,9 +500,7 @@ export class TransferBookingComponent {
   private bookingService = inject(BookingService);
 
   isSubmitting = signal(false);
-  successMessage = signal(false);
   errorMessage = signal(false);
-  bookingReference = signal<string | null>(null);
 
   minDate = new Date().toISOString().split('T')[0];
 
@@ -610,10 +593,8 @@ export class TransferBookingComponent {
     const result = await this.bookingService.createTransferBooking(request);
     this.isSubmitting.set(false);
 
-    if (result.success) {
-      this.bookingReference.set(result.reference ?? null);
-      this.successMessage.set(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (result.success && result.reference) {
+      window.location.href = `/payment/${result.reference}`;
     } else {
       this.errorMessage.set(true);
     }

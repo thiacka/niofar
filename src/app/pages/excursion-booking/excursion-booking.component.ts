@@ -351,7 +351,7 @@ export class ExcursionBookingComponent implements OnInit {
       if (promo?.id) {
         await this.excursionService.incrementPromotionUsage(promo.id);
       }
-      this.router.navigate(['/confirmation', result.data.reference_number]);
+      this.router.navigate(['/payment', result.data.reference_number]);
     } else {
       this.errorMessage.set(true);
     }

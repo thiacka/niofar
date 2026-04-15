@@ -598,9 +598,8 @@ export class RentalBookingComponent implements OnInit {
     const result = await this.bookingService.createRentalBooking(request);
     this.isSubmitting.set(false);
 
-    if (result.success) {
-      this.successMessage.set(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (result.success && result.reference) {
+      this.router.navigate(['/payment', result.reference]);
     } else {
       this.errorMessage.set(true);
     }

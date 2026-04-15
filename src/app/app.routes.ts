@@ -38,6 +38,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/excursion-booking/excursion-booking.component').then(m => m.ExcursionBookingComponent)
   },
   {
+    path: 'payment/:reference',
+    loadComponent: () => import('./pages/payment/payment.component').then(m => m.PaymentComponent)
+  },
+  {
     path: 'confirmation/:reference',
     loadComponent: () => import('./pages/confirmation/confirmation.component').then(m => m.ConfirmationComponent)
   },
