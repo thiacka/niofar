@@ -71,19 +71,21 @@ update_deployment() {
     print_info "Récupération des dernières modifications..."
     git pull
 
-    print_info "Reconstruction de l'image..."
-    docker compose build
+    print_info "Reconstruction de l'image web..."
+    docker compose build web
 
-    print_info "Redémarrage des services..."
-    docker compose up -d --force-recreate
+    # On ne touche QUE le conteneur web — certbot et ses certificats restent intacts
+    print_info "Redémarrage du conteneur web uniquement..."
+    docker compose up -d --force-recreate --no-deps web
 
     print_info "Attente du démarrage..."
-    sleep 5
+    sleep 3
 
     print_info "Rechargement de nginx..."
     docker compose exec web nginx -s reload
 
     print_header "MISE À JOUR TERMINÉE"
+    print_info "Certificat SSL non modifié."
 }
 
 restart_services() {

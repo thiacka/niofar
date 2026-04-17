@@ -82,7 +82,7 @@ docker compose run --rm --entrypoint "\
     --email $email \
     --rsa-key-size $rsa_key_size \
     --agree-tos \
-    --force-renewal \
+    --keep-until-expiring \
     --non-interactive" certbot
 echo ""
 

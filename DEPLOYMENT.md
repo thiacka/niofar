@@ -142,13 +142,12 @@ tar -xzf certbot-backup.tar.gz
 ### Mettre à jour le site
 
 ```bash
-# 1. Récupérer les dernières modifications
-git pull
-
-# 2. Rebuild et redéployer
-docker-compose build
-docker-compose up -d --force-recreate
+./deploy.sh update
 ```
+
+> ⚠️ **Ne jamais relancer `init-letsencrypt.sh` pour une mise à jour normale.**
+> `init-letsencrypt.sh` est réservé à la **première installation** ou à un changement de domaine.
+> `deploy.sh update` reconstruit uniquement le conteneur `web` et laisse certbot intact.
 
 ### Surveiller l'utilisation des ressources
 
