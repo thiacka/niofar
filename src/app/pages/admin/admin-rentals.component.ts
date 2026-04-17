@@ -171,8 +171,13 @@ type FilterType = 'all' | RentalType;
               </div>
 
               <div class="form-group">
-                <label>URL de l'image</label>
+                <label>URL de l'image principale</label>
                 <input type="url" [(ngModel)]="formData.image_url" name="image_url" />
+              </div>
+
+              <div class="form-group">
+                <label>Galerie — URLs supplémentaires <small>(séparées par des virgules)</small></label>
+                <textarea [(ngModel)]="galleryUrlsText" name="gallery_urls" rows="2" placeholder="https://img1.jpg, https://img2.jpg"></textarea>
               </div>
 
               <div class="form-section">
@@ -684,6 +689,7 @@ export class AdminRentalsComponent implements OnInit {
   formData: RentalFormData = this.getEmptyFormData();
   featuresFrText = '';
   featuresEnText = '';
+  galleryUrlsText = '';
 
   vehicleCategories = [
     { value: '4x4', label: '4x4' },
@@ -788,6 +794,7 @@ export class AdminRentalsComponent implements OnInit {
     this.formData = this.getEmptyFormData();
     this.featuresFrText = '';
     this.featuresEnText = '';
+    this.galleryUrlsText = '';
     this.isEditing.set(false);
     this.editingRentalId.set(null);
     this.showForm.set(true);
@@ -815,6 +822,7 @@ export class AdminRentalsComponent implements OnInit {
     };
     this.featuresFrText = rental.features_fr.join(', ');
     this.featuresEnText = rental.features_en.join(', ');
+    this.galleryUrlsText = (rental.gallery_urls || []).join(', ');
     this.isEditing.set(true);
     this.editingRentalId.set(rental.id);
     this.showForm.set(true);
@@ -830,6 +838,7 @@ export class AdminRentalsComponent implements OnInit {
 
     this.formData.features_fr = this.featuresFrText.split(',').map(s => s.trim()).filter(s => s);
     this.formData.features_en = this.featuresEnText.split(',').map(s => s.trim()).filter(s => s);
+    this.formData.gallery_urls = this.galleryUrlsText.split(',').map(s => s.trim()).filter(s => s);
 
     let success = false;
     if (this.isEditing() && this.editingRentalId()) {

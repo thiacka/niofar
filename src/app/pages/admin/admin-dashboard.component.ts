@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
-import { CircuitService, Circuit } from '../../core/services/circuit.service';
+import { AdminService, Booking, RentalBooking, TransferBooking, ContactMessage } from '../../core/services/admin.service';
+import { CircuitService } from '../../core/services/circuit.service';
 import { LanguageService } from '../../core/services/language.service';
 
 interface DashboardStats {
@@ -668,21 +668,25 @@ export class AdminDashboardComponent implements OnInit {
   async loadDashboardData(): Promise<void> {
     this.isLoading.set(true);
 
-    const [bookings, messages, circuits] = await Promise.all([
+    const [bookings, rentalBookings, transferBookings, messages, circuits] = await Promise.all([
       this.adminService.getBookings(),
+      this.adminService.getRentalBookings(),
+      this.adminService.getTransferBookings(),
       this.adminService.getContactMessages(),
       this.circuitService.loadAllCircuits()
     ]);
 
-    const pendingBookings = bookings.filter(b => b.status === 'pending').length;
-    const confirmedBookings = bookings.filter(b => b.status === 'confirmed').length;
-    const cancelledBookings = bookings.filter(b => b.status === 'cancelled').length;
-    const totalRevenue = bookings
+    const allBookings = [...bookings, ...rentalBookings, ...transferBookings];
+    const pendingBookings = allBookings.filter(b => b.status === 'pending' || b.status === 'pending_payment').length;
+    const confirmedBookings = allBookings.filter(b => b.status === 'confirmed').length;
+    const cancelledBookings = allBookings.filter(b => b.status === 'cancelled').length;
+    const pricedBookings = [...bookings, ...rentalBookings];
+    const totalRevenue = pricedBookings
       .filter(b => b.status === 'confirmed')
       .reduce((sum, b) => sum + b.estimated_total, 0);
 
     this.stats.set({
-      totalBookings: bookings.length,
+      totalBookings: allBookings.length,
       pendingBookings,
       confirmedBookings,
       cancelledBookings,

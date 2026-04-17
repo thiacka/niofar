@@ -82,7 +82,7 @@ export class AdminService {
   private supabase = inject(SupabaseService);
 
   // SHA-256 hash of the admin password (computed via Web Crypto API)
-  private readonly adminPasswordHash = 'b8ff9b2af9b3550745872925ce0373271b91c60ab21a25bd5a0b945ebbcf2708';
+  private readonly adminPasswordHash = 'bb1fd9e86eb35bf0218d3e7732678478e0fbdbc81936f7cf3abb34105ae29718';
   isAuthenticated = signal(false);
 
   private async hashPassword(password: string): Promise<string> {

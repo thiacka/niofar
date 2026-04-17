@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { CircuitService, Circuit, Promotion, PromotionFormData } from '../../core/services/circuit.service';
+import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
@@ -37,7 +38,7 @@ import { LanguageService } from '../../core/services/language.service';
                 <th>{{ lang.t('admin.code') }}</th>
                 <th>{{ lang.t('admin.promoName') }}</th>
                 <th>{{ lang.t('admin.discount') }}</th>
-                <th>{{ lang.t('admin.circuit') }}</th>
+                <th>Applicable à</th>
                 <th>{{ lang.t('admin.validity') }}</th>
                 <th>{{ lang.t('admin.usage') }}</th>
                 <th>{{ lang.t('admin.status') }}</th>
@@ -60,9 +61,9 @@ import { LanguageService } from '../../core/services/language.service';
                   </td>
                   <td>
                     @if (promo.circuit_id) {
-                      {{ getCircuitName(promo.circuit_id) }}
+                      {{ getApplicableName(promo.circuit_id) }}
                     } @else {
-                      <span class="all-circuits">{{ lang.t('admin.allCircuits') }}</span>
+                      <span class="all-circuits">Toutes réservations</span>
                     }
                   </td>
                   <td>
@@ -160,11 +161,22 @@ import { LanguageService } from '../../core/services/language.service';
                   }
                 </div>
                 <div class="form-group">
-                  <label>{{ lang.t('admin.circuit') }}</label>
+                  <label>Applicable à</label>
                   <select [(ngModel)]="formData.circuit_id" name="circuit_id">
-                    <option [ngValue]="null">{{ lang.t('admin.allCircuits') }}</option>
-                    @for (circuit of circuits(); track circuit.id) {
-                      <option [ngValue]="circuit.id">{{ circuit.title_fr }}</option>
+                    <option [ngValue]="null">Toutes réservations</option>
+                    @if (circuits().length > 0) {
+                      <optgroup label="Circuits">
+                        @for (circuit of circuits(); track circuit.id) {
+                          <option [ngValue]="circuit.id">{{ circuit.title_fr }}</option>
+                        }
+                      </optgroup>
+                    }
+                    @if (excursions().length > 0) {
+                      <optgroup label="Excursions &amp; Découvertes">
+                        @for (excursion of excursions(); track excursion.id) {
+                          <option [ngValue]="excursion.id">{{ excursion.title_fr }}</option>
+                        }
+                      </optgroup>
                     }
                   </select>
                 </div>
@@ -623,8 +635,10 @@ import { LanguageService } from '../../core/services/language.service';
 export class AdminPromotionsComponent implements OnInit {
   lang = inject(LanguageService);
   circuitService = inject(CircuitService);
+  excursionService = inject(ExcursionService);
 
   circuits = signal<Circuit[]>([]);
+  excursions = signal<Excursion[]>([]);
   promotions = signal<Promotion[]>([]);
   isLoading = signal(false);
   showForm = signal(false);
@@ -641,11 +655,13 @@ export class AdminPromotionsComponent implements OnInit {
 
   async loadData(): Promise<void> {
     this.isLoading.set(true);
-    const [circuits, promotions] = await Promise.all([
+    const [circuits, excursions, promotions] = await Promise.all([
       this.circuitService.loadAllCircuits(),
+      this.excursionService.loadAllExcursions(),
       this.circuitService.loadAllPromotions()
     ]);
     this.circuits.set(circuits);
+    this.excursions.set(excursions);
     this.promotions.set(promotions);
     this.isLoading.set(false);
   }
@@ -668,9 +684,12 @@ export class AdminPromotionsComponent implements OnInit {
     };
   }
 
-  getCircuitName(circuitId: string): string {
-    const circuit = this.circuits().find(c => c.id === circuitId);
-    return circuit?.title_fr || '';
+  getApplicableName(id: string): string {
+    const circuit = this.circuits().find(c => c.id === id);
+    if (circuit) return `Circuit: ${circuit.title_fr}`;
+    const excursion = this.excursions().find(e => e.id === id);
+    if (excursion) return `Excursion: ${excursion.title_fr}`;
+    return id;
   }
 
   openCreateForm(): void {

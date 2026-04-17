@@ -20,13 +20,25 @@ import { LanguageService } from '../../core/services/language.service';
       </button>
     </div>
 
+    <div class="type-filter">
+      <button class="filter-btn" [class.active]="excursionFilter() === 'all'" (click)="excursionFilter.set('all')">
+        Toutes ({{ excursions().length }})
+      </button>
+      <button class="filter-btn" [class.active]="excursionFilter() === 'excursion'" (click)="excursionFilter.set('excursion')">
+        Excursions ({{ countByType(false) }})
+      </button>
+      <button class="filter-btn" [class.active]="excursionFilter() === 'decouverte'" (click)="excursionFilter.set('decouverte')">
+        Découvertes ({{ countByType(true) }})
+      </button>
+    </div>
+
     @if (isLoading()) {
       <div class="loading">
         <div class="spinner"></div>
       </div>
     } @else {
       <div class="excursions-grid">
-        @for (excursion of excursions(); track excursion.id) {
+        @for (excursion of filteredExcursions(); track excursion.id) {
           <div class="excursion-card" [class.inactive]="!excursion.is_active">
             <div class="excursion-image">
               <img [src]="excursion.image_url" [alt]="excursion.title_fr" />
@@ -35,6 +47,9 @@ import { LanguageService } from '../../core/services/language.service';
               }
             </div>
             <div class="excursion-info">
+              <span class="excursion-type-badge" [class.multi-day]="excursion.is_multi_day">
+                {{ excursion.is_multi_day ? 'Découverte' : 'Excursion' }}
+              </span>
               <h3>{{ excursion.title_fr }}</h3>
               <p class="excursion-duration">{{ excursion.duration_fr }}</p>
               <p class="excursion-price">{{ excursion.price | number }} FCFA</p>
@@ -164,6 +179,12 @@ import { LanguageService } from '../../core/services/language.service';
                     {{ lang.t('admin.active') }}
                   </label>
                 </div>
+              </div>
+              <div class="form-group checkbox-group multi-day-toggle">
+                <label>
+                  <input type="checkbox" [(ngModel)]="formData.is_multi_day" name="is_multi_day" />
+                  <span>Découverte multi-jours <small>(affichée dans "Découvertes", pas dans "Excursions")</small></span>
+                </label>
               </div>
 
               <div class="form-actions">
@@ -509,6 +530,63 @@ import { LanguageService } from '../../core/services/language.service';
       color: var(--color-white);
     }
 
+    .type-filter {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .filter-btn {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(61, 43, 31, 0.2);
+      background: var(--color-white);
+      color: var(--color-text-light);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+
+    .excursion-type-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(43, 138, 138, 0.12);
+      color: var(--color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .excursion-type-badge.multi-day {
+      background: rgba(196, 104, 43, 0.12);
+      color: var(--color-primary);
+    }
+
+    .multi-day-toggle {
+      background: rgba(196, 104, 43, 0.06);
+      border: 1px solid rgba(196, 104, 43, 0.2);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .multi-day-toggle small {
+      font-size: 0.8rem;
+      color: var(--color-text-light);
+      font-weight: 400;
+    }
+
     @media (max-width: 600px) {
       .section-header {
         flex-direction: column;
@@ -536,10 +614,22 @@ export class AdminExcursionsComponent implements OnInit {
   isEditing = signal(false);
   isSaving = signal(false);
   editingExcursionId = signal<string | null>(null);
+  excursionFilter = signal<'all' | 'excursion' | 'decouverte'>('all');
 
   formData: ExcursionFormData = this.getEmptyFormData();
   highlightsFrText = '';
   highlightsEnText = '';
+
+  filteredExcursions(): Excursion[] {
+    const f = this.excursionFilter();
+    if (f === 'excursion') return this.excursions().filter(e => !e.is_multi_day);
+    if (f === 'decouverte') return this.excursions().filter(e => e.is_multi_day);
+    return this.excursions();
+  }
+
+  countByType(multiDay: boolean): number {
+    return this.excursions().filter(e => e.is_multi_day === multiDay).length;
+  }
 
   ngOnInit(): void {
     this.loadExcursions();
@@ -568,6 +658,7 @@ export class AdminExcursionsComponent implements OnInit {
       price_note_en: 'per person',
       price_note_fr: 'par personne',
       is_active: true,
+      is_multi_day: false,
       display_order: 0
     };
   }
@@ -597,6 +688,7 @@ export class AdminExcursionsComponent implements OnInit {
       price_note_en: excursion.price_note_en,
       price_note_fr: excursion.price_note_fr,
       is_active: excursion.is_active,
+      is_multi_day: excursion.is_multi_day,
       display_order: excursion.display_order
     };
     this.highlightsFrText = excursion.highlights_fr.join(', ');

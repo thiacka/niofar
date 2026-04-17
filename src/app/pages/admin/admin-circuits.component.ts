@@ -1,14 +1,14 @@
 import { Component, inject, signal, OnInit, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
-import { CircuitService, Circuit, CircuitFormData } from '../../core/services/circuit.service';
+import { DecimalPipe, SlicePipe } from '@angular/common';
+import { CircuitService, Circuit, CircuitFormData, ItineraryDay } from '../../core/services/circuit.service';
 import { CircuitStageService, CircuitStage, CircuitStageFormData } from '../../core/services/circuit-stage.service';
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-admin-circuits',
   standalone: true,
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, SlicePipe],
   template: `
     <div class="section-header">
       <h2>{{ lang.t('admin.circuitsManagement') }}</h2>
@@ -39,8 +39,22 @@ import { LanguageService } from '../../core/services/language.service';
               <h3>{{ circuit.title_fr }}</h3>
               <p class="circuit-duration">{{ circuit.duration_fr }}</p>
               <p class="circuit-price">{{ circuit.price | number }} FCFA</p>
+              <p class="circuit-meta">
+                <span class="meta-badge itinerary">{{ (circuit.itinerary || []).length }} jour(s)</span>
+              </p>
             </div>
             <div class="circuit-actions">
+              <button class="btn-icon" title="Gérer l'itinéraire" (click)="openItineraryManager(circuit)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                  <line x1="8" y1="14" x2="8.01" y2="14"/>
+                  <line x1="12" y1="14" x2="12.01" y2="14"/>
+                  <line x1="16" y1="14" x2="16.01" y2="14"/>
+                </svg>
+              </button>
               <button class="btn-icon" [title]="lang.t('admin.manageStages')" (click)="openStagesManager(circuit)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="8" y1="6" x2="21" y2="6"/>
@@ -416,6 +430,167 @@ import { LanguageService } from '../../core/services/language.service';
         </div>
       </div>
     }
+
+    @if (showItineraryManager()) {
+      <div class="modal-overlay" (click)="closeItineraryManager()">
+        <div class="modal xlarge" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Itinéraire — {{ currentCircuit()?.title_fr }}</h3>
+            <button class="btn-close" (click)="closeItineraryManager()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="stages-header">
+              <p class="help-text">Définissez le programme jour par jour affiché sur la page détail du circuit.</p>
+              <button class="btn btn-primary" (click)="openDayForm()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Ajouter un jour
+              </button>
+            </div>
+
+            @if (itineraryDays().length === 0) {
+              <div class="empty-state">
+                <p>Aucun jour défini — cliquez "Ajouter un jour" pour commencer.</p>
+              </div>
+            } @else {
+              <div class="stages-list">
+                @for (day of itineraryDays(); track day.day; let i = $index) {
+                  <div class="stage-item">
+                    <div class="stage-badge">Jour {{ day.day }}</div>
+                    <div class="stage-info">
+                      <h4>{{ day.title_fr }}</h4>
+                      @if (day.location_fr) {
+                        <p class="stage-location">📍 {{ day.location_fr }}</p>
+                      }
+                      <p class="stage-location">{{ day.description_fr | slice:0:100 }}{{ day.description_fr.length > 100 ? '…' : '' }}</p>
+                      @if (day.accommodation_fr) {
+                        <p class="stage-location">🏨 {{ day.accommodation_fr }}</p>
+                      }
+                      @if (day.meals_fr) {
+                        <p class="stage-location">🍽 {{ day.meals_fr }}</p>
+                      }
+                      @if (day.excursion_image) {
+                        <div class="stage-images-preview">
+                          <img [src]="day.excursion_image" [alt]="day.title_fr" />
+                        </div>
+                      }
+                    </div>
+                    <div class="stage-actions">
+                      <button class="btn-icon" title="Modifier" (click)="openDayForm(i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      <button class="btn-icon danger" title="Supprimer" (click)="deleteDayFromItinerary(i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (showDayForm()) {
+      <div class="modal-overlay" (click)="closeDayForm()">
+        <div class="modal large" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{ editingDayIndex() !== null ? 'Modifier le jour' : 'Ajouter un jour' }}</h3>
+            <button class="btn-close" (click)="closeDayForm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveDayToItinerary()">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Numéro du jour *</label>
+                  <input type="number" [(ngModel)]="dayFormData.day" name="day" min="1" required />
+                </div>
+                <div class="form-group">
+                  <label>Image du jour (URL)</label>
+                  <input type="url" [(ngModel)]="dayFormData.excursion_image" name="excursion_image" placeholder="https://..." />
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Français</h4>
+                <div class="form-group">
+                  <label>Titre *</label>
+                  <input type="text" [(ngModel)]="dayFormData.title_fr" name="title_fr" required />
+                </div>
+                <div class="form-group">
+                  <label>Description *</label>
+                  <textarea [(ngModel)]="dayFormData.description_fr" name="description_fr" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Lieu / Étapes</label>
+                    <input type="text" [(ngModel)]="dayFormData.location_fr" name="location_fr" placeholder="Dakar → Saly" />
+                  </div>
+                  <div class="form-group">
+                    <label>Hébergement</label>
+                    <input type="text" [(ngModel)]="dayFormData.accommodation_fr" name="accommodation_fr" placeholder="Hôtel Les Almadies" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Repas inclus</label>
+                  <input type="text" [(ngModel)]="dayFormData.meals_fr" name="meals_fr" placeholder="Petit-déjeuner, Dîner" />
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>English</h4>
+                <div class="form-group">
+                  <label>Title *</label>
+                  <input type="text" [(ngModel)]="dayFormData.title_en" name="title_en" required />
+                </div>
+                <div class="form-group">
+                  <label>Description *</label>
+                  <textarea [(ngModel)]="dayFormData.description_en" name="description_en" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Location / Stops</label>
+                    <input type="text" [(ngModel)]="dayFormData.location_en" name="location_en" placeholder="Dakar → Saly" />
+                  </div>
+                  <div class="form-group">
+                    <label>Accommodation</label>
+                    <input type="text" [(ngModel)]="dayFormData.accommodation_en" name="accommodation_en" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Meals included</label>
+                  <input type="text" [(ngModel)]="dayFormData.meals_en" name="meals_en" placeholder="Breakfast, Dinner" />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-outline" (click)="closeDayForm()">Annuler</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                  @if (isSaving()) { <span class="spinner-small"></span> }
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     .section-header {
@@ -506,6 +681,31 @@ import { LanguageService } from '../../core/services/language.service';
       font-weight: 700;
       color: var(--color-primary);
       font-size: 1.1rem;
+    }
+
+    .circuit-meta {
+      margin: var(--spacing-xs) 0 0;
+    }
+
+    .meta-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .meta-badge.itinerary {
+      background: rgba(43, 138, 138, 0.12);
+      color: var(--color-secondary);
+    }
+
+    .help-text {
+      font-size: 0.9rem;
+      color: var(--color-text-light);
+      margin-bottom: var(--spacing-lg);
     }
 
     .circuit-actions {
@@ -926,6 +1126,13 @@ export class AdminCircuitsComponent implements OnInit {
   stageFormData: CircuitStageFormData = this.getEmptyStageFormData();
   stageImagesText = '';
 
+  // Itinerary manager
+  showItineraryManager = signal(false);
+  showDayForm = signal(false);
+  itineraryDays = signal<ItineraryDay[]>([]);
+  editingDayIndex = signal<number | null>(null);
+  dayFormData: ItineraryDay = this.getEmptyDayData();
+
   ngOnInit(): void {
     this.loadCircuits();
   }
@@ -1170,6 +1377,103 @@ export class AdminCircuitsComponent implements OnInit {
       }
     }
   }
+
+  // ── Itinerary manager ──────────────────────────────────────────────────────
+
+  getEmptyDayData(): ItineraryDay {
+    return {
+      day: 1,
+      title_fr: '',
+      title_en: '',
+      description_fr: '',
+      description_en: '',
+      location_fr: '',
+      location_en: '',
+      accommodation_fr: '',
+      accommodation_en: '',
+      meals_fr: '',
+      meals_en: '',
+      excursion_image: ''
+    };
+  }
+
+  openItineraryManager(circuit: Circuit): void {
+    this.currentCircuit.set(circuit);
+    this.itineraryDays.set([...(circuit.itinerary || [])].sort((a, b) => a.day - b.day));
+    this.showItineraryManager.set(true);
+  }
+
+  closeItineraryManager(): void {
+    this.showItineraryManager.set(false);
+    this.currentCircuit.set(null);
+    this.itineraryDays.set([]);
+  }
+
+  openDayForm(index?: number): void {
+    if (index !== undefined) {
+      const day = this.itineraryDays()[index];
+      this.dayFormData = { ...day };
+      this.editingDayIndex.set(index);
+    } else {
+      const nextDay = (this.itineraryDays().length > 0)
+        ? Math.max(...this.itineraryDays().map(d => d.day)) + 1
+        : 1;
+      this.dayFormData = { ...this.getEmptyDayData(), day: nextDay };
+      this.editingDayIndex.set(null);
+    }
+    this.showDayForm.set(true);
+  }
+
+  closeDayForm(): void {
+    this.showDayForm.set(false);
+    this.dayFormData = this.getEmptyDayData();
+    this.editingDayIndex.set(null);
+  }
+
+  async saveDayToItinerary(): Promise<void> {
+    const circuit = this.currentCircuit();
+    if (!circuit) return;
+
+    this.isSaving.set(true);
+
+    const days = [...this.itineraryDays()];
+    const idx = this.editingDayIndex();
+    if (idx !== null) {
+      days[idx] = { ...this.dayFormData };
+    } else {
+      days.push({ ...this.dayFormData });
+    }
+    days.sort((a, b) => a.day - b.day);
+
+    const success = await this.circuitService.updateCircuit(circuit.id, { itinerary: days });
+    this.isSaving.set(false);
+
+    if (success) {
+      this.itineraryDays.set(days);
+      // Update the circuit in the local list so the badge stays in sync
+      this.circuits.update(list =>
+        list.map(c => c.id === circuit.id ? { ...c, itinerary: days } : c)
+      );
+      this.closeDayForm();
+    }
+  }
+
+  async deleteDayFromItinerary(index: number): Promise<void> {
+    const circuit = this.currentCircuit();
+    if (!circuit) return;
+    if (!confirm('Supprimer ce jour de l\'itinéraire ?')) return;
+
+    const days = this.itineraryDays().filter((_, i) => i !== index);
+    const success = await this.circuitService.updateCircuit(circuit.id, { itinerary: days });
+    if (success) {
+      this.itineraryDays.set(days);
+      this.circuits.update(list =>
+        list.map(c => c.id === circuit.id ? { ...c, itinerary: days } : c)
+      );
+    }
+  }
+
+  // ── Stage manager ───────────────────────────────────────────────────────────
 
   async deleteStage(stage: CircuitStage): Promise<void> {
     if (confirm(this.lang.t('admin.confirmDeleteStage'))) {

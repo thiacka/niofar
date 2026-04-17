@@ -39,6 +39,7 @@ export interface ExcursionFormData {
   highlights_en: string[];
   image_url: string;
   is_active: boolean;
+  is_multi_day: boolean;
   display_order: number;
 }
 

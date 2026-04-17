@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
+import { AdminService, Booking, RentalBooking, TransferBooking, ContactMessage } from '../../core/services/admin.service';
 import { LanguageService } from '../../core/services/language.service';
 import { AdminCircuitsComponent } from './admin-circuits.component';
 import { AdminExcursionsComponent } from './admin-excursions.component';
@@ -96,7 +96,7 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
               (click)="setTab('bookings')"
             >
               {{ lang.t('admin.bookings') }}
-              <span class="badge">{{ bookings().length }}</span>
+              <span class="badge">{{ allBookingsCount() }}</span>
             </button>
             <button
               class="tab"
@@ -168,107 +168,251 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
             }
 
             @if (activeTab() === 'bookings') {
-              <div class="table-container">
-                @if (bookings().length === 0) {
-                  <div class="empty-state">
-                    <p>{{ lang.t('admin.noBookings') }}</p>
-                  </div>
-                } @else {
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>{{ lang.t('admin.reference') }}</th>
-                        <th>{{ lang.t('admin.client') }}</th>
-                        <th>{{ lang.t('admin.circuit') }}</th>
-                        <th>{{ lang.t('admin.date') }}</th>
-                        <th>{{ lang.t('admin.travelers') }}</th>
-                        <th>{{ lang.t('admin.total') }}</th>
-                        <th>{{ lang.t('admin.status') }}</th>
-                        <th>{{ lang.t('admin.actions') }}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (booking of bookings(); track booking.id) {
-                        <tr>
-                          <td>
-                            <span class="reference">{{ booking.reference_number }}</span>
-                          </td>
-                          <td>
-                            <div class="client-info">
-                              <span class="client-name">{{ booking.first_name }} {{ booking.last_name }}</span>
-                              <span class="client-email">{{ booking.email }}</span>
-                              <span class="client-country">{{ booking.country }}</span>
-                            </div>
-                          </td>
-                          <td>{{ booking.excursion_title }}</td>
-                          <td>
-                            <div class="date-info">
-                              <span>{{ booking.start_date | date:'dd/MM/yyyy' }}</span>
-                              @if (booking.end_date) {
-                                <span class="date-separator">-</span>
-                                <span>{{ booking.end_date | date:'dd/MM/yyyy' }}</span>
-                              }
-                            </div>
-                          </td>
-                          <td>
-                            <span>{{ booking.adults }} {{ lang.t('admin.adults') }}</span>
-                            @if (booking.children > 0) {
-                              <span>, {{ booking.children }} {{ lang.t('admin.children') }}</span>
-                            }
-                          </td>
-                          <td>
-                            <span class="total">{{ booking.estimated_total | number }} FCFA</span>
-                          </td>
-                          <td>
-                            <span class="status-badge" [class]="'status-' + booking.status">
-                              {{ lang.t('admin.status.' + booking.status) }}
-                            </span>
-                          </td>
-                          <td>
-                            <div class="actions">
-                              <select
-                                [value]="booking.status"
-                                (change)="updateStatus(booking.id, $event)"
-                                class="status-select"
-                              >
-                                <option value="pending">{{ lang.t('admin.status.pending') }}</option>
-                                <option value="confirmed">{{ lang.t('admin.status.confirmed') }}</option>
-                                <option value="cancelled">{{ lang.t('admin.status.cancelled') }}</option>
-                              </select>
-                              @if (booking.special_requests) {
-                                <button
-                                  class="btn-icon"
-                                  [title]="lang.t('admin.viewNotes')"
-                                  (click)="showNotes(booking)"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                  </svg>
-                                </button>
-                              }
-                              <button
-                                class="btn-icon btn-danger"
-                                [title]="lang.t('admin.delete')"
-                                (click)="deleteBooking(booking.id)"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                  <polyline points="3 6 5 6 21 6"/>
-                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                  <line x1="10" y1="11" x2="10" y2="17"/>
-                                  <line x1="14" y1="11" x2="14" y2="17"/>
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                }
+              <div class="booking-filters">
+                <button class="filter-btn" [class.active]="bookingFilter() === 'all'" (click)="bookingFilter.set('all')">
+                  Tous ({{ allBookingsCount() }})
+                </button>
+                <button class="filter-btn" [class.active]="bookingFilter() === 'circuits'" (click)="bookingFilter.set('circuits')">
+                  Circuits ({{ bookings().length }})
+                </button>
+                <button class="filter-btn" [class.active]="bookingFilter() === 'rentals'" (click)="bookingFilter.set('rentals')">
+                  Locations ({{ rentalBookings().length }})
+                </button>
+                <button class="filter-btn" [class.active]="bookingFilter() === 'transfers'" (click)="bookingFilter.set('transfers')">
+                  Transferts ({{ transferBookings().length }})
+                </button>
               </div>
+
+              @if (bookingFilter() === 'all' || bookingFilter() === 'circuits') {
+                @if (bookings().length > 0) {
+                  <h3 class="booking-section-title">Réservations Circuits</h3>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>{{ lang.t('admin.reference') }}</th>
+                          <th>{{ lang.t('admin.client') }}</th>
+                          <th>Circuit / Excursion</th>
+                          <th>{{ lang.t('admin.date') }}</th>
+                          <th>Voyageurs</th>
+                          <th>{{ lang.t('admin.total') }}</th>
+                          <th>{{ lang.t('admin.status') }}</th>
+                          <th>{{ lang.t('admin.actions') }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (booking of bookings(); track booking.id) {
+                          <tr>
+                            <td><span class="reference">{{ booking.reference_number }}</span></td>
+                            <td>
+                              <div class="client-info">
+                                <span class="client-name">{{ booking.first_name }} {{ booking.last_name }}</span>
+                                <span class="client-email">{{ booking.email }}</span>
+                                <span class="client-country">{{ booking.country }}</span>
+                              </div>
+                            </td>
+                            <td>{{ booking.excursion_title }}</td>
+                            <td>
+                              <div class="date-info">
+                                <span>{{ booking.start_date | date:'dd/MM/yyyy' }}</span>
+                                @if (booking.end_date) {
+                                  <span> – {{ booking.end_date | date:'dd/MM/yyyy' }}</span>
+                                }
+                              </div>
+                            </td>
+                            <td>{{ booking.adults }}A@if (booking.children > 0) { / {{ booking.children }}E}</td>
+                            <td><span class="total">{{ booking.estimated_total | number }} FCFA</span></td>
+                            <td>
+                              <span class="status-badge" [class]="'status-' + booking.status">
+                                {{ statusLabel(booking.status) }}
+                              </span>
+                              @if (booking.paid_at) {
+                                <span class="paid-badge">Payé</span>
+                              }
+                            </td>
+                            <td>
+                              <div class="actions">
+                                <select [value]="booking.status" (change)="updateStatus(booking.id, $event)" class="status-select">
+                                  <option value="pending_payment">En attente paiement</option>
+                                  <option value="pending">En attente</option>
+                                  <option value="confirmed">Confirmé</option>
+                                  <option value="cancelled">Annulé</option>
+                                </select>
+                                @if (booking.special_requests) {
+                                  <button class="btn-icon" title="Notes" (click)="showNotes(booking)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                  </button>
+                                }
+                                <button class="btn-icon btn-danger" title="Supprimer" (click)="deleteBooking(booking.id)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+
+              @if (bookingFilter() === 'all' || bookingFilter() === 'rentals') {
+                @if (rentalBookings().length > 0) {
+                  <h3 class="booking-section-title">Réservations Locations</h3>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Référence</th>
+                          <th>Client</th>
+                          <th>Véhicule</th>
+                          <th>Départ / Durée</th>
+                          <th>Avec chauffeur</th>
+                          <th>Total</th>
+                          <th>Statut</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (rb of rentalBookings(); track rb.id) {
+                          <tr>
+                            <td><span class="reference">{{ rb.reference_number }}</span></td>
+                            <td>
+                              <div class="client-info">
+                                <span class="client-name">{{ rb.first_name }} {{ rb.last_name }}</span>
+                                <span class="client-email">{{ rb.email }}</span>
+                                <span class="client-country">{{ rb.country }}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span>{{ rb.rental_title }}</span>
+                              <span class="client-country">{{ rb.rental_type }}</span>
+                            </td>
+                            <td>
+                              <div class="date-info">
+                                <span>{{ rb.start_date | date:'dd/MM/yyyy' }}</span>
+                                <span class="client-country">{{ rb.days }} jour(s)</span>
+                              </div>
+                            </td>
+                            <td>{{ rb.with_driver ? 'Oui' : 'Non' }}</td>
+                            <td><span class="total">{{ rb.estimated_total | number }} FCFA</span></td>
+                            <td>
+                              <span class="status-badge" [class]="'status-' + rb.status">
+                                {{ statusLabel(rb.status) }}
+                              </span>
+                              @if (rb.paid_at) {
+                                <span class="paid-badge">Payé</span>
+                              }
+                            </td>
+                            <td>
+                              <div class="actions">
+                                <select [value]="rb.status" (change)="updateRentalStatus(rb.id, $event)" class="status-select">
+                                  <option value="pending_payment">En attente paiement</option>
+                                  <option value="pending">En attente</option>
+                                  <option value="confirmed">Confirmé</option>
+                                  <option value="cancelled">Annulé</option>
+                                </select>
+                                @if (rb.special_requests) {
+                                  <button class="btn-icon" title="Notes" (click)="showRentalNotes(rb)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                  </button>
+                                }
+                                <button class="btn-icon btn-danger" title="Supprimer" (click)="deleteRentalBooking(rb.id)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+
+              @if (bookingFilter() === 'all' || bookingFilter() === 'transfers') {
+                @if (transferBookings().length > 0) {
+                  <h3 class="booking-section-title">Réservations Transferts</h3>
+                  <div class="table-container">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Référence</th>
+                          <th>Client</th>
+                          <th>Direction</th>
+                          <th>Vol / Date</th>
+                          <th>Hôtel</th>
+                          <th>Pax / Bagages</th>
+                          <th>Statut</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (tb of transferBookings(); track tb.id) {
+                          <tr>
+                            <td><span class="reference">{{ tb.reference_number }}</span></td>
+                            <td>
+                              <div class="client-info">
+                                <span class="client-name">{{ tb.first_name }} {{ tb.last_name }}</span>
+                                <span class="client-email">{{ tb.email }}</span>
+                                <span class="client-country">{{ tb.country }}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span class="direction-badge" [class.dir-in]="tb.direction === 'airport_to_hotel'">
+                                {{ tb.direction === 'airport_to_hotel' ? '✈→🏨' : '🏨→✈' }}
+                              </span>
+                              <span class="client-country">{{ tb.vehicle_type }}</span>
+                            </td>
+                            <td>
+                              <div class="date-info">
+                                <span>{{ tb.flight_date | date:'dd/MM/yyyy' }} {{ tb.flight_time }}</span>
+                                @if (tb.flight_number) {
+                                  <span class="client-country">{{ tb.flight_number }}</span>
+                                }
+                              </div>
+                            </td>
+                            <td>{{ tb.hotel_name }}</td>
+                            <td>{{ tb.passengers }}P / {{ tb.luggage }}B</td>
+                            <td>
+                              <span class="status-badge" [class]="'status-' + tb.status">
+                                {{ statusLabel(tb.status) }}
+                              </span>
+                              @if (tb.paid_at) {
+                                <span class="paid-badge">Payé</span>
+                              }
+                            </td>
+                            <td>
+                              <div class="actions">
+                                <select [value]="tb.status" (change)="updateTransferStatus(tb.id, $event)" class="status-select">
+                                  <option value="pending_payment">En attente paiement</option>
+                                  <option value="pending">En attente</option>
+                                  <option value="confirmed">Confirmé</option>
+                                  <option value="cancelled">Annulé</option>
+                                </select>
+                                @if (tb.special_requests) {
+                                  <button class="btn-icon" title="Notes" (click)="showTransferNotes(tb)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                  </button>
+                                }
+                                <button class="btn-icon btn-danger" title="Supprimer" (click)="deleteTransferBooking(tb.id)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+
+              @if (allBookingsCount() === 0) {
+                <div class="empty-state">
+                  <p>{{ lang.t('admin.noBookings') }}</p>
+                </div>
+              }
             }
 
             @if (activeTab() === 'messages') {
@@ -407,7 +551,7 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
                 </button>
               </div>
               <div class="modal-body">
-                <p>{{ selectedBooking()?.special_requests }}</p>
+                <p>{{ notesText() }}</p>
               </div>
             </div>
           </div>
@@ -1010,6 +1154,70 @@ type TabType = 'dashboard' | 'bookings' | 'messages' | 'circuits' | 'excursions'
         grid-template-columns: 1fr;
       }
     }
+
+    .booking-filters {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .filter-btn {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(61, 43, 31, 0.2);
+      background: var(--color-white);
+      color: var(--color-text-light);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+
+    .booking-section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: var(--spacing-xl) 0 var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 1px solid rgba(61, 43, 31, 0.1);
+    }
+
+    .paid-badge {
+      display: inline-block;
+      margin-left: 4px;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(74, 155, 109, 0.15);
+      color: var(--color-success);
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+
+    .status-pending_payment {
+      background: rgba(196, 104, 43, 0.12);
+      color: var(--color-primary);
+    }
+
+    .direction-badge {
+      font-size: 1rem;
+      display: block;
+    }
+
+    .dir-in {
+      color: var(--color-secondary);
+    }
   `]
 })
 export class AdminComponent implements OnInit {
@@ -1021,10 +1229,18 @@ export class AdminComponent implements OnInit {
   loginError = signal(false);
   isLoading = signal(false);
   activeTab = signal<TabType>('dashboard');
+  bookingFilter = signal<'all' | 'circuits' | 'rentals' | 'transfers'>('all');
   bookings = signal<Booking[]>([]);
+  rentalBookings = signal<RentalBooking[]>([]);
+  transferBookings = signal<TransferBooking[]>([]);
   messages = signal<ContactMessage[]>([]);
   showNotesModal = signal(false);
+  notesText = signal<string | null>(null);
   selectedBooking = signal<Booking | null>(null);
+
+  allBookingsCount(): number {
+    return this.bookings().length + this.rentalBookings().length + this.transferBookings().length;
+  }
 
   ngOnInit(): void {
     this.adminService.checkAuth();
@@ -1054,13 +1270,27 @@ export class AdminComponent implements OnInit {
 
   async loadData(): Promise<void> {
     this.isLoading.set(true);
-    const [bookingsData, messagesData] = await Promise.all([
+    const [bookingsData, rentalData, transferData, messagesData] = await Promise.all([
       this.adminService.getBookings(),
+      this.adminService.getRentalBookings(),
+      this.adminService.getTransferBookings(),
       this.adminService.getContactMessages()
     ]);
     this.bookings.set(bookingsData);
+    this.rentalBookings.set(rentalData);
+    this.transferBookings.set(transferData);
     this.messages.set(messagesData);
     this.isLoading.set(false);
+  }
+
+  statusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      pending_payment: 'Attente paiement',
+      pending: 'En attente',
+      confirmed: 'Confirmé',
+      cancelled: 'Annulé'
+    };
+    return labels[status] ?? status;
   }
 
   async updateStatus(id: string, event: Event): Promise<void> {
@@ -1068,9 +1298,25 @@ export class AdminComponent implements OnInit {
     const status = select.value;
     const success = await this.adminService.updateBookingStatus(id, status);
     if (success) {
-      this.bookings.update(bookings =>
-        bookings.map(b => b.id === id ? { ...b, status } : b)
-      );
+      this.bookings.update(list => list.map(b => b.id === id ? { ...b, status } : b));
+    }
+  }
+
+  async updateRentalStatus(id: string, event: Event): Promise<void> {
+    const select = event.target as HTMLSelectElement;
+    const status = select.value;
+    const success = await this.adminService.updateRentalBookingStatus(id, status);
+    if (success) {
+      this.rentalBookings.update(list => list.map(b => b.id === id ? { ...b, status } : b));
+    }
+  }
+
+  async updateTransferStatus(id: string, event: Event): Promise<void> {
+    const select = event.target as HTMLSelectElement;
+    const status = select.value;
+    const success = await this.adminService.updateTransferBookingStatus(id, status);
+    if (success) {
+      this.transferBookings.update(list => list.map(b => b.id === id ? { ...b, status } : b));
     }
   }
 
@@ -1078,7 +1324,25 @@ export class AdminComponent implements OnInit {
     if (confirm(this.lang.t('admin.confirmDeleteBooking'))) {
       const success = await this.adminService.deleteBooking(id);
       if (success) {
-        this.bookings.update(bookings => bookings.filter(b => b.id !== id));
+        this.bookings.update(list => list.filter(b => b.id !== id));
+      }
+    }
+  }
+
+  async deleteRentalBooking(id: string): Promise<void> {
+    if (confirm(this.lang.t('admin.confirmDeleteBooking'))) {
+      const success = await this.adminService.deleteRentalBooking(id);
+      if (success) {
+        this.rentalBookings.update(list => list.filter(b => b.id !== id));
+      }
+    }
+  }
+
+  async deleteTransferBooking(id: string): Promise<void> {
+    if (confirm(this.lang.t('admin.confirmDeleteBooking'))) {
+      const success = await this.adminService.deleteTransferBooking(id);
+      if (success) {
+        this.transferBookings.update(list => list.filter(b => b.id !== id));
       }
     }
   }
@@ -1094,12 +1358,24 @@ export class AdminComponent implements OnInit {
 
   showNotes(booking: Booking): void {
     this.selectedBooking.set(booking);
+    this.notesText.set(booking.special_requests);
+    this.showNotesModal.set(true);
+  }
+
+  showRentalNotes(rb: RentalBooking): void {
+    this.notesText.set(rb.special_requests);
+    this.showNotesModal.set(true);
+  }
+
+  showTransferNotes(tb: TransferBooking): void {
+    this.notesText.set(tb.special_requests);
     this.showNotesModal.set(true);
   }
 
   closeNotes(): void {
     this.showNotesModal.set(false);
     this.selectedBooking.set(null);
+    this.notesText.set(null);
   }
 
   activateEditMode(): void {
