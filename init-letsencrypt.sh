@@ -83,6 +83,7 @@ docker compose run --rm --entrypoint "\
     --rsa-key-size $rsa_key_size \
     --agree-tos \
     --keep-until-expiring \
+    --cert-name ${domains[0]} \
     --non-interactive" certbot
 echo ""
 
