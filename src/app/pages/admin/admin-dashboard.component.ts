@@ -1,8 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { AdminService, Booking, RentalBooking, TransferBooking, ContactMessage } from '../../core/services/admin.service';
+import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
+import { SupabaseService } from '../../core/services/supabase.service';
 import { CircuitService } from '../../core/services/circuit.service';
 import { LanguageService } from '../../core/services/language.service';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 interface DashboardStats {
   totalBookings: number;
@@ -641,12 +643,17 @@ interface CircuitStats {
     }
   `]
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   lang = inject(LanguageService);
-  private adminService = inject(AdminService);
+  private adminService  = inject(AdminService);
+  private supabase      = inject(SupabaseService);
   private circuitService = inject(CircuitService);
 
-  isLoading = signal(true);
+  isLoading     = signal(true);
+  isLive        = signal(false);
+  newEvents     = signal(0);
+  lastRefreshed = signal<Date>(new Date());
+
   stats = signal<DashboardStats>({
     totalBookings: 0,
     pendingBookings: 0,
@@ -657,16 +664,51 @@ export class AdminDashboardComponent implements OnInit {
     totalCircuits: 0,
     activeCircuits: 0
   });
-  recentBookings = signal<Booking[]>([]);
-  recentMessages = signal<ContactMessage[]>([]);
-  circuitStats = signal<CircuitStats[]>([]);
+  recentBookings  = signal<Booking[]>([]);
+  recentMessages  = signal<ContactMessage[]>([]);
+  circuitStats    = signal<CircuitStats[]>([]);
+
+  private realtimeChannel: RealtimeChannel | null = null;
 
   ngOnInit(): void {
     this.loadDashboardData();
+    if (this.adminService.isManager()) {
+      this.setupRealtime();
+    }
   }
 
-  async loadDashboardData(): Promise<void> {
-    this.isLoading.set(true);
+  ngOnDestroy(): void {
+    if (this.realtimeChannel) {
+      this.supabase.client.removeChannel(this.realtimeChannel);
+    }
+  }
+
+  private setupRealtime(): void {
+    this.realtimeChannel = this.supabase.client
+      .channel('dashboard-realtime')
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'bookings' },
+        () => { this.newEvents.update(n => n + 1); this.refreshSilently(); }
+      )
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'rental_bookings' },
+        () => { this.newEvents.update(n => n + 1); this.refreshSilently(); }
+      )
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'transfer_bookings' },
+        () => { this.newEvents.update(n => n + 1); this.refreshSilently(); }
+      )
+      .subscribe(status => {
+        this.isLive.set(status === 'SUBSCRIBED');
+      });
+  }
+
+  private async refreshSilently(): Promise<void> {
+    await this.loadDashboardData(true);
+  }
+
+  async loadDashboardData(silent = false): Promise<void> {
+    if (!silent) this.isLoading.set(true);
 
     const [bookings, rentalBookings, transferBookings, messages, circuits] = await Promise.all([
       this.adminService.getBookings(),
