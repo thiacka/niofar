@@ -66,6 +66,17 @@ export interface Promotion {
   updated_at: string;
 }
 
+export interface CircuitAttachment {
+  id: string;
+  circuit_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+  display_order: number;
+  created_at: string;
+}
+
 export type CircuitFormData = Omit<Circuit, 'id' | 'created_at' | 'updated_at'>;
 export type PromotionFormData = Omit<Promotion, 'id' | 'created_at' | 'updated_at' | 'usage_count'>;
 
@@ -276,5 +287,83 @@ export class CircuitService {
       return Math.round(originalPrice * (promotion.discount_value / 100));
     }
     return promotion.discount_value;
+  }
+
+  // ── Attachments ──────────────────────────────────────────────────────────────
+
+  async getAttachments(circuitId: string): Promise<CircuitAttachment[]> {
+    const { data, error } = await this.supabase.client
+      .from('circuit_attachments')
+      .select('*')
+      .eq('circuit_id', circuitId)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching attachments:', error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async uploadAttachment(circuitId: string, file: File): Promise<CircuitAttachment | null> {
+    const timestamp = Date.now();
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath = `${circuitId}/${timestamp}_${safeName}`;
+
+    const { error: uploadError } = await this.supabase.client.storage
+      .from('circuit-attachments')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError);
+      return null;
+    }
+
+    const { data: urlData } = this.supabase.client.storage
+      .from('circuit-attachments')
+      .getPublicUrl(filePath);
+
+    const { data, error } = await this.supabase.client
+      .from('circuit_attachments')
+      .insert({
+        circuit_id: circuitId,
+        file_name: file.name,
+        file_url: urlData.publicUrl,
+        file_type: file.type,
+        file_size: file.size,
+        display_order: 0
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving attachment record:', error);
+      return null;
+    }
+
+    return data;
+  }
+
+  async deleteAttachment(attachment: CircuitAttachment): Promise<boolean> {
+    const url = attachment.file_url;
+    const bucketPath = url.split('/circuit-attachments/')[1];
+    if (bucketPath) {
+      await this.supabase.client.storage
+        .from('circuit-attachments')
+        .remove([decodeURIComponent(bucketPath)]);
+    }
+
+    const { error } = await this.supabase.client
+      .from('circuit_attachments')
+      .delete()
+      .eq('id', attachment.id);
+
+    if (error) {
+      console.error('Error deleting attachment:', error);
+      return false;
+    }
+
+    return true;
   }
 }

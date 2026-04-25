@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { ExcursionService, Excursion } from '../../core/services/excursion.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
-import { Circuit, CircuitService, ItineraryDay } from '../../core/services/circuit.service';
+import { Circuit, CircuitService, ItineraryDay, CircuitAttachment } from '../../core/services/circuit.service';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { SeoService } from '../../core/services/seo.service';
 
@@ -93,6 +93,41 @@ interface DayWithImage extends ItineraryDay {
                   }
                 </ul>
               </div>
+
+              @if (attachments().length > 0) {
+                <div class="info-card attachments-card">
+                  <h4>{{ lang.t('circuits.attachments') }}</h4>
+                  <div class="attachments-list-public">
+                    @for (att of attachments(); track att.id) {
+                      <a [href]="att.file_url" target="_blank" class="attachment-link">
+                        <div class="att-icon-wrap">
+                          @if (att.file_type.startsWith('image/')) {
+                            <img [src]="att.file_url" [alt]="att.file_name" class="att-thumb" loading="lazy" />
+                          } @else {
+                            <div class="att-pdf-icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                              </svg>
+                            </div>
+                          }
+                        </div>
+                        <div class="att-details">
+                          <span class="att-name">{{ att.file_name }}</span>
+                          <span class="att-action">{{ lang.t('circuits.downloadFile') }}</span>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="att-arrow">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                          <polyline points="7 10 12 15 17 10"/>
+                          <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -729,6 +764,89 @@ interface DayWithImage extends ItineraryDay {
       to { transform: rotate(360deg); }
     }
 
+    .attachments-card {
+      margin-top: var(--spacing-lg);
+    }
+
+    .attachments-list-public {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .attachment-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: background var(--transition-fast);
+      border: 1px solid rgba(61, 43, 31, 0.1);
+    }
+
+    .attachment-link:hover {
+      background: var(--color-background-alt);
+      border-color: var(--color-primary);
+    }
+
+    .att-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .att-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .att-pdf-icon {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(196, 91, 74, 0.1);
+      color: var(--color-error);
+    }
+
+    .att-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .att-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .att-action {
+      font-size: 0.75rem;
+      color: var(--color-secondary);
+      font-weight: 600;
+    }
+
+    .att-arrow {
+      flex-shrink: 0;
+      color: var(--color-text-light);
+      transition: color var(--transition-fast);
+    }
+
+    .attachment-link:hover .att-arrow {
+      color: var(--color-primary);
+    }
+
     .not-found {
       text-align: center;
       padding: var(--spacing-4xl);
@@ -820,6 +938,7 @@ export class CircuitDetailComponent implements OnInit {
 
   circuit = signal<Circuit | null>(null);
   itineraryDays = signal<DayWithImage[]>([]);
+  attachments = signal<CircuitAttachment[]>([]);
   isLoading = signal(true);
   linkCopied = signal(false);
 
@@ -895,6 +1014,10 @@ export class CircuitDetailComponent implements OnInit {
           url: 'https://nio-far-tourisme.com'
         }
       }, `circuit-${slug}`);
+    }
+
+    if (circuit) {
+      this.circuitService.getAttachments(circuit.id).then(atts => this.attachments.set(atts));
     }
 
     if (circuit && circuit.itinerary && circuit.itinerary.length > 0) {

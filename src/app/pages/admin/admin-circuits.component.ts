@@ -1,14 +1,14 @@
 import { Component, inject, signal, OnInit, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe, SlicePipe } from '@angular/common';
-import { CircuitService, Circuit, CircuitFormData, ItineraryDay } from '../../core/services/circuit.service';
+import { DecimalPipe, SlicePipe, UpperCasePipe } from '@angular/common';
+import { CircuitService, Circuit, CircuitFormData, ItineraryDay, CircuitAttachment } from '../../core/services/circuit.service';
 import { CircuitStageService, CircuitStage, CircuitStageFormData } from '../../core/services/circuit-stage.service';
 import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-admin-circuits',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe],
+  imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe],
   template: `
     <!-- ── En-tête section ── -->
     <div class="section-header">
@@ -55,6 +55,11 @@ import { LanguageService } from '../../core/services/language.service';
                   <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
                   <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
                   <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </button>
+              <button class="btn-icon" [title]="lang.t('admin.manageAttachments')" (click)="openAttachmentsManager(circuit)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
                 </svg>
               </button>
               <button class="btn-icon" [title]="lang.t('admin.edit')" (click)="openEditForm(circuit)">
@@ -849,6 +854,99 @@ import { LanguageService } from '../../core/services/language.service';
         </div>
       </div>
     }
+
+    <!-- ════════════════════════════════════════════════════
+         Gestionnaire de pieces jointes
+    ════════════════════════════════════════════════════ -->
+    @if (showAttachmentsManager()) {
+      <div class="modal-overlay" (click)="closeAttachmentsManager()">
+        <div class="modal large" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>{{ lang.t('admin.attachments') }} — {{ currentCircuit()?.title_fr }}</h3>
+            <button class="btn-close" (click)="closeAttachmentsManager()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="attachments-header">
+              <p class="help-text">{{ lang.t('admin.attachmentLimit') }}</p>
+              @if (attachments().length < 3) {
+                <label class="btn btn-primary upload-btn" [class.disabled]="isUploading()">
+                  @if (isUploading()) {
+                    <span class="spinner-small"></span>
+                    {{ lang.t('admin.uploading') }}
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    {{ lang.t('admin.addAttachment') }}
+                  }
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" (change)="onFileSelected($event)" [disabled]="isUploading()" hidden />
+                </label>
+              } @else {
+                <span class="max-badge">{{ lang.t('admin.maxAttachmentsReached') }}</span>
+              }
+            </div>
+
+            @if (loadingAttachments()) {
+              <div class="loading"><div class="spinner"></div></div>
+            } @else if (attachments().length === 0) {
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.25">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+                <p>{{ lang.t('admin.noAttachments') }}</p>
+              </div>
+            } @else {
+              <div class="attachments-list">
+                @for (att of attachments(); track att.id) {
+                  <div class="attachment-item">
+                    <div class="attachment-icon">
+                      @if (att.file_type.startsWith('image/')) {
+                        <img [src]="att.file_url" [alt]="att.file_name" class="attachment-thumb" loading="lazy" />
+                      } @else {
+                        <div class="pdf-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                    <div class="attachment-info">
+                      <span class="attachment-name">{{ att.file_name }}</span>
+                      <span class="attachment-meta">{{ formatFileSize(att.file_size) }} — {{ att.file_type.split('/')[1] | uppercase }}</span>
+                    </div>
+                    <div class="attachment-actions">
+                      <a [href]="att.file_url" target="_blank" class="btn-icon" title="Ouvrir">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                          <polyline points="15 3 21 3 21 9"/>
+                          <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                      </a>
+                      <button class="btn-icon danger" (click)="deleteAttachment(att)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   `,
   styles: [`
     /* ── Layout principal ── */
@@ -1257,6 +1355,43 @@ import { LanguageService } from '../../core/services/language.service';
       .duration-group { grid-template-columns: 1fr 1fr; }
       .btn-auto { display: none; }
     }
+    /* ── Attachments ── */
+    .attachments-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: var(--spacing-xl);
+    }
+    .upload-btn {
+      cursor: pointer; display: inline-flex; align-items: center; gap: var(--spacing-sm);
+    }
+    .upload-btn.disabled { opacity: 0.55; pointer-events: none; }
+    .max-badge {
+      font-size: 0.85rem; color: var(--color-accent); font-weight: 600;
+      padding: var(--spacing-xs) var(--spacing-md);
+      background: rgba(196,159,74,0.12); border-radius: var(--radius-full);
+    }
+    .attachments-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+    .attachment-item {
+      display: flex; align-items: center; gap: var(--spacing-lg);
+      background: var(--color-background); border-radius: var(--radius-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      transition: box-shadow var(--transition-fast);
+    }
+    .attachment-item:hover { box-shadow: var(--shadow-md); }
+    .attachment-icon { flex-shrink: 0; width: 56px; height: 56px; border-radius: var(--radius-md); overflow: hidden; }
+    .attachment-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .pdf-icon {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      background: rgba(196,91,74,0.1); color: var(--color-error);
+    }
+    .attachment-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .attachment-name {
+      font-weight: 600; font-size: 0.9rem; color: var(--color-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .attachment-meta { font-size: 0.78rem; color: var(--color-text-light); }
+    .attachment-actions { display: flex; gap: var(--spacing-xs); flex-shrink: 0; }
+    .attachment-actions a { text-decoration: none; }
+
     @media (max-width: 600px) {
       .circuits-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
@@ -1265,6 +1400,7 @@ import { LanguageService } from '../../core/services/language.service';
       .wizard-steps { padding: var(--spacing-sm) var(--spacing-md); gap: var(--spacing-sm); }
       .step-label { display: none; }
       .stage-item { flex-direction: column; }
+      .attachment-item { flex-wrap: wrap; }
     }
   `]
 })
@@ -1313,6 +1449,12 @@ export class AdminCircuitsComponent implements OnInit {
   editingStageId = signal<string | null>(null);
   stageFormData: CircuitStageFormData = this.getEmptyStageFormData();
   stageImagesText = '';
+
+  // ── Gestionnaire de pieces jointes ──────────────────────────────────────────
+  showAttachmentsManager = signal(false);
+  attachments = signal<CircuitAttachment[]>([]);
+  loadingAttachments = signal(false);
+  isUploading = signal(false);
 
   // ── Gestionnaire itinéraire (depuis cartes) ─────────────────────────────────
   showItineraryManager = signal(false);
@@ -1656,6 +1798,72 @@ export class AdminCircuitsComponent implements OnInit {
       this.itineraryDays.set(days);
       this.circuits.update(list => list.map(c => c.id === circuit.id ? { ...c, itinerary: days } : c));
     }
+  }
+
+  // ── Gestionnaire de pieces jointes ──────────────────────────────────────────
+  async openAttachmentsManager(circuit: Circuit): Promise<void> {
+    this.currentCircuit.set(circuit);
+    this.showAttachmentsManager.set(true);
+    await this.loadAttachments(circuit.id);
+  }
+
+  closeAttachmentsManager(): void {
+    this.showAttachmentsManager.set(false);
+    this.attachments.set([]);
+  }
+
+  async loadAttachments(circuitId: string): Promise<void> {
+    this.loadingAttachments.set(true);
+    this.attachments.set(await this.circuitService.getAttachments(circuitId));
+    this.loadingAttachments.set(false);
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const circuit = this.currentCircuit();
+    if (!circuit) return;
+
+    if (this.attachments().length >= 3) return;
+
+    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Format non supporte. Formats acceptes : PDF, JPG, PNG, WebP');
+      input.value = '';
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('Fichier trop volumineux. Taille maximale : 10 Mo');
+      input.value = '';
+      return;
+    }
+
+    this.isUploading.set(true);
+    const attachment = await this.circuitService.uploadAttachment(circuit.id, file);
+    this.isUploading.set(false);
+    input.value = '';
+
+    if (attachment) {
+      this.attachments.update(list => [...list, attachment]);
+    }
+  }
+
+  async deleteAttachment(att: CircuitAttachment): Promise<void> {
+    if (!confirm(this.lang.t('admin.confirmDeleteAttachment'))) return;
+    const success = await this.circuitService.deleteAttachment(att);
+    if (success) {
+      this.attachments.update(list => list.filter(a => a.id !== att.id));
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} o`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
   }
 
   // ── Utilitaires ─────────────────────────────────────────────────────────────

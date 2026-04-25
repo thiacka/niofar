@@ -542,6 +542,16 @@ const translations: Translations = {
   'admin.permissionViewPromotions': { en: 'View promotions', fr: 'Voir les promotions' },
   'admin.permissionViewImages': { en: 'View images', fr: 'Voir les images' },
   'admin.permissionSuggestContent': { en: 'Suggest content', fr: 'Suggerer du contenu' },
+  'admin.attachments': { en: 'Attachments', fr: 'Pieces jointes' },
+  'admin.manageAttachments': { en: 'Manage attachments', fr: 'Gerer les pieces jointes' },
+  'admin.noAttachments': { en: 'No attachments yet', fr: 'Aucune piece jointe' },
+  'admin.addAttachment': { en: 'Add file', fr: 'Ajouter un fichier' },
+  'admin.attachmentLimit': { en: 'Maximum 3 files (PDF or images)', fr: 'Maximum 3 fichiers (PDF ou images)' },
+  'admin.confirmDeleteAttachment': { en: 'Are you sure you want to delete this attachment?', fr: 'Etes-vous sur de vouloir supprimer cette piece jointe ?' },
+  'admin.uploading': { en: 'Uploading...', fr: 'Envoi en cours...' },
+  'admin.maxAttachmentsReached': { en: 'Maximum of 3 attachments reached', fr: 'Maximum de 3 pieces jointes atteint' },
+  'circuits.attachments': { en: 'Documents & Files', fr: 'Documents & Fichiers' },
+  'circuits.downloadFile': { en: 'Download', fr: 'Telecharger' },
 };
 
 @Injectable({
