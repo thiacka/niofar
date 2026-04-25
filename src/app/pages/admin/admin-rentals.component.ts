@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { RentalService, Rental, RentalFormData } from '../../core/services/rental.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 
 type RentalType = 'vehicle' | 'incentive' | 'boat';
 type FilterType = 'all' | RentalType;
@@ -10,7 +11,7 @@ type FilterType = 'all' | RentalType;
 @Component({
   selector: 'app-admin-rentals',
   standalone: true,
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, CloudinaryUploadComponent],
   template: `
     <div class="section-header">
       <h2>Gestion des Locations</h2>
@@ -171,13 +172,26 @@ type FilterType = 'all' | RentalType;
               </div>
 
               <div class="form-group">
-                <label>URL de l'image principale</label>
-                <input type="url" [(ngModel)]="formData.image_url" name="image_url" />
+                <label>Image principale</label>
+                <app-cloudinary-upload
+                  [value]="formData.image_url || ''"
+                  folder="nio-far/rentals"
+                  (urlChange)="formData.image_url = $event"
+                />
               </div>
 
               <div class="form-group">
-                <label>Galerie — URLs supplémentaires <small>(séparées par des virgules)</small></label>
-                <textarea [(ngModel)]="galleryUrlsText" name="gallery_urls" rows="2" placeholder="https://img1.jpg, https://img2.jpg"></textarea>
+                <label>Galerie — URLs supplementaires <small>(separees par des virgules)</small></label>
+                <div class="gallery-upload-row">
+                  <textarea [(ngModel)]="galleryUrlsText" name="gallery_urls" rows="2" placeholder="https://img1.jpg, https://img2.jpg"></textarea>
+                  <app-cloudinary-upload
+                    [value]="''"
+                    folder="nio-far/rentals/gallery"
+                    [showPreview]="false"
+                    placeholder="Cliquez pour ajouter"
+                    (urlChange)="appendGalleryUrl($event)"
+                  />
+                </div>
               </div>
 
               <div class="form-section">
@@ -611,6 +625,12 @@ type FilterType = 'all' | RentalType;
       width: auto;
     }
 
+    .gallery-upload-row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
     .form-actions {
       display: flex;
       justify-content: flex-end;
@@ -831,6 +851,13 @@ export class AdminRentalsComponent implements OnInit {
   closeForm(): void {
     this.showForm.set(false);
     this.formData = this.getEmptyFormData();
+  }
+
+  appendGalleryUrl(url: string): void {
+    if (!url) return;
+    this.galleryUrlsText = this.galleryUrlsText
+      ? this.galleryUrlsText + ', ' + url
+      : url;
   }
 
   async saveRental(): Promise<void> {

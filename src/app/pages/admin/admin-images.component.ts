@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PageImageService, PageImage, PageName } from '../../core/services/page-image.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 
 interface ImageForm {
   page: PageName;
@@ -16,7 +17,7 @@ interface ImageForm {
 @Component({
   selector: 'app-admin-images',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CloudinaryUploadComponent],
   template: `
     <div class="images-manager">
       <div class="toolbar">
@@ -134,23 +135,13 @@ interface ImageForm {
 
               <div class="form-group">
                 <label>{{ lang.t('images.imageUrl') }}</label>
-                <input
-                  type="url"
-                  [(ngModel)]="formData.image_url"
-                  name="image_url"
+                <app-cloudinary-upload
+                  [value]="formData.image_url"
+                  folder="nio-far/pages"
                   [placeholder]="lang.t('images.imageUrlPlaceholder')"
-                  required
+                  (urlChange)="formData.image_url = $event"
                 />
               </div>
-
-              @if (formData.image_url) {
-                <div class="preview-container">
-                  <label>{{ lang.t('images.preview') }}</label>
-                  <div class="image-preview-large">
-                    <img [src]="formData.image_url" alt="Preview" />
-                  </div>
-                </div>
-              }
 
               <div class="form-row">
                 <div class="form-group">

@@ -306,32 +306,20 @@ export class CircuitService {
     return data || [];
   }
 
-  async uploadAttachment(circuitId: string, file: File): Promise<CircuitAttachment | null> {
-    const timestamp = Date.now();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const filePath = `${circuitId}/${timestamp}_${safeName}`;
-
-    const { error: uploadError } = await this.supabase.client.storage
-      .from('circuit-attachments')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      console.error('Error uploading file:', uploadError);
-      return null;
-    }
-
-    const { data: urlData } = this.supabase.client.storage
-      .from('circuit-attachments')
-      .getPublicUrl(filePath);
-
+  async saveAttachmentRecord(circuitId: string, fileInfo: {
+    file_name: string;
+    file_url: string;
+    file_type: string;
+    file_size: number;
+  }): Promise<CircuitAttachment | null> {
     const { data, error } = await this.supabase.client
       .from('circuit_attachments')
       .insert({
         circuit_id: circuitId,
-        file_name: file.name,
-        file_url: urlData.publicUrl,
-        file_type: file.type,
-        file_size: file.size,
+        file_name: fileInfo.file_name,
+        file_url: fileInfo.file_url,
+        file_type: fileInfo.file_type,
+        file_size: fileInfo.file_size,
         display_order: 0
       })
       .select()
@@ -346,14 +334,6 @@ export class CircuitService {
   }
 
   async deleteAttachment(attachment: CircuitAttachment): Promise<boolean> {
-    const url = attachment.file_url;
-    const bucketPath = url.split('/circuit-attachments/')[1];
-    if (bucketPath) {
-      await this.supabase.client.storage
-        .from('circuit-attachments')
-        .remove([decodeURIComponent(bucketPath)]);
-    }
-
     const { error } = await this.supabase.client
       .from('circuit_attachments')
       .delete()

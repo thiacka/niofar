@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ExcursionService, Excursion, ExcursionFormData } from '../../core/services/excursion.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 
 @Component({
   selector: 'app-admin-excursions',
   standalone: true,
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, CloudinaryUploadComponent],
   template: `
     <div class="section-header">
       <h2>{{ lang.t('admin.excursionsManagement') }}</h2>
@@ -113,7 +114,11 @@ import { LanguageService } from '../../core/services/language.service';
 
               <div class="form-group">
                 <label>{{ lang.t('admin.imageUrl') }}</label>
-                <input type="url" [(ngModel)]="formData.image_url" name="image_url" required />
+                <app-cloudinary-upload
+                  [value]="formData.image_url"
+                  folder="nio-far/excursions"
+                  (urlChange)="formData.image_url = $event"
+                />
               </div>
 
               <div class="form-section">

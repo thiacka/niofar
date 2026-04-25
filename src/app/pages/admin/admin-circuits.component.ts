@@ -4,11 +4,13 @@ import { DecimalPipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { CircuitService, Circuit, CircuitFormData, ItineraryDay, CircuitAttachment } from '../../core/services/circuit.service';
 import { CircuitStageService, CircuitStage, CircuitStageFormData } from '../../core/services/circuit-stage.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
+import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
   selector: 'app-admin-circuits',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe],
+  imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe, CloudinaryUploadComponent],
   template: `
     <!-- ── En-tête section ── -->
     <div class="section-header">
@@ -151,13 +153,13 @@ import { LanguageService } from '../../core/services/language.service';
                   </div>
 
                   <div class="form-group">
-                    <label>Image principale (URL) *</label>
-                    <input type="url" [(ngModel)]="formData.image_url" name="image_url" required placeholder="https://images.unsplash.com/..." />
-                    @if (formData.image_url) {
-                      <div class="img-preview">
-                        <img [src]="formData.image_url" alt="Aperçu" loading="lazy" />
-                      </div>
-                    }
+                    <label>Image principale *</label>
+                    <app-cloudinary-upload
+                      [value]="formData.image_url"
+                      folder="nio-far/circuits"
+                      placeholder="https://images.unsplash.com/..."
+                      (urlChange)="formData.image_url = $event"
+                    />
                   </div>
 
                   <div class="duration-group">
@@ -431,14 +433,19 @@ import { LanguageService } from '../../core/services/language.service';
                         <button type="button" class="btn-close-sm" (click)="cancelInlineDay()">✕</button>
                       </div>
 
-                      <div class="form-row-3">
+                      <div class="form-row">
                         <div class="form-group">
                           <label>N° du jour</label>
                           <input type="number" [(ngModel)]="inlineDay.day" name="il_day" min="1" />
                         </div>
-                        <div class="form-group span-2">
-                          <label>Image du jour (URL)</label>
-                          <input type="url" [(ngModel)]="inlineDay.excursion_image" name="il_img" placeholder="https://..." />
+                        <div class="form-group">
+                          <label>Image du jour</label>
+                          <app-cloudinary-upload
+                            [value]="inlineDay.excursion_image || ''"
+                            folder="nio-far/circuits/itinerary"
+                            [showPreview]="false"
+                            (urlChange)="inlineDay.excursion_image = $event"
+                          />
                         </div>
                       </div>
 
@@ -684,7 +691,13 @@ import { LanguageService } from '../../core/services/language.service';
               </div>
               <div class="form-group">
                 <label>{{ lang.t('admin.imagesUrls') }}</label>
-                <input type="text" [(ngModel)]="stageImagesText" name="images" [placeholder]="lang.t('admin.imagesPlaceholder')" />
+                <app-cloudinary-upload
+                  [value]="stageImagesText"
+                  folder="nio-far/circuits/stages"
+                  [showPreview]="false"
+                  [placeholder]="lang.t('admin.imagesPlaceholder')"
+                  (urlChange)="stageImagesText = $event"
+                />
                 <small>{{ lang.t('admin.imagesHint') }}</small>
               </div>
               <div class="form-actions">
@@ -788,8 +801,13 @@ import { LanguageService } from '../../core/services/language.service';
                   <input type="number" [(ngModel)]="dayFormData.day" name="day" min="1" required />
                 </div>
                 <div class="form-group">
-                  <label>Image URL</label>
-                  <input type="url" [(ngModel)]="dayFormData.excursion_image" name="excursion_image" placeholder="https://..." />
+                  <label>Image du jour</label>
+                  <app-cloudinary-upload
+                    [value]="dayFormData.excursion_image || ''"
+                    folder="nio-far/circuits/itinerary"
+                    [showPreview]="false"
+                    (urlChange)="dayFormData.excursion_image = $event"
+                  />
                 </div>
               </div>
               <div class="form-section">
@@ -873,7 +891,7 @@ import { LanguageService } from '../../core/services/language.service';
             <div class="attachments-header">
               <p class="help-text">{{ lang.t('admin.attachmentLimit') }}</p>
               @if (attachments().length < 3) {
-                <label class="btn btn-primary upload-btn" [class.disabled]="isUploading()">
+                <button type="button" class="btn btn-primary upload-btn" [disabled]="isUploading()" (click)="uploadAttachmentViaCloudinary()">
                   @if (isUploading()) {
                     <span class="spinner-small"></span>
                     {{ lang.t('admin.uploading') }}
@@ -885,8 +903,7 @@ import { LanguageService } from '../../core/services/language.service';
                     </svg>
                     {{ lang.t('admin.addAttachment') }}
                   }
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" (change)="onFileSelected($event)" [disabled]="isUploading()" hidden />
-                </label>
+                </button>
               } @else {
                 <span class="max-badge">{{ lang.t('admin.maxAttachmentsReached') }}</span>
               }
@@ -1408,6 +1425,7 @@ export class AdminCircuitsComponent implements OnInit {
   lang = inject(LanguageService);
   circuitService = inject(CircuitService);
   stageService = inject(CircuitStageService);
+  private cloudinaryService = inject(CloudinaryService);
 
   // ── État principal ──────────────────────────────────────────────────────────
   circuits = signal<Circuit[]>([]);
@@ -1818,37 +1836,36 @@ export class AdminCircuitsComponent implements OnInit {
     this.loadingAttachments.set(false);
   }
 
-  async onFileSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  async uploadAttachmentViaCloudinary(): Promise<void> {
     const circuit = this.currentCircuit();
-    if (!circuit) return;
+    if (!circuit || this.attachments().length >= 3) return;
 
-    if (this.attachments().length >= 3) return;
-
-    const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      alert('Format non supporte. Formats acceptes : PDF, JPG, PNG, WebP');
-      input.value = '';
-      return;
-    }
-
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert('Fichier trop volumineux. Taille maximale : 10 Mo');
-      input.value = '';
-      return;
-    }
-
+    const remaining = 3 - this.attachments().length;
     this.isUploading.set(true);
-    const attachment = await this.circuitService.uploadAttachment(circuit.id, file);
-    this.isUploading.set(false);
-    input.value = '';
+    try {
+      const results = await this.cloudinaryService.openUploadWidget({
+        folder: `nio-far/circuits/${circuit.id}/attachments`,
+        resourceType: 'auto',
+        maxFiles: remaining,
+        acceptedFiles: 'pdf,jpg,jpeg,png,webp',
+      });
 
-    if (attachment) {
-      this.attachments.update(list => [...list, attachment]);
+      for (const r of results) {
+        if (this.attachments().length >= 3) break;
+        const attachment = await this.circuitService.saveAttachmentRecord(circuit.id, {
+          file_name: r.original_filename + '.' + r.format,
+          file_url: r.secure_url,
+          file_type: r.resource_type === 'raw' ? 'application/pdf' : `image/${r.format}`,
+          file_size: r.bytes,
+        });
+        if (attachment) {
+          this.attachments.update(list => [...list, attachment]);
+        }
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+    } finally {
+      this.isUploading.set(false);
     }
   }
 
