@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, HostListener } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
@@ -11,6 +11,13 @@ import { SeoService } from '../../core/services/seo.service';
 interface DayWithImage extends ItineraryDay {
   excursion_image?: string;
   images?: string[];
+}
+
+interface LightboxState {
+  images: string[];
+  index: number;
+  title: string;
+  totalImages: number;
 }
 
 @Component({
@@ -147,19 +154,33 @@ interface DayWithImage extends ItineraryDay {
                 <div class="day-card" appScrollAnimate [animationDelay]="dayIndex * 100">
                   <div class="day-card-inner">
                     <div class="day-image-section">
+                      @let imgs = getStepImages(day, circuit()!.image_url);
+
                       <img
                         [src]="getActiveStepImage(day, circuit()!.image_url)"
                         [alt]="getDayTitle(day)"
                         class="day-image"
                         loading="lazy"
                         decoding="async"
+                        (click)="openLightbox(day, circuit()!.image_url, getActiveIndex(day))"
                       />
+
+                      <!-- Bouton agrandir -->
+                      <button
+                        class="img-expand-btn"
+                        (click)="openLightbox(day, circuit()!.image_url, getActiveIndex(day)); $event.stopPropagation()"
+                        aria-label="Voir en grand"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                      </button>
+
                       <div class="day-badge">
                         <span class="day-label">{{ lang.t('circuits.day') }}</span>
                         <span class="day-number-large">{{ day.day }}</span>
                       </div>
 
-                      @let imgs = getStepImages(day, circuit()!.image_url);
                       @if (imgs.length > 1) {
                         <button class="img-nav img-nav-prev" (click)="prevStepImage(day, circuit()!.image_url); $event.stopPropagation()" aria-label="Image précédente">
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -248,6 +269,71 @@ interface DayWithImage extends ItineraryDay {
             </div>
           </div>
         </section>
+      }
+
+      <!-- ══ LIGHTBOX ══════════════════════════════════════════════════════════ -->
+      @if (lightbox()) {
+        <div class="lightbox-overlay" (click)="closeLightbox()" role="dialog" aria-modal="true">
+          <div class="lightbox-inner" (click)="$event.stopPropagation()">
+
+            <!-- En-tête -->
+            <div class="lightbox-header">
+              <div class="lightbox-title">
+                <span class="lightbox-day-label">{{ lightbox()!.title }}</span>
+                <span class="lightbox-counter">{{ lightbox()!.index + 1 }} / {{ lightbox()!.totalImages }}</span>
+              </div>
+              <button class="lightbox-close" (click)="closeLightbox()" aria-label="Fermer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Image principale -->
+            <div class="lightbox-stage">
+              @if (lightbox()!.totalImages > 1) {
+                <button class="lightbox-nav lightbox-prev" (click)="lightboxPrev()" aria-label="Précédent">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"/>
+                  </svg>
+                </button>
+              }
+
+              <div class="lightbox-img-wrap">
+                <img
+                  [src]="lightbox()!.images[lightbox()!.index]"
+                  [alt]="lightbox()!.title"
+                  class="lightbox-img"
+                />
+              </div>
+
+              @if (lightbox()!.totalImages > 1) {
+                <button class="lightbox-nav lightbox-next" (click)="lightboxNext()" aria-label="Suivant">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              }
+            </div>
+
+            <!-- Vignettes -->
+            @if (lightbox()!.totalImages > 1) {
+              <div class="lightbox-thumbs">
+                @for (img of lightbox()!.images; track $index) {
+                  <button
+                    class="lightbox-thumb"
+                    [class.active]="lightbox()!.index === $index"
+                    (click)="lightboxGoTo($index)"
+                    [attr.aria-label]="'Image ' + ($index + 1)"
+                  >
+                    <img [src]="img" [alt]="'Photo ' + ($index + 1)" loading="lazy" />
+                  </button>
+                }
+              </div>
+            }
+
+          </div>
+        </div>
       }
 
       <section class="share-section section">
@@ -565,6 +651,41 @@ interface DayWithImage extends ItineraryDay {
 
     .day-card-inner:hover .day-image {
       transform: scale(1.05);
+    }
+
+    /* ── Curseur zoom sur l'image ── */
+    .day-image {
+      cursor: zoom-in;
+    }
+
+    /* ── Bouton agrandir ── */
+    .img-expand-btn {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      z-index: 5;
+      opacity: 0;
+    }
+
+    .day-image-section:hover .img-expand-btn {
+      opacity: 1;
+    }
+
+    .img-expand-btn:hover {
+      background: var(--color-white);
+      transform: scale(1.1);
     }
 
     /* ── Galerie navigation ── */
@@ -1021,6 +1142,193 @@ interface DayWithImage extends ItineraryDay {
         height: 40px;
       }
     }
+
+    /* ══ LIGHTBOX ═══════════════════════════════════════════════════════════ */
+
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: lb-fade-in 0.2s ease;
+    }
+
+    @keyframes lb-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .lightbox-inner {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      max-width: 1200px;
+      padding: var(--spacing-md) var(--spacing-xl);
+      gap: var(--spacing-md);
+    }
+
+    .lightbox-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .lightbox-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+
+    .lightbox-day-label {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--color-white);
+    }
+
+    .lightbox-counter {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+    }
+
+    .lightbox-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.22);
+    }
+
+    .lightbox-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
+      min-height: 0;
+      position: relative;
+    }
+
+    .lightbox-img-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    .lightbox-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      animation: lb-img-in 0.25s ease;
+      display: block;
+    }
+
+    @keyframes lb-img-in {
+      from { opacity: 0; transform: scale(0.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .lightbox-nav {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.08);
+    }
+
+    .lightbox-thumbs {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      flex-shrink: 0;
+      padding-bottom: var(--spacing-sm);
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+
+    .lightbox-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: border-color var(--transition-fast), transform var(--transition-fast);
+      background: none;
+      opacity: 0.55;
+    }
+
+    .lightbox-thumb.active {
+      border-color: var(--color-white);
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    .lightbox-thumb:hover:not(.active) {
+      opacity: 0.85;
+    }
+
+    .lightbox-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .lightbox-inner {
+        padding: var(--spacing-sm) var(--spacing-md);
+      }
+      .lightbox-nav {
+        width: 40px;
+        height: 40px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .lightbox-prev { left: var(--spacing-sm); }
+      .lightbox-next { right: var(--spacing-sm); }
+      .lightbox-nav:hover { transform: translateY(-50%) scale(1.08); }
+      .lightbox-thumb { width: 56px; height: 56px; }
+      .lightbox-day-label { font-size: 1rem; }
+    }
   `]
 })
 export class CircuitDetailComponent implements OnInit {
@@ -1036,6 +1344,17 @@ export class CircuitDetailComponent implements OnInit {
   isLoading = signal(true);
   linkCopied = signal(false);
   dayActiveImageIndex = signal<Map<number, number>>(new Map());
+  lightbox = signal<LightboxState | null>(null);
+
+  // ── Navigation clavier ────────────────────────────────────────────────────
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    const lb = this.lightbox();
+    if (!lb) return;
+    if (e.key === 'Escape') { this.closeLightbox(); }
+    else if (e.key === 'ArrowLeft')  { this.lightboxPrev(); }
+    else if (e.key === 'ArrowRight') { this.lightboxNext(); }
+  }
 
   shareWhatsApp(): void {
     const url = encodeURIComponent(window.location.href);
@@ -1228,5 +1547,42 @@ export class CircuitDetailComponent implements OnInit {
     const imgs = this.getStepImages(day, fallback);
     const cur = this.getActiveIndex(day);
     this.setActiveStepImage(day, (cur + 1) % imgs.length);
+  }
+
+  // ── Lightbox ───────────────────────────────────────────────────────────────
+
+  openLightbox(day: DayWithImage, fallback: string, startIndex: number): void {
+    const images = this.getStepImages(day, fallback);
+    if (!images.length) return;
+    this.lightbox.set({
+      images,
+      index: startIndex,
+      title: this.getDayTitle(day),
+      totalImages: images.length
+    });
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox(): void {
+    this.lightbox.set(null);
+    document.body.style.overflow = '';
+  }
+
+  lightboxPrev(): void {
+    const lb = this.lightbox();
+    if (!lb) return;
+    this.lightbox.set({ ...lb, index: (lb.index - 1 + lb.images.length) % lb.images.length });
+  }
+
+  lightboxNext(): void {
+    const lb = this.lightbox();
+    if (!lb) return;
+    this.lightbox.set({ ...lb, index: (lb.index + 1) % lb.images.length });
+  }
+
+  lightboxGoTo(idx: number): void {
+    const lb = this.lightbox();
+    if (!lb) return;
+    this.lightbox.set({ ...lb, index: idx });
   }
 }
