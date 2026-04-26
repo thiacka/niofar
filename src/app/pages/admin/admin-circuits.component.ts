@@ -12,6 +12,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
   standalone: true,
   imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe, CloudinaryUploadComponent],
   template: `
+    @if (view() === 'list') {
     <!-- ── En-tête section ── -->
     <div class="section-header">
       <h2>{{ lang.t('admin.circuitsManagement') }}</h2>
@@ -94,24 +95,26 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
       </div>
     }
 
+    } <!-- /list -->
+
     <!-- ════════════════════════════════════════════════════
          WIZARD — Création / Edition de circuit
     ════════════════════════════════════════════════════ -->
-    @if (showForm()) {
-      <div class="modal-overlay" (click)="closeForm()">
-        <div class="modal circuit-wizard" (click)="$event.stopPropagation()">
+    @if (view() === 'form') {
+      <div class="form-page circuit-form-page">
 
-          <!-- En-tête -->
-          <div class="modal-header">
-            <div>
-              <h3>{{ isEditing() ? lang.t('admin.editCircuit') : lang.t('admin.addCircuit') }}</h3>
-              <p class="wizard-subtitle">{{ wizardSubtitles[currentStep() - 1] }}</p>
-            </div>
-            <button class="btn-close" (click)="closeForm()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
+          <!-- En-tête page -->
+          <div class="form-page-header">
+            <button class="btn-back" (click)="closeForm()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Retour aux circuits
             </button>
+            <div class="page-title-wrap">
+              <h2>{{ isEditing() ? lang.t('admin.editCircuit') : lang.t('admin.addCircuit') }}</h2>
+              @if (isEditing()) { <span class="edit-badge">Modification</span> }
+              @else { <span class="create-badge">Nouveau</span> }
+              <span class="wizard-subtitle-inline">— {{ wizardSubtitles[currentStep() - 1] }}</span>
+            </div>
           </div>
 
           <!-- Indicateur d'étapes -->
@@ -133,7 +136,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
           </div>
 
           <!-- Corps -->
-          <div class="modal-body">
+          <div class="form-page-body">
             <form (ngSubmit)="saveCircuit()">
 
               <!-- ── ÉTAPE 1 : Général ── -->
@@ -549,7 +552,6 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
 
             </form>
           </div>
-        </div>
       </div>
     }
 
@@ -1066,6 +1068,92 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
     .empty-state { text-align: center; padding: var(--spacing-4xl); color: var(--color-text-light); }
     .help-text { font-size: 0.875rem; color: var(--color-text-light); margin: 0 0 var(--spacing-md); line-height: 1.5; }
 
+    /* ── Formulaire pleine page (wizard circuit) ── */
+    .circuit-form-page {
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-top: var(--spacing-xl);
+    }
+
+    .form-page-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xl);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      border-bottom: 2px solid rgba(61, 43, 31, 0.08);
+      background: linear-gradient(to right, var(--color-background), var(--color-white));
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .page-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .form-page-header h2 {
+      margin: 0;
+      color: var(--color-text);
+      font-size: 1.35rem;
+    }
+
+    .wizard-subtitle-inline {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      font-weight: 400;
+    }
+
+    .edit-badge, .create-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .edit-badge {
+      background: rgba(196, 104, 43, 0.12);
+      color: var(--color-primary);
+    }
+
+    .create-badge {
+      background: rgba(43, 138, 138, 0.12);
+      color: var(--color-secondary);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      background: transparent;
+      border: 2px solid rgba(61, 43, 31, 0.2);
+      color: var(--color-text-light);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .btn-back:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: rgba(196, 104, 43, 0.05);
+    }
+
+    .form-page-body {
+      padding: var(--spacing-2xl);
+    }
+
     /* ── Modales (base) ── */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.5);
@@ -1481,7 +1569,7 @@ export class AdminCircuitsComponent implements OnInit {
   // ── État principal ──────────────────────────────────────────────────────────
   circuits = signal<Circuit[]>([]);
   isLoading = signal(false);
-  showForm = signal(false);
+  view = signal<'list' | 'form'>('list');
   isEditing = signal(false);
   isSaving = signal(false);
   editingCircuitId = signal<string | null>(null);
@@ -1679,7 +1767,7 @@ export class AdminCircuitsComponent implements OnInit {
     this.editingCircuitId.set(null);
     this.currentStep.set(1);
     this.cancelInlineDay();
-    this.showForm.set(true);
+    this.view.set('form');
   }
 
   openEditForm(circuit: Circuit): void {
@@ -1706,11 +1794,11 @@ export class AdminCircuitsComponent implements OnInit {
     this.editingCircuitId.set(circuit.id);
     this.currentStep.set(1);
     this.cancelInlineDay();
-    this.showForm.set(true);
+    this.view.set('form');
   }
 
   closeForm(): void {
-    this.showForm.set(false);
+    this.view.set('list');
     this.cancelInlineDay();
   }
 

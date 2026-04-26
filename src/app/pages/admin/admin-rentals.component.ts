@@ -13,6 +13,7 @@ type FilterType = 'all' | RentalType;
   standalone: true,
   imports: [FormsModule, DecimalPipe, CloudinaryUploadComponent],
   template: `
+    @if (view() === 'list') {
     <div class="section-header">
       <h2>Gestion des Locations</h2>
       <button class="btn btn-primary" (click)="openCreateForm()">
@@ -115,20 +116,22 @@ type FilterType = 'all' | RentalType;
         }
       </div>
     }
+    } <!-- /list -->
 
-    @if (showForm()) {
-      <div class="modal-overlay" (click)="closeForm()">
-        <div class="modal large" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h3>{{ isEditing() ? 'Modifier la location' : 'Ajouter une location' }}</h3>
-            <button class="btn-close" (click)="closeForm()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
+    @if (view() === 'form') {
+      <div class="form-page">
+        <div class="form-page-header">
+          <button class="btn-back" (click)="closeForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Retour aux locations
+          </button>
+          <div class="page-title-wrap">
+            <h2>{{ isEditing() ? 'Modifier la location' : 'Ajouter une location' }}</h2>
+            @if (isEditing()) { <span class="edit-badge">Modification</span> }
+            @else { <span class="create-badge">Nouveau</span> }
           </div>
-          <div class="modal-body">
+        </div>
+        <div class="form-page-body">
             <form (ngSubmit)="saveRental()">
               <div class="form-row">
                 <div class="form-group">
@@ -251,7 +254,6 @@ type FilterType = 'all' | RentalType;
                 </button>
               </div>
             </form>
-          </div>
         </div>
       </div>
     }
@@ -491,65 +493,84 @@ type FilterType = 'all' | RentalType;
       color: var(--color-text-light);
     }
 
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: var(--spacing-xl);
-    }
-
-    .modal {
+    .form-page {
       background: var(--color-white);
       border-radius: var(--radius-xl);
-      width: 100%;
-      max-width: 500px;
-      max-height: 90vh;
+      box-shadow: var(--shadow-md);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      margin-top: var(--spacing-xl);
     }
 
-    .modal.large {
-      max-width: 700px;
-    }
-
-    .modal-header {
+    .form-page-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: var(--spacing-xl);
       padding: var(--spacing-lg) var(--spacing-xl);
-      border-bottom: 1px solid rgba(61, 43, 31, 0.1);
-      flex-shrink: 0;
+      border-bottom: 2px solid rgba(61, 43, 31, 0.08);
+      background: linear-gradient(to right, var(--color-background), var(--color-white));
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    .modal-header h3 {
+    .page-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex: 1;
+    }
+
+    .form-page-header h2 {
       margin: 0;
       color: var(--color-text);
+      font-size: 1.35rem;
     }
 
-    .btn-close {
+    .edit-badge, .create-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .edit-badge {
+      background: rgba(196, 104, 43, 0.12);
+      color: var(--color-primary);
+    }
+
+    .create-badge {
+      background: rgba(43, 138, 138, 0.12);
+      color: var(--color-secondary);
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
       background: transparent;
-      border: none;
-      cursor: pointer;
+      border: 2px solid rgba(61, 43, 31, 0.2);
       color: var(--color-text-light);
-      padding: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
       border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
       transition: all var(--transition-fast);
+      white-space: nowrap;
     }
 
-    .btn-close:hover {
-      background: var(--color-background);
-      color: var(--color-text);
+    .btn-back:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: rgba(196, 104, 43, 0.05);
     }
 
-    .modal-body {
-      padding: var(--spacing-xl);
-      overflow-y: auto;
-      flex-grow: 1;
+    .form-page-body {
+      padding: var(--spacing-2xl);
+      max-width: 900px;
+      margin: 0 auto;
     }
 
     .form-section {
@@ -700,7 +721,7 @@ export class AdminRentalsComponent implements OnInit {
 
   rentals = signal<Rental[]>([]);
   isLoading = signal(false);
-  showForm = signal(false);
+  view = signal<'list' | 'form'>('list');
   isEditing = signal(false);
   isSaving = signal(false);
   editingRentalId = signal<string | null>(null);
@@ -817,7 +838,7 @@ export class AdminRentalsComponent implements OnInit {
     this.galleryUrlsText = '';
     this.isEditing.set(false);
     this.editingRentalId.set(null);
-    this.showForm.set(true);
+    this.view.set('form');
   }
 
   openEditForm(rental: Rental): void {
@@ -845,11 +866,11 @@ export class AdminRentalsComponent implements OnInit {
     this.galleryUrlsText = (rental.gallery_urls || []).join(', ');
     this.isEditing.set(true);
     this.editingRentalId.set(rental.id);
-    this.showForm.set(true);
+    this.view.set('form');
   }
 
   closeForm(): void {
-    this.showForm.set(false);
+    this.view.set('list');
     this.formData = this.getEmptyFormData();
   }
 
