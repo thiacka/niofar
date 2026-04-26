@@ -121,7 +121,7 @@ function buildClientEmail(r: RentalRecord): string {
       <div class="step"><span class="step-num">3</span><span>Profitez de votre expérience au Sénégal !</span></div>
     </div>
 
-    <a href="https://wa.me/221711525436?text=Bonjour%20NIO%20FAR%20!%20Question%20concernant%20ma%20réservation%20${r.reference_number}" class="whatsapp-btn">
+    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Question%20concernant%20ma%20réservation%20${r.reference_number}" class="whatsapp-btn">
       💬 Nous contacter sur WhatsApp
     </a>
 

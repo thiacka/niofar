@@ -94,7 +94,7 @@ function buildPaymentConfirmedEmail(opts: {
 
     <p>Notre équipe va vous contacter très prochainement avec tous les détails pratiques pour préparer votre séjour.</p>
 
-    <a href="https://wa.me/221711525436?text=Bonjour%20NIO%20FAR%20!%20Ma%20réservation%20${opts.reference}%20est%20confirmée" class="whatsapp-btn">
+    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Ma%20réservation%20${opts.reference}%20est%20confirmée" class="whatsapp-btn">
       💬 Nous contacter sur WhatsApp
     </a>
 
