@@ -193,16 +193,6 @@ const ROLE_LABELS: Record<string, string> = {
             }
           </nav>
 
-          <!-- Indicateur lecture seule pour manager -->
-          @if (adminService.isManager()) {
-            <div class="readonly-banner">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              Mode lecture seule — les modifications de statut et suppressions ne sont pas disponibles pour le rôle Manager
-            </div>
-          }
 
           @if (isLoading()) {
             <div class="loading">
@@ -803,20 +793,6 @@ const ROLE_LABELS: Record<string, string> = {
       font-size: 0.75rem;
     }
 
-    /* ── Bannière lecture seule ────────────────────────────────── */
-    .readonly-banner {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      padding: var(--spacing-md) var(--spacing-lg);
-      background: rgba(124, 58, 237, 0.08);
-      border: 1px solid rgba(124, 58, 237, 0.25);
-      border-radius: var(--radius-md);
-      color: #7c3aed;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: var(--spacing-lg);
-    }
 
     /* ── Loading ───────────────────────────────────────────────── */
     .loading {

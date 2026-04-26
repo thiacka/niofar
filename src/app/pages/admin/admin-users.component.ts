@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../core/services/user.service';
 import { AuditService } from '../../core/services/audit.service';
+import { AdminService } from '../../core/services/admin.service';
 import { User, CreateUserDto, UpdateUserDto, UserRole } from '../../core/models/user.model';
 
 // ── Définition des rôles avec description et permissions ─────────────────────
@@ -34,15 +35,17 @@ const ROLE_DEFS: Array<{
   {
     value: 'manager',
     label: 'Manager',
-    description: 'Suivi global de l\'activité business en temps réel.',
+    description: 'Gestion opérationnelle complète et suivi business en temps réel.',
     color: '#7c3aed',
     bgColor: '#f5f3ff',
     icon: 'M18 20V10M12 20V4M6 20v-6',
     permissions: [
-      'Tableau de bord temps réel',
-      'Consultation des réservations (lecture seule)',
-      'Consultation des messages',
-      'Journal d\'audit (lecture seule)'
+      'Tableau de bord & statistiques temps réel',
+      'Gestion complète des réservations',
+      'Ajout/modification/suppression circuits, excursions, locations',
+      'Création de nouveaux opérateurs',
+      'Blocage/déblocage des opérateurs',
+      'Journal d\'audit'
     ]
   },
   {
@@ -82,12 +85,14 @@ interface FormErrors {
           <h2>Gestion des utilisateurs</h2>
           <p class="subtitle">{{ users().length }} utilisateur(s) enregistré(s)</p>
         </div>
-        <button class="btn btn-primary" (click)="openCreateForm()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Nouvel utilisateur
-        </button>
+        @if (adminService.canCreateUser()) {
+          <button class="btn btn-primary" (click)="openCreateForm()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nouvel utilisateur
+          </button>
+        }
       </div>
 
       <!-- ── Tableau ───────────────────────────────────────────────── -->
@@ -99,7 +104,9 @@ interface FormErrors {
         <div class="empty-state">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <p>Aucun utilisateur pour le moment</p>
-          <button class="btn btn-primary" (click)="openCreateForm()">Créer le premier utilisateur</button>
+          @if (adminService.canCreateUser()) {
+            <button class="btn btn-primary" (click)="openCreateForm()">Créer le premier utilisateur</button>
+          }
         </div>
       } @else {
         <div class="table-wrapper">
@@ -142,8 +149,9 @@ interface FormErrors {
                     <button
                       class="status-toggle"
                       [class.active]="user.is_active"
-                      (click)="toggleStatus(user)"
-                      [title]="user.is_active ? 'Désactiver le compte' : 'Activer le compte'"
+                      [class.locked]="!adminService.canManageUser(user.role)"
+                      (click)="adminService.canManageUser(user.role) && toggleStatus(user)"
+                      [title]="!adminService.canManageUser(user.role) ? 'Vous ne pouvez pas modifier ce compte' : (user.is_active ? 'Désactiver le compte' : 'Activer le compte')"
                     >
                       <span class="toggle-track">
                         <span class="toggle-thumb"></span>
@@ -165,36 +173,42 @@ interface FormErrors {
                   <!-- Actions -->
                   <td>
                     <div class="row-actions">
-                      <button class="action-btn" (click)="openEditForm(user)" title="Modifier">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                        Modifier
-                      </button>
-                      <button
-                        class="action-btn invite"
-                        (click)="resendInvitation(user)"
-                        [disabled]="resendingInvite() === user.id"
-                        title="Renvoyer l'email d'invitation"
-                      >
-                        @if (resendingInvite() === user.id) {
-                          <span class="spinner-xs"></span>
-                        } @else {
+                      @if (adminService.canManageUser(user.role)) {
+                        <button class="action-btn" (click)="openEditForm(user)" title="Modifier">
                           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                           </svg>
-                        }
-                        Invitation
-                      </button>
-                      <button class="action-btn danger" (click)="deleteUser(user)" title="Supprimer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="3 6 5 6 21 6"/>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                        Supprimer
-                      </button>
+                          Modifier
+                        </button>
+                        <button
+                          class="action-btn invite"
+                          (click)="resendInvitation(user)"
+                          [disabled]="resendingInvite() === user.id"
+                          title="Renvoyer l'email d'invitation"
+                        >
+                          @if (resendingInvite() === user.id) {
+                            <span class="spinner-xs"></span>
+                          } @else {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                              <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                          }
+                          Invitation
+                        </button>
+                      } @else {
+                        <span class="no-access-hint">Accès restreint</span>
+                      }
+                      @if (adminService.canDeleteUser()) {
+                        <button class="action-btn danger" (click)="deleteUser(user)" title="Supprimer">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          </svg>
+                          Supprimer
+                        </button>
+                      }
                     </div>
                   </td>
                 </tr>
@@ -295,7 +309,7 @@ interface FormErrors {
                   Rôle & permissions
                 </h4>
                 <div class="role-cards">
-                  @for (role of roleDefs; track role.value) {
+                  @for (role of roleDefs(); track role.value) {
                     <div
                       class="role-card"
                       [class.selected]="formData.role === role.value"
@@ -577,6 +591,18 @@ interface FormErrors {
       font-size: 0.875rem;
       color: var(--color-text-light);
       padding: 0;
+    }
+
+    .status-toggle.locked {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .no-access-hint {
+      font-size: 0.775rem;
+      color: var(--color-text-light);
+      font-style: italic;
+      padding: 5px 4px;
     }
 
     .toggle-track {
@@ -1095,10 +1121,16 @@ interface FormErrors {
 export class AdminUsersComponent implements OnInit {
   private userService = inject(UserService);
   private audit       = inject(AuditService);
+  adminService        = inject(AdminService);
 
   resendingInvite = signal<string | null>(null); // userId en cours
 
-  readonly roleDefs = ROLE_DEFS;
+  /** Rôles disponibles dans le formulaire — le manager ne peut créer que des opérateurs */
+  roleDefs = computed(() =>
+    this.adminService.isManager()
+      ? ROLE_DEFS.filter(r => r.value === 'operator')
+      : ROLE_DEFS
+  );
 
   // ── État ───────────────────────────────────────────────────────
   users      = signal<User[]>([]);

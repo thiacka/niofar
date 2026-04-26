@@ -89,7 +89,12 @@ const ROLE_TABS: Record<UserRole, AdminTab[]> = {
     'circuits', 'excursions', 'rentals', 'promotions', 'images',
     'users', 'content', 'audit'
   ],
-  manager: ['dashboard', 'bookings', 'messages', 'audit'],
+  // Manager : gestion complète circuits/excursions/locations + bookings + utilisateurs (sans suppression)
+  manager: [
+    'dashboard', 'bookings', 'messages',
+    'circuits', 'excursions', 'rentals',
+    'users', 'audit'
+  ],
   operator: [
     'bookings', 'messages',
     'circuits', 'excursions', 'rentals', 'promotions', 'images', 'content'
@@ -130,8 +135,24 @@ export class AdminService {
     return this.isOperator() ? 'bookings' : 'dashboard';
   }
 
-  /** L'utilisateur peut-il modifier les réservations ? */
-  canEditBookings = computed(() => !this.isManager());
+  /** L'utilisateur peut-il modifier les réservations ? (tous les rôles sauf lecture pure) */
+  canEditBookings = computed(() => true);
+
+  /** Le manager ne peut pas supprimer des utilisateurs ni gérer les admins */
+  canManageUser(targetRole: string): boolean {
+    if (this.isAdmin()) return true;
+    // Manager : peut bloquer/débloquer uniquement les operators
+    if (this.isManager()) return targetRole === 'operator';
+    return false;
+  }
+
+  canDeleteUser(): boolean {
+    return this.isAdmin();
+  }
+
+  canCreateUser(): boolean {
+    return this.isAdmin() || this.isManager();
+  }
 
   // ── Connexion email + mot de passe ──────────────────────────────────────────
   async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
