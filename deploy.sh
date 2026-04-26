@@ -69,10 +69,11 @@ update_deployment() {
     print_header "MISE À JOUR DU DÉPLOIEMENT"
 
     print_info "Récupération des dernières modifications..."
-    git pull
+    git pull origin main
 
-    print_info "Reconstruction de l'image web..."
-    docker compose build web
+    # --no-cache force la regénération de version.json via le hook prebuild Angular
+    print_info "Reconstruction de l'image web (sans cache)..."
+    docker compose build --no-cache web
 
     # On ne touche QUE le conteneur web — certbot et ses certificats restent intacts
     print_info "Redémarrage du conteneur web uniquement..."
@@ -81,8 +82,8 @@ update_deployment() {
     print_info "Attente du démarrage..."
     sleep 3
 
-    print_info "Rechargement de nginx..."
-    docker compose exec web nginx -s reload
+    print_info "Version déployée :"
+    docker compose exec -T web sh -c "cat /usr/share/nginx/html/version.json" 2>/dev/null || print_warning "Impossible de lire version.json"
 
     print_header "MISE À JOUR TERMINÉE"
     print_info "Certificat SSL non modifié."
