@@ -4,14 +4,16 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { EditModeBannerComponent } from './shared/components/edit-mode-banner/edit-mode-banner.component';
 import { CookieBannerComponent } from './shared/components/cookie-banner/cookie-banner.component';
+import { UpdateBannerComponent } from './shared/components/update-banner/update-banner.component';
 import { LanguageService } from './core/services/language.service';
+import { VersionCheckService } from './core/services/version-check.service';
 import { filter, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, EditModeBannerComponent, CookieBannerComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, EditModeBannerComponent, CookieBannerComponent, UpdateBannerComponent],
   template: `
     @if (!isAdminRoute()) {
       <app-edit-mode-banner />
@@ -20,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     <main>
       <router-outlet />
     </main>
+    <app-update-banner />
     @if (!isAdminRoute()) {
       <app-footer />
       <app-cookie-banner (consentGiven)="onConsentGiven($event)" />
@@ -108,8 +111,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
   `]
 })
 export class AppComponent {
-  private router = inject(Router);
+  private router         = inject(Router);
+  private versionCheck   = inject(VersionCheckService);
   lang = inject(LanguageService);
+
+  constructor() {
+    // Lance la vérification de version dès le démarrage
+    this.versionCheck.init();
+  }
 
   isAdminRoute = toSignal(
     this.router.events.pipe(
