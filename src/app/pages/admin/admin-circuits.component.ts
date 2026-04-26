@@ -362,74 +362,9 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                     }
                   </div>
 
-                  <!-- Timeline des jours -->
-                  @if (formData.itinerary.length > 0) {
-                    <div class="itinerary-timeline">
-                      @for (day of formData.itinerary; track day.day; let i = $index) {
-                        <div class="timeline-day" [class.is-editing]="editingInlineDayIndex() === i">
-                          <div class="timeline-left">
-                            <div class="day-circle">{{ day.day }}</div>
-                            @if (i < formData.itinerary.length - 1) {
-                              <div class="timeline-line"></div>
-                            }
-                          </div>
-                          <div class="day-card">
-                            <div class="day-card-top">
-                              <div class="day-card-titles">
-                                <strong class="day-title-fr">{{ day.title_fr }}</strong>
-                                @if (day.title_en) {
-                                  <span class="day-title-en">{{ day.title_en }}</span>
-                                }
-                              </div>
-                              <div class="day-card-actions">
-                                <button type="button" class="btn-icon" title="Modifier" (click)="editInlineDay(i)">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                  </svg>
-                                </button>
-                                <button type="button" class="btn-icon danger" title="Supprimer" (click)="deleteInlineDay(i)">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"/>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                            @if (day.location_fr) {
-                              <p class="day-meta">📍 {{ day.location_fr }}</p>
-                            }
-                            <p class="day-desc">{{ day.description_fr | slice:0:150 }}{{ day.description_fr.length > 150 ? '…' : '' }}</p>
-                            <div class="day-badges">
-                              @if (day.accommodation_fr) {
-                                <span class="day-badge hotel">🏨 {{ day.accommodation_fr }}</span>
-                              }
-                              @if (day.meals_fr) {
-                                <span class="day-badge meal">🍽 {{ day.meals_fr }}</span>
-                              }
-                              @if (getDayImageCount(day) > 0) {
-                                <span class="day-badge img">📷 {{ getDayImageCount(day) }} photo(s)</span>
-                              } @else if (day.excursion_image) {
-                                <span class="day-badge img">📷 1 photo</span>
-                              }
-                            </div>
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  } @else if (!inlineDayFormVisible()) {
-                    <div class="itinerary-empty">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.25">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-                      </svg>
-                      <p>Aucun jour ajouté</p>
-                      <small>Cliquez "Ajouter un jour" pour construire votre itinéraire</small>
-                    </div>
-                  }
-
-                  <!-- Formulaire inline d'ajout / édition de jour -->
+                  <!-- Formulaire inline d'ajout / édition de jour (positionné en haut) -->
                   @if (inlineDayFormVisible()) {
-                    <div class="inline-day-form">
+                    <div id="day-edit-form" class="inline-day-form">
                       <div class="inline-form-header">
                         <div class="inline-form-title">
                           <div class="inline-day-num">Jour {{ inlineDay.day }}</div>
@@ -441,7 +376,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                       <div class="form-row">
                         <div class="form-group" style="max-width:120px">
                           <label>N° du jour</label>
-                          <input type="number" [(ngModel)]="inlineDay.day" name="il_day" min="1" />
+                          <input id="day-form-first-input" type="number" [(ngModel)]="inlineDay.day" name="il_day" min="1" />
                         </div>
                       </div>
 
@@ -525,6 +460,71 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                           {{ editingInlineDayIndex() !== null ? '✓ Modifier ce jour' : '+ Ajouter ce jour' }}
                         </button>
                       </div>
+                    </div>
+                  }
+
+                  <!-- Timeline des jours -->
+                  @if (formData.itinerary.length > 0) {
+                    <div class="itinerary-timeline">
+                      @for (day of formData.itinerary; track day.day; let i = $index) {
+                        <div class="timeline-day" [class.is-editing]="editingInlineDayIndex() === i">
+                          <div class="timeline-left">
+                            <div class="day-circle">{{ day.day }}</div>
+                            @if (i < formData.itinerary.length - 1) {
+                              <div class="timeline-line"></div>
+                            }
+                          </div>
+                          <div class="day-card">
+                            <div class="day-card-top">
+                              <div class="day-card-titles">
+                                <strong class="day-title-fr">{{ day.title_fr }}</strong>
+                                @if (day.title_en) {
+                                  <span class="day-title-en">{{ day.title_en }}</span>
+                                }
+                              </div>
+                              <div class="day-card-actions">
+                                <button type="button" class="btn-icon" title="Modifier" (click)="editInlineDay(i)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                  </svg>
+                                </button>
+                                <button type="button" class="btn-icon danger" title="Supprimer" (click)="deleteInlineDay(i)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                            @if (day.location_fr) {
+                              <p class="day-meta">📍 {{ day.location_fr }}</p>
+                            }
+                            <p class="day-desc">{{ day.description_fr | slice:0:150 }}{{ day.description_fr.length > 150 ? '…' : '' }}</p>
+                            <div class="day-badges">
+                              @if (day.accommodation_fr) {
+                                <span class="day-badge hotel">🏨 {{ day.accommodation_fr }}</span>
+                              }
+                              @if (day.meals_fr) {
+                                <span class="day-badge meal">🍽 {{ day.meals_fr }}</span>
+                              }
+                              @if (getDayImageCount(day) > 0) {
+                                <span class="day-badge img">📷 {{ getDayImageCount(day) }} photo(s)</span>
+                              } @else if (day.excursion_image) {
+                                <span class="day-badge img">📷 1 photo</span>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  } @else if (!inlineDayFormVisible()) {
+                    <div class="itinerary-empty">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.25">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <p>Aucun jour ajouté</p>
+                      <small>Cliquez "Ajouter un jour" pour construire votre itinéraire</small>
                     </div>
                   }
 
@@ -1708,9 +1708,24 @@ export class AdminCircuitsComponent implements OnInit {
       this.editingInlineDayIndex.set(null);
     }
     this.inlineDayFormVisible.set(true);
+    this.scrollToDayForm();
   }
 
   editInlineDay(index: number): void { this.openInlineDayForm(index); }
+
+  private scrollToDayForm(): void {
+    // Attend le prochain cycle de rendu Angular avant de scroller + focus
+    setTimeout(() => {
+      const form = document.getElementById('day-edit-form');
+      if (!form) return;
+
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Focus sur le premier input visible du formulaire
+      const firstInput = document.getElementById('day-form-first-input') as HTMLInputElement | null;
+      firstInput?.focus({ preventScroll: true });
+    }, 50);
+  }
 
   saveInlineDay(): void {
     if (!this.inlineDay.title_fr || !this.inlineDay.description_fr) return;
