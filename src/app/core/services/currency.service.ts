@@ -19,7 +19,7 @@ export class CurrencyService {
     USD: { code: 'USD', symbol: '$', name: 'Dollar', rate: 600 }
   };
 
-  private currentCurrency = signal<Currency>('XOF');
+  private currentCurrency = signal<Currency>('EUR');
 
   constructor() {
     const saved = localStorage.getItem('currency') as Currency;
