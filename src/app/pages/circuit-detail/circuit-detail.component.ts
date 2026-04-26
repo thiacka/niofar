@@ -10,6 +10,7 @@ import { SeoService } from '../../core/services/seo.service';
 
 interface DayWithImage extends ItineraryDay {
   excursion_image?: string;
+  images?: string[];
 }
 
 @Component({
@@ -146,11 +147,41 @@ interface DayWithImage extends ItineraryDay {
                 <div class="day-card" appScrollAnimate [animationDelay]="dayIndex * 100">
                   <div class="day-card-inner">
                     <div class="day-image-section">
-                      <img [src]="day.excursion_image || circuit()!.image_url" [alt]="getDayTitle(day)" class="day-image" loading="lazy" decoding="async" />
+                      <img
+                        [src]="getActiveStepImage(day, circuit()!.image_url)"
+                        [alt]="getDayTitle(day)"
+                        class="day-image"
+                        loading="lazy"
+                        decoding="async"
+                      />
                       <div class="day-badge">
                         <span class="day-label">{{ lang.t('circuits.day') }}</span>
                         <span class="day-number-large">{{ day.day }}</span>
                       </div>
+
+                      @let imgs = getStepImages(day, circuit()!.image_url);
+                      @if (imgs.length > 1) {
+                        <button class="img-nav img-nav-prev" (click)="prevStepImage(day, circuit()!.image_url); $event.stopPropagation()" aria-label="Image précédente">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="15 18 9 12 15 6"/>
+                          </svg>
+                        </button>
+                        <button class="img-nav img-nav-next" (click)="nextStepImage(day, circuit()!.image_url); $event.stopPropagation()" aria-label="Image suivante">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
+                        </button>
+                        <div class="img-dots">
+                          @for (img of imgs; track $index) {
+                            <button
+                              class="img-dot"
+                              [class.active]="getActiveIndex(day) === $index"
+                              (click)="setActiveStepImage(day, $index); $event.stopPropagation()"
+                              [attr.aria-label]="'Image ' + ($index + 1)"
+                            ></button>
+                          }
+                        </div>
+                      }
                     </div>
 
                     <div class="day-content-section">
@@ -534,6 +565,69 @@ interface DayWithImage extends ItineraryDay {
 
     .day-card-inner:hover .day-image {
       transform: scale(1.05);
+    }
+
+    /* ── Galerie navigation ── */
+    .img-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      z-index: 5;
+      opacity: 0;
+    }
+
+    .day-image-section:hover .img-nav {
+      opacity: 1;
+    }
+
+    .img-nav:hover {
+      background: var(--color-white);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .img-nav-prev { left: var(--spacing-md); }
+    .img-nav-next { right: var(--spacing-md); }
+
+    .img-dots {
+      position: absolute;
+      bottom: var(--spacing-md);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+
+    .img-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.8);
+      background: transparent;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+      padding: 0;
+    }
+
+    .img-dot.active {
+      background: var(--color-white);
+      transform: scale(1.3);
+    }
+
+    .img-dot:hover:not(.active) {
+      background: rgba(255,255,255,0.6);
     }
 
     .day-badge {
@@ -941,6 +1035,7 @@ export class CircuitDetailComponent implements OnInit {
   attachments = signal<CircuitAttachment[]>([]);
   isLoading = signal(true);
   linkCopied = signal(false);
+  dayActiveImageIndex = signal<Map<number, number>>(new Map());
 
   shareWhatsApp(): void {
     const url = encodeURIComponent(window.location.href);
@@ -1096,5 +1191,42 @@ export class CircuitDetailComponent implements OnInit {
 
   getDayMeals(day: ItineraryDay): string {
     return this.lang.language() === 'fr' ? (day.meals_fr || '') : (day.meals_en || '');
+  }
+
+  // ── Galerie d'images par étape ──────────────────────────────────────────────
+
+  getStepImages(day: DayWithImage, fallback: string): string[] {
+    const imgs = (day.images || []).filter(i => !!i);
+    if (imgs.length > 0) return imgs;
+    const single = day.excursion_image || fallback;
+    return single ? [single] : [];
+  }
+
+  getActiveStepImage(day: DayWithImage, fallback: string): string {
+    const imgs = this.getStepImages(day, fallback);
+    const idx = this.dayActiveImageIndex().get(day.day) ?? 0;
+    return imgs[idx] ?? fallback;
+  }
+
+  getActiveIndex(day: DayWithImage): number {
+    return this.dayActiveImageIndex().get(day.day) ?? 0;
+  }
+
+  setActiveStepImage(day: DayWithImage, idx: number): void {
+    const map = new Map(this.dayActiveImageIndex());
+    map.set(day.day, idx);
+    this.dayActiveImageIndex.set(map);
+  }
+
+  prevStepImage(day: DayWithImage, fallback: string): void {
+    const imgs = this.getStepImages(day, fallback);
+    const cur = this.getActiveIndex(day);
+    this.setActiveStepImage(day, (cur - 1 + imgs.length) % imgs.length);
+  }
+
+  nextStepImage(day: DayWithImage, fallback: string): void {
+    const imgs = this.getStepImages(day, fallback);
+    const cur = this.getActiveIndex(day);
+    this.setActiveStepImage(day, (cur + 1) % imgs.length);
   }
 }

@@ -15,6 +15,7 @@ export interface ItineraryDay {
   meals_en?: string;
   excursion_id?: string;
   excursion_image?: string;
+  images?: string[];
 }
 
 export interface Circuit {

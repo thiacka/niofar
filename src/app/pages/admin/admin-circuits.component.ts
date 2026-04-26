@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, output } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { CircuitService, Circuit, CircuitFormData, ItineraryDay, CircuitAttachment } from '../../core/services/circuit.service';
@@ -404,8 +404,10 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                               @if (day.meals_fr) {
                                 <span class="day-badge meal">🍽 {{ day.meals_fr }}</span>
                               }
-                              @if (day.excursion_image) {
-                                <span class="day-badge img">📷 Photo</span>
+                              @if (getDayImageCount(day) > 0) {
+                                <span class="day-badge img">📷 {{ getDayImageCount(day) }} photo(s)</span>
+                              } @else if (day.excursion_image) {
+                                <span class="day-badge img">📷 1 photo</span>
                               }
                             </div>
                           </div>
@@ -434,18 +436,26 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                       </div>
 
                       <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group" style="max-width:120px">
                           <label>N° du jour</label>
                           <input type="number" [(ngModel)]="inlineDay.day" name="il_day" min="1" />
                         </div>
-                        <div class="form-group">
-                          <label>Image du jour</label>
-                          <app-cloudinary-upload
-                            [value]="inlineDay.excursion_image || ''"
-                            folder="nio-far/circuits/itinerary"
-                            [showPreview]="false"
-                            (urlChange)="inlineDay.excursion_image = $event"
-                          />
+                      </div>
+
+                      <div class="form-group">
+                        <label>Photos de l'étape <small class="field-hint">(3 images max — la première sera affichée par défaut)</small></label>
+                        <div class="day-images-slots">
+                          @for (slot of [0, 1, 2]; track slot) {
+                            <div class="day-image-slot">
+                              <span class="slot-num">Photo {{ slot + 1 }}</span>
+                              <app-cloudinary-upload
+                                [value]="inlineDay.images?.[slot] || ''"
+                                folder="nio-far/circuits/itinerary"
+                                [showPreview]="true"
+                                (urlChange)="setInlineDayImage(slot, $event)"
+                              />
+                            </div>
+                          }
                         </div>
                       </div>
 
@@ -750,7 +760,13 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
                       <p class="stage-location">{{ day.description_fr | slice:0:100 }}{{ day.description_fr.length > 100 ? '…' : '' }}</p>
                       @if (day.accommodation_fr) { <p class="stage-location">🏨 {{ day.accommodation_fr }}</p> }
                       @if (day.meals_fr) { <p class="stage-location">🍽 {{ day.meals_fr }}</p> }
-                      @if (day.excursion_image) {
+                      @if (getDayImageCount(day) > 0) {
+                        <div class="stage-images-preview">
+                          @for (img of getDayImages(day); track img) {
+                            <img [src]="img" [alt]="day.title_fr" loading="lazy" />
+                          }
+                        </div>
+                      } @else if (day.excursion_image) {
                         <div class="stage-images-preview">
                           <img [src]="day.excursion_image" [alt]="day.title_fr" loading="lazy" />
                         </div>
@@ -796,18 +812,26 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
           <div class="modal-body">
             <form (ngSubmit)="saveDayToItinerary()">
               <div class="form-row">
-                <div class="form-group">
+                <div class="form-group" style="max-width:140px">
                   <label>N° du jour</label>
                   <input type="number" [(ngModel)]="dayFormData.day" name="day" min="1" required />
                 </div>
-                <div class="form-group">
-                  <label>Image du jour</label>
-                  <app-cloudinary-upload
-                    [value]="dayFormData.excursion_image || ''"
-                    folder="nio-far/circuits/itinerary"
-                    [showPreview]="false"
-                    (urlChange)="dayFormData.excursion_image = $event"
-                  />
+              </div>
+
+              <div class="form-group">
+                <label>Photos de l'étape <small class="field-hint">(3 images max)</small></label>
+                <div class="day-images-slots">
+                  @for (slot of [0, 1, 2]; track slot) {
+                    <div class="day-image-slot">
+                      <span class="slot-num">Photo {{ slot + 1 }}</span>
+                      <app-cloudinary-upload
+                        [value]="dayFormData.images?.[slot] || ''"
+                        folder="nio-far/circuits/itinerary"
+                        [showPreview]="true"
+                        (urlChange)="setDayFormImage(slot, $event)"
+                      />
+                    </div>
+                  }
                 </div>
               </div>
               <div class="form-section">
@@ -1366,6 +1390,33 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
     .more-images { font-size: 0.85rem; color: var(--color-text-light); font-weight: 600; }
     .stage-actions { display: flex; gap: var(--spacing-xs); }
 
+    /* ── Day images slots ── */
+    .day-images-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-sm);
+    }
+    .day-image-slot {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      background: var(--color-background-alt);
+      border: 1px dashed rgba(61,43,31,0.2);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-sm);
+    }
+    .slot-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-light);
+    }
+    @media (max-width: 600px) {
+      .day-images-slots { grid-template-columns: 1fr; }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .bilingual-grid { grid-template-columns: 1fr; }
@@ -1510,7 +1561,8 @@ export class AdminCircuitsComponent implements OnInit {
       description_fr: '', description_en: '',
       location_fr: '', location_en: '',
       accommodation_fr: '', accommodation_en: '',
-      meals_fr: '', meals_en: '', excursion_image: ''
+      meals_fr: '', meals_en: '', excursion_image: '',
+      images: ['', '', '']
     };
   }
 
@@ -1590,6 +1642,26 @@ export class AdminCircuitsComponent implements OnInit {
     this.inlineDayFormVisible.set(false);
     this.editingInlineDayIndex.set(null);
     this.inlineDay = this.getEmptyDayData();
+  }
+
+  setInlineDayImage(slot: number, url: string): void {
+    const imgs = [...(this.inlineDay.images || ['', '', ''])];
+    imgs[slot] = url;
+    this.inlineDay = { ...this.inlineDay, images: imgs };
+  }
+
+  setDayFormImage(slot: number, url: string): void {
+    const imgs = [...(this.dayFormData.images || ['', '', ''])];
+    imgs[slot] = url;
+    this.dayFormData = { ...this.dayFormData, images: imgs };
+  }
+
+  getDayImages(day: ItineraryDay): string[] {
+    return (day.images || []).filter((i): i is string => !!i).slice(0, 3);
+  }
+
+  getDayImageCount(day: ItineraryDay): number {
+    return this.getDayImages(day).length;
   }
 
   deleteInlineDay(index: number): void {
