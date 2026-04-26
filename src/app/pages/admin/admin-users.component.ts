@@ -172,6 +172,22 @@ interface FormErrors {
                         </svg>
                         Modifier
                       </button>
+                      <button
+                        class="action-btn invite"
+                        (click)="resendInvitation(user)"
+                        [disabled]="resendingInvite() === user.id"
+                        title="Renvoyer l'email d'invitation"
+                      >
+                        @if (resendingInvite() === user.id) {
+                          <span class="spinner-xs"></span>
+                        } @else {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                          </svg>
+                        }
+                        Invitation
+                      </button>
                       <button class="action-btn danger" (click)="deleteUser(user)" title="Supprimer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <polyline points="3 6 5 6 21 6"/>
@@ -622,6 +638,29 @@ interface FormErrors {
       background: #fef2f2;
     }
 
+    .action-btn.invite:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .spinner-xs {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(61,43,31,0.2);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     /* ── Modal ───────────────────────────────────────────────── */
     .modal-overlay {
       position: fixed;
@@ -1057,6 +1096,8 @@ export class AdminUsersComponent implements OnInit {
   private userService = inject(UserService);
   private audit       = inject(AuditService);
 
+  resendingInvite = signal<string | null>(null); // userId en cours
+
   readonly roleDefs = ROLE_DEFS;
 
   // ── État ───────────────────────────────────────────────────────
@@ -1229,13 +1270,14 @@ export class AdminUsersComponent implements OnInit {
           is_active: this.formData.is_active
         });
       } else {
+        const adminName = this.getCurrentAdminName();
         const created = await this.userService.createUser({
           name:      fullName,
           email:     this.formData.email,
           role:      this.formData.role,
           password:  this.formData.password,
           is_active: this.formData.is_active
-        } as CreateUserDto);
+        } as CreateUserDto, adminName);
         await this.audit.create('user', created.id, fullName, { role: this.formData.role });
       }
 
@@ -1263,6 +1305,28 @@ export class AdminUsersComponent implements OnInit {
       await this.loadUsers();
     } catch (e) {
       console.error('Error toggling user status:', e);
+    }
+  }
+
+  private getCurrentAdminName(): string {
+    try {
+      const raw = sessionStorage.getItem('nio-far-admin-user');
+      if (raw) return (JSON.parse(raw) as { name?: string }).name ?? 'un administrateur';
+    } catch { /* ignore */ }
+    return 'un administrateur';
+  }
+
+  async resendInvitation(user: User): Promise<void> {
+    if (this.resendingInvite()) return;
+    this.resendingInvite.set(user.id);
+    try {
+      await this.userService.resendWelcomeEmail(user, this.getCurrentAdminName());
+      alert(`Email d'invitation renvoyé à ${user.email}`);
+    } catch (err) {
+      console.error('Erreur renvoi invitation:', err);
+      alert('Impossible d\'envoyer l\'email. Vérifiez la configuration Resend.');
+    } finally {
+      this.resendingInvite.set(null);
     }
   }
 

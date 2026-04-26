@@ -74,6 +74,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
   },
   {
+    path: 'admin/set-password',
+    loadComponent: () => import('./pages/set-password/set-password.component').then(m => m.SetPasswordComponent)
+  },
+  {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent)
   }

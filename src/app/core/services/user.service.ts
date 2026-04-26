@@ -34,7 +34,7 @@ export class UserService {
     return data as User | null;
   }
 
-  async createUser(userData: CreateUserDto): Promise<User> {
+  async createUser(userData: CreateUserDto, createdByName?: string): Promise<User> {
     const passwordHash = await this.hashPassword(userData.password);
 
     const { data, error } = await this.supabase.client
@@ -50,7 +50,31 @@ export class UserService {
       .single();
 
     if (error) { console.error('Error creating user:', error); throw error; }
-    return data as User;
+
+    // Envoyer l'email de bienvenue avec lien de définition de mot de passe
+    const newUser = data as User;
+    this.sendWelcomeEmail(newUser, createdByName).catch(err =>
+      console.warn('Welcome email failed (non-bloquant):', err)
+    );
+
+    return newUser;
+  }
+
+  private async sendWelcomeEmail(user: User, createdByName?: string): Promise<void> {
+    const { error } = await this.supabase.client.functions.invoke('send-welcome-user', {
+      body: {
+        userId:    user.id,
+        name:      user.name,
+        email:     user.email,
+        role:      user.role,
+        createdBy: createdByName ?? 'un administrateur',
+      },
+    });
+    if (error) throw error;
+  }
+
+  async resendWelcomeEmail(user: User, createdByName?: string): Promise<void> {
+    await this.sendWelcomeEmail(user, createdByName);
   }
 
   async updateUser(id: string, userData: UpdateUserDto): Promise<User> {
