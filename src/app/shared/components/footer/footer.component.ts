@@ -13,7 +13,7 @@ import { LanguageService } from '../../../core/services/language.service';
           <div class="footer-brand">
             <div class="footer-logo">
               <span class="logo-text">NIO FAR</span>
-              <span class="logo-tagline">Travel Services</span>
+              <span class="logo-tagline">Tourisme Services</span>
             </div>
             <p class="footer-tagline">{{ lang.t('footer.tagline') }}</p>
             <p class="footer-meaning">"We are together" - Wolof</p>
