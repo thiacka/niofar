@@ -154,7 +154,7 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
               <button class="btn btn-outline" (click)="reset()">
                 {{ lang.t('bookingLookup.searchAnother') }}
               </button>
-              <a href="mailto:contact@niofar.com" class="btn btn-primary">
+              <a href="mailto:contact@niofartourisme.com" class="btn btn-primary">
                 {{ lang.t('bookingLookup.contactUs') }}
               </a>
             </div>
