@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <!-- Fond principal -->
   <rect width="128" height="128" rx="23" fill="#3D2B1F"/>
-
-  <!-- Motif décoratif — vague stylisée Sénégal -->
   <circle cx="64" cy="49" r="28" fill="none" stroke="#C4682B" stroke-width="5"/>
-  <circle cx="64" cy="49" r="17" fill="#C4682B" opacity="0.3"/>
-
-  <!-- Étoile centrale (inspirée drapeau Sénégal) -->
-  <text x="64" y="55" text-anchor="middle" font-size="26" fill="#C49F4A">★</text>
-
-  <!-- Texte NIO FAR -->
-  <text x="64" y="67" text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif"
-        font-size="28" font-weight="bold" fill="#FFFFFF" letter-spacing="1">NIO FAR</text>
-
-  <!-- Sous-titre -->
-  <text x="64" y="90" text-anchor="middle"
-        font-family="Georgia, serif"
-        font-size="14" fill="#C4682B" letter-spacing="2">TOURISME</text>
+  <circle cx="64" cy="49" r="17" fill="#C4682B" opacity="0.25"/>
+  <text x="64" y="55" text-anchor="middle" dominant-baseline="middle"
+        font-size="26" fill="#C49F4A">★</text>
+  <text x="64" y="79" text-anchor="middle"
+        font-family="Georgia, serif" font-size="28" font-weight="bold"
+        fill="#FFFFFF" letter-spacing="1">NIO FAR</text>
+  <text x="64" y="97" text-anchor="middle"
+        font-family="Georgia, serif" font-size="13"
+        fill="#C4682B" letter-spacing="2">TOURISME</text>
 </svg>

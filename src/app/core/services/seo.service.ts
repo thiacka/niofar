@@ -3,6 +3,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { LanguageService } from './language.service';
+import { environment } from '../../../environments/environment';
 
 export interface SeoConfig {
   titleFr: string;
@@ -25,7 +26,7 @@ export class SeoService {
   private lang = inject(LanguageService);
 
   private readonly siteName = 'NIO FAR Tourisme';
-  private readonly siteUrl = 'https://nio-far-tourisme.com';
+  private readonly siteUrl = environment.siteUrl;
   private readonly defaultImage = 'https://media.istockphoto.com/id/2193209869/fr/photo/le-pêcheur-au-bord-du-lac-retba-lac-rose-près-de-dakar-sénégal-afrique-de-louest.jpg?s=1024x1024&w=is&k=20&c=default';
 
   setPage(config: SeoConfig): void {
