@@ -415,18 +415,13 @@ import { SeoService } from '../../core/services/seo.service';
 
     .rental-image {
       position: relative;
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      flex-shrink: 0;
+      height: 250px;
     }
 
     .rental-image img {
-      position: absolute;
-      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
     .rental-category {

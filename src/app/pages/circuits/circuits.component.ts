@@ -172,7 +172,6 @@ import { SeoService } from '../../core/services/seo.service';
     .circuit-card {
       display: grid;
       grid-template-columns: 400px 1fr;
-      align-items: start;
       background: var(--color-white);
       border-radius: var(--radius-xl);
       overflow: hidden;
@@ -195,17 +194,14 @@ import { SeoService } from '../../core/services/seo.service';
 
     .circuit-image {
       position: relative;
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
+      height: 100%;
+      min-height: 350px;
     }
 
     .circuit-image img {
-      position: absolute;
-      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
     .circuit-duration {
@@ -365,7 +361,6 @@ import { SeoService } from '../../core/services/seo.service';
     @media (max-width: 992px) {
       .circuit-card {
         grid-template-columns: 1fr;
-        align-items: stretch;
       }
 
       .circuit-card:nth-child(even) {
@@ -373,7 +368,7 @@ import { SeoService } from '../../core/services/seo.service';
       }
 
       .circuit-image {
-        aspect-ratio: 16 / 9;
+        min-height: 250px;
       }
 
       .circuit-card:nth-child(even) .circuit-duration {
