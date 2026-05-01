@@ -1186,13 +1186,14 @@ export class BookingComponent implements OnInit {
 
     this.isSubmitting.set(false);
 
-    if (result.success && result.data) {
+    if (result.success && result.data?.reference_number) {
       const promo = this.appliedPromotion();
       if (promo?.id) {
         await this.circuitService.incrementPromotionUsage(promo.id);
       }
-      this.router.navigate(['/payment', result.data.reference_number]);
+      await this.router.navigate(['/payment', result.data.reference_number]);
     } else {
+      console.error('Booking failed or missing reference:', result);
       this.errorMessage.set(true);
     }
   }
