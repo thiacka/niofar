@@ -525,8 +525,8 @@ export class RentalBookingComponent implements OnInit {
     const result = await this.bookingService.createRentalBooking(request);
     this.isSubmitting.set(false);
 
-    if (result.success && result.reference) {
-      this.router.navigate(['/payment', result.reference]);
+    if (result.success && result.data?.reference_number) {
+      this.router.navigate(['/payment', result.data.reference_number]);
     } else {
       this.errorMessage.set(true);
     }

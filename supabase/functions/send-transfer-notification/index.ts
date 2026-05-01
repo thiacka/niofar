@@ -13,6 +13,12 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 const RESEND_API = 'https://api.resend.com/emails';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 interface TransferRecord {
   id: string;
   reference_number: string;
@@ -176,7 +182,10 @@ function buildTeamEmail(r: TransferRecord): string {
 }
 
 serve(async (req) => {
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   try {
     const { record } = await req.json() as { record: TransferRecord };
     const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
@@ -186,9 +195,9 @@ serve(async (req) => {
       sendEmail(teamEmail, `[NIO FAR] Nouveau transfert — ${record.reference_number} — ${record.first_name} ${record.last_name}`, buildTeamEmail(record)),
     ]);
 
-    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } });
   } catch (err) {
     console.error('send-transfer-notification error:', err);
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } });
   }
 });

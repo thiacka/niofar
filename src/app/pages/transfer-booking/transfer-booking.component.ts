@@ -532,8 +532,8 @@ export class TransferBookingComponent {
     const result = await this.bookingService.createTransferBooking(request);
     this.isSubmitting.set(false);
 
-    if (result.success && result.reference) {
-      window.location.href = `/payment/${result.reference}`;
+    if (result.success && result.data?.reference_number) {
+      window.location.href = `/payment/${result.data.reference_number}`;
     } else {
       this.errorMessage.set(true);
     }
