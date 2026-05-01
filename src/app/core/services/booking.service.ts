@@ -78,9 +78,10 @@ export class BookingService {
   private supabase = inject(SupabaseService);
 
   async createBooking(booking: BookingRequest): Promise<{ success: boolean; data?: BookingResponse; error?: string }> {
+    const reference = `NB-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     const { data, error } = await this.supabase.client
       .from('bookings')
-      .insert(booking)
+      .insert({ ...booking, reference_number: reference, status: 'pending' })
       .select()
       .single();
 
