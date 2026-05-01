@@ -7,10 +7,12 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
+import { CountrySelectComponent } from '../../shared/components/phone-input/country-select.component';
 
 @Component({
   selector: 'app-excursion-booking',
-  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe, PhoneInputComponent, CountrySelectComponent],
   templateUrl: './excursion-booking.component.html',
   styleUrl: './excursion-booking.component.css',
 })
@@ -50,173 +52,7 @@ export class ExcursionBookingComponent implements OnInit {
   promoError = signal(false);
   promoSuccess = signal(false);
 
-  countryGroups = [
-    {
-      name: 'Afrique / Africa',
-      countries: [
-        { name: 'Senegal', flag: '🇸🇳' },
-        { name: 'Algeria', flag: '🇩🇿' },
-        { name: 'Angola', flag: '🇦🇴' },
-        { name: 'Benin', flag: '🇧🇯' },
-        { name: 'Botswana', flag: '🇧🇼' },
-        { name: 'Burkina Faso', flag: '🇧🇫' },
-        { name: 'Burundi', flag: '🇧🇮' },
-        { name: 'Cameroon', flag: '🇨🇲' },
-        { name: 'Cape Verde', flag: '🇨🇻' },
-        { name: 'Central African Republic', flag: '🇨🇫' },
-        { name: 'Chad', flag: '🇹🇩' },
-        { name: 'Comoros', flag: '🇰🇲' },
-        { name: 'Congo', flag: '🇨🇬' },
-        { name: 'Ivory Coast', flag: '🇨🇮' },
-        { name: 'Democratic Republic of Congo', flag: '🇨🇩' },
-        { name: 'Djibouti', flag: '🇩🇯' },
-        { name: 'Egypt', flag: '🇪🇬' },
-        { name: 'Equatorial Guinea', flag: '🇬🇶' },
-        { name: 'Eritrea', flag: '🇪🇷' },
-        { name: 'Eswatini', flag: '🇸🇿' },
-        { name: 'Ethiopia', flag: '🇪🇹' },
-        { name: 'Gabon', flag: '🇬🇦' },
-        { name: 'Gambia', flag: '🇬🇲' },
-        { name: 'Ghana', flag: '🇬🇭' },
-        { name: 'Guinea', flag: '🇬🇳' },
-        { name: 'Guinea-Bissau', flag: '🇬🇼' },
-        { name: 'Kenya', flag: '🇰🇪' },
-        { name: 'Lesotho', flag: '🇱🇸' },
-        { name: 'Liberia', flag: '🇱🇷' },
-        { name: 'Libya', flag: '🇱🇾' },
-        { name: 'Madagascar', flag: '🇲🇬' },
-        { name: 'Malawi', flag: '🇲🇼' },
-        { name: 'Mali', flag: '🇲🇱' },
-        { name: 'Mauritania', flag: '🇲🇷' },
-        { name: 'Mauritius', flag: '🇲🇺' },
-        { name: 'Morocco', flag: '🇲🇦' },
-        { name: 'Mozambique', flag: '🇲🇿' },
-        { name: 'Namibia', flag: '🇳🇦' },
-        { name: 'Niger', flag: '🇳🇪' },
-        { name: 'Nigeria', flag: '🇳🇬' },
-        { name: 'Rwanda', flag: '🇷🇼' },
-        { name: 'Sao Tome and Principe', flag: '🇸🇹' },
-        { name: 'Seychelles', flag: '🇸🇨' },
-        { name: 'Sierra Leone', flag: '🇸🇱' },
-        { name: 'Somalia', flag: '🇸🇴' },
-        { name: 'South Africa', flag: '🇿🇦' },
-        { name: 'South Sudan', flag: '🇸🇸' },
-        { name: 'Sudan', flag: '🇸🇩' },
-        { name: 'Tanzania', flag: '🇹🇿' },
-        { name: 'Togo', flag: '🇹🇬' },
-        { name: 'Tunisia', flag: '🇹🇳' },
-        { name: 'Uganda', flag: '🇺🇬' },
-        { name: 'Zambia', flag: '🇿🇲' },
-        { name: 'Zimbabwe', flag: '🇿🇼' }
-      ]
-    },
-    {
-      name: 'Europe',
-      countries: [
-        { name: 'Austria', flag: '🇦🇹' },
-        { name: 'Belgium', flag: '🇧🇪' },
-        { name: 'Denmark', flag: '🇩🇰' },
-        { name: 'Finland', flag: '🇫🇮' },
-        { name: 'France', flag: '🇫🇷' },
-        { name: 'Germany', flag: '🇩🇪' },
-        { name: 'Greece', flag: '🇬🇷' },
-        { name: 'Ireland', flag: '🇮🇪' },
-        { name: 'Italy', flag: '🇮🇹' },
-        { name: 'Luxembourg', flag: '🇱🇺' },
-        { name: 'Netherlands', flag: '🇳🇱' },
-        { name: 'Norway', flag: '🇳🇴' },
-        { name: 'Poland', flag: '🇵🇱' },
-        { name: 'Portugal', flag: '🇵🇹' },
-        { name: 'Spain', flag: '🇪🇸' },
-        { name: 'Sweden', flag: '🇸🇪' },
-        { name: 'Switzerland', flag: '🇨🇭' },
-        { name: 'United Kingdom', flag: '🇬🇧' }
-      ]
-    },
-    {
-      name: 'Amerique / Americas',
-      countries: [
-        { name: 'Argentina', flag: '🇦🇷' },
-        { name: 'Brazil', flag: '🇧🇷' },
-        { name: 'Canada', flag: '🇨🇦' },
-        { name: 'Chile', flag: '🇨🇱' },
-        { name: 'Colombia', flag: '🇨🇴' },
-        { name: 'Mexico', flag: '🇲🇽' },
-        { name: 'Peru', flag: '🇵🇪' },
-        { name: 'United States', flag: '🇺🇸' }
-      ]
-    },
-    {
-      name: 'Asie / Asia',
-      countries: [
-        { name: 'China', flag: '🇨🇳' },
-        { name: 'India', flag: '🇮🇳' },
-        { name: 'Indonesia', flag: '🇮🇩' },
-        { name: 'Japan', flag: '🇯🇵' },
-        { name: 'Malaysia', flag: '🇲🇾' },
-        { name: 'Philippines', flag: '🇵🇭' },
-        { name: 'Singapore', flag: '🇸🇬' },
-        { name: 'South Korea', flag: '🇰🇷' },
-        { name: 'Thailand', flag: '🇹🇭' },
-        { name: 'Vietnam', flag: '🇻🇳' }
-      ]
-    },
-    {
-      name: 'Oceanie / Oceania',
-      countries: [
-        { name: 'Australia', flag: '🇦🇺' },
-        { name: 'New Zealand', flag: '🇳🇿' }
-      ]
-    },
-    {
-      name: 'Moyen-Orient / Middle East',
-      countries: [
-        { name: 'Saudi Arabia', flag: '🇸🇦' },
-        { name: 'United Arab Emirates', flag: '🇦🇪' },
-        { name: 'Qatar', flag: '🇶🇦' },
-        { name: 'Kuwait', flag: '🇰🇼' },
-        { name: 'Israel', flag: '🇮🇱' },
-        { name: 'Turkey', flag: '🇹🇷' }
-      ]
-    },
-    {
-      name: 'Autre / Other',
-      countries: [
-        { name: 'Other', flag: '🌍' }
-      ]
-    }
-  ];
-
-  showCountryDropdown = signal(false);
-
-  filteredCountryGroups = computed(() => {
-    const searchTerm = this.formData.country.toLowerCase().trim();
-
-    if (!searchTerm) {
-      return this.countryGroups;
-    }
-
-    return this.countryGroups
-      .map(continent => ({
-        ...continent,
-        countries: continent.countries.filter(country =>
-          country.name.toLowerCase().includes(searchTerm)
-        )
-      }))
-      .filter(continent => continent.countries.length > 0);
-  });
-
-  selectCountry(countryName: string): void {
-    this.formData.country = countryName;
-    this.showCountryDropdown.set(false);
-  }
-
-  onCountryBlur(): void {
-    setTimeout(() => {
-      this.showCountryDropdown.set(false);
-    }, 200);
-  }
-
+  // Country and phone are handled by app-phone-input component
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const excursionSlug = params.get('excursionId');

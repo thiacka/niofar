@@ -1,0 +1,187 @@
+export interface Country {
+  name: string;
+  code: string;
+  dialCode: string;
+}
+
+export interface CountryGroup {
+  region: string;
+  countries: Country[];
+}
+
+export const COUNTRY_GROUPS: CountryGroup[] = [
+  {
+    region: 'Afrique / Africa',
+    countries: [
+      { name: 'Senegal', code: 'SN', dialCode: '+221' },
+      { name: 'Algeria', code: 'DZ', dialCode: '+213' },
+      { name: 'Angola', code: 'AO', dialCode: '+244' },
+      { name: 'Benin', code: 'BJ', dialCode: '+229' },
+      { name: 'Botswana', code: 'BW', dialCode: '+267' },
+      { name: 'Burkina Faso', code: 'BF', dialCode: '+226' },
+      { name: 'Burundi', code: 'BI', dialCode: '+257' },
+      { name: 'Cameroon', code: 'CM', dialCode: '+237' },
+      { name: 'Cape Verde', code: 'CV', dialCode: '+238' },
+      { name: 'Central African Republic', code: 'CF', dialCode: '+236' },
+      { name: 'Chad', code: 'TD', dialCode: '+235' },
+      { name: 'Comoros', code: 'KM', dialCode: '+269' },
+      { name: 'Congo', code: 'CG', dialCode: '+242' },
+      { name: 'Ivory Coast', code: 'CI', dialCode: '+225' },
+      { name: 'Democratic Republic of Congo', code: 'CD', dialCode: '+243' },
+      { name: 'Djibouti', code: 'DJ', dialCode: '+253' },
+      { name: 'Egypt', code: 'EG', dialCode: '+20' },
+      { name: 'Equatorial Guinea', code: 'GQ', dialCode: '+240' },
+      { name: 'Eritrea', code: 'ER', dialCode: '+291' },
+      { name: 'Eswatini', code: 'SZ', dialCode: '+268' },
+      { name: 'Ethiopia', code: 'ET', dialCode: '+251' },
+      { name: 'Gabon', code: 'GA', dialCode: '+241' },
+      { name: 'Gambia', code: 'GM', dialCode: '+220' },
+      { name: 'Ghana', code: 'GH', dialCode: '+233' },
+      { name: 'Guinea', code: 'GN', dialCode: '+224' },
+      { name: 'Guinea-Bissau', code: 'GW', dialCode: '+245' },
+      { name: 'Kenya', code: 'KE', dialCode: '+254' },
+      { name: 'Lesotho', code: 'LS', dialCode: '+266' },
+      { name: 'Liberia', code: 'LR', dialCode: '+231' },
+      { name: 'Libya', code: 'LY', dialCode: '+218' },
+      { name: 'Madagascar', code: 'MG', dialCode: '+261' },
+      { name: 'Malawi', code: 'MW', dialCode: '+265' },
+      { name: 'Mali', code: 'ML', dialCode: '+223' },
+      { name: 'Mauritania', code: 'MR', dialCode: '+222' },
+      { name: 'Mauritius', code: 'MU', dialCode: '+230' },
+      { name: 'Morocco', code: 'MA', dialCode: '+212' },
+      { name: 'Mozambique', code: 'MZ', dialCode: '+258' },
+      { name: 'Namibia', code: 'NA', dialCode: '+264' },
+      { name: 'Niger', code: 'NE', dialCode: '+227' },
+      { name: 'Nigeria', code: 'NG', dialCode: '+234' },
+      { name: 'Rwanda', code: 'RW', dialCode: '+250' },
+      { name: 'Sao Tome and Principe', code: 'ST', dialCode: '+239' },
+      { name: 'Seychelles', code: 'SC', dialCode: '+248' },
+      { name: 'Sierra Leone', code: 'SL', dialCode: '+232' },
+      { name: 'Somalia', code: 'SO', dialCode: '+252' },
+      { name: 'South Africa', code: 'ZA', dialCode: '+27' },
+      { name: 'South Sudan', code: 'SS', dialCode: '+211' },
+      { name: 'Sudan', code: 'SD', dialCode: '+249' },
+      { name: 'Tanzania', code: 'TZ', dialCode: '+255' },
+      { name: 'Togo', code: 'TG', dialCode: '+228' },
+      { name: 'Tunisia', code: 'TN', dialCode: '+216' },
+      { name: 'Uganda', code: 'UG', dialCode: '+256' },
+      { name: 'Zambia', code: 'ZM', dialCode: '+260' },
+      { name: 'Zimbabwe', code: 'ZW', dialCode: '+263' }
+    ]
+  },
+  {
+    region: 'Europe',
+    countries: [
+      { name: 'Austria', code: 'AT', dialCode: '+43' },
+      { name: 'Belgium', code: 'BE', dialCode: '+32' },
+      { name: 'Bulgaria', code: 'BG', dialCode: '+359' },
+      { name: 'Croatia', code: 'HR', dialCode: '+385' },
+      { name: 'Czech Republic', code: 'CZ', dialCode: '+420' },
+      { name: 'Denmark', code: 'DK', dialCode: '+45' },
+      { name: 'Finland', code: 'FI', dialCode: '+358' },
+      { name: 'France', code: 'FR', dialCode: '+33' },
+      { name: 'Germany', code: 'DE', dialCode: '+49' },
+      { name: 'Greece', code: 'GR', dialCode: '+30' },
+      { name: 'Hungary', code: 'HU', dialCode: '+36' },
+      { name: 'Ireland', code: 'IE', dialCode: '+353' },
+      { name: 'Italy', code: 'IT', dialCode: '+39' },
+      { name: 'Luxembourg', code: 'LU', dialCode: '+352' },
+      { name: 'Netherlands', code: 'NL', dialCode: '+31' },
+      { name: 'Norway', code: 'NO', dialCode: '+47' },
+      { name: 'Poland', code: 'PL', dialCode: '+48' },
+      { name: 'Portugal', code: 'PT', dialCode: '+351' },
+      { name: 'Romania', code: 'RO', dialCode: '+40' },
+      { name: 'Russia', code: 'RU', dialCode: '+7' },
+      { name: 'Serbia', code: 'RS', dialCode: '+381' },
+      { name: 'Slovakia', code: 'SK', dialCode: '+421' },
+      { name: 'Slovenia', code: 'SI', dialCode: '+386' },
+      { name: 'Spain', code: 'ES', dialCode: '+34' },
+      { name: 'Sweden', code: 'SE', dialCode: '+46' },
+      { name: 'Switzerland', code: 'CH', dialCode: '+41' },
+      { name: 'Turkey', code: 'TR', dialCode: '+90' },
+      { name: 'Ukraine', code: 'UA', dialCode: '+380' },
+      { name: 'United Kingdom', code: 'GB', dialCode: '+44' }
+    ]
+  },
+  {
+    region: 'Amerique / Americas',
+    countries: [
+      { name: 'Argentina', code: 'AR', dialCode: '+54' },
+      { name: 'Bolivia', code: 'BO', dialCode: '+591' },
+      { name: 'Brazil', code: 'BR', dialCode: '+55' },
+      { name: 'Canada', code: 'CA', dialCode: '+1' },
+      { name: 'Chile', code: 'CL', dialCode: '+56' },
+      { name: 'Colombia', code: 'CO', dialCode: '+57' },
+      { name: 'Costa Rica', code: 'CR', dialCode: '+506' },
+      { name: 'Cuba', code: 'CU', dialCode: '+53' },
+      { name: 'Dominican Republic', code: 'DO', dialCode: '+1' },
+      { name: 'Ecuador', code: 'EC', dialCode: '+593' },
+      { name: 'El Salvador', code: 'SV', dialCode: '+503' },
+      { name: 'Guatemala', code: 'GT', dialCode: '+502' },
+      { name: 'Haiti', code: 'HT', dialCode: '+509' },
+      { name: 'Honduras', code: 'HN', dialCode: '+504' },
+      { name: 'Jamaica', code: 'JM', dialCode: '+1' },
+      { name: 'Mexico', code: 'MX', dialCode: '+52' },
+      { name: 'Nicaragua', code: 'NI', dialCode: '+505' },
+      { name: 'Panama', code: 'PA', dialCode: '+507' },
+      { name: 'Paraguay', code: 'PY', dialCode: '+595' },
+      { name: 'Peru', code: 'PE', dialCode: '+51' },
+      { name: 'Puerto Rico', code: 'PR', dialCode: '+1' },
+      { name: 'United States', code: 'US', dialCode: '+1' },
+      { name: 'Uruguay', code: 'UY', dialCode: '+598' },
+      { name: 'Venezuela', code: 'VE', dialCode: '+58' }
+    ]
+  },
+  {
+    region: 'Asie / Asia',
+    countries: [
+      { name: 'Bangladesh', code: 'BD', dialCode: '+880' },
+      { name: 'Cambodia', code: 'KH', dialCode: '+855' },
+      { name: 'China', code: 'CN', dialCode: '+86' },
+      { name: 'Hong Kong', code: 'HK', dialCode: '+852' },
+      { name: 'India', code: 'IN', dialCode: '+91' },
+      { name: 'Indonesia', code: 'ID', dialCode: '+62' },
+      { name: 'Iran', code: 'IR', dialCode: '+98' },
+      { name: 'Israel', code: 'IL', dialCode: '+972' },
+      { name: 'Japan', code: 'JP', dialCode: '+81' },
+      { name: 'Jordan', code: 'JO', dialCode: '+962' },
+      { name: 'Kazakhstan', code: 'KZ', dialCode: '+7' },
+      { name: 'Kuwait', code: 'KW', dialCode: '+965' },
+      { name: 'Laos', code: 'LA', dialCode: '+856' },
+      { name: 'Lebanon', code: 'LB', dialCode: '+961' },
+      { name: 'Malaysia', code: 'MY', dialCode: '+60' },
+      { name: 'Mongolia', code: 'MN', dialCode: '+976' },
+      { name: 'Myanmar', code: 'MM', dialCode: '+95' },
+      { name: 'Nepal', code: 'NP', dialCode: '+977' },
+      { name: 'Oman', code: 'OM', dialCode: '+968' },
+      { name: 'Pakistan', code: 'PK', dialCode: '+92' },
+      { name: 'Palestine', code: 'PS', dialCode: '+970' },
+      { name: 'Philippines', code: 'PH', dialCode: '+63' },
+      { name: 'Qatar', code: 'QA', dialCode: '+974' },
+      { name: 'Saudi Arabia', code: 'SA', dialCode: '+966' },
+      { name: 'Singapore', code: 'SG', dialCode: '+65' },
+      { name: 'South Korea', code: 'KR', dialCode: '+82' },
+      { name: 'Sri Lanka', code: 'LK', dialCode: '+94' },
+      { name: 'Syria', code: 'SY', dialCode: '+963' },
+      { name: 'Taiwan', code: 'TW', dialCode: '+886' },
+      { name: 'Thailand', code: 'TH', dialCode: '+66' },
+      { name: 'United Arab Emirates', code: 'AE', dialCode: '+971' },
+      { name: 'Vietnam', code: 'VN', dialCode: '+84' }
+    ]
+  },
+  {
+    region: 'Oceanie / Oceania',
+    countries: [
+      { name: 'Australia', code: 'AU', dialCode: '+61' },
+      { name: 'Fiji', code: 'FJ', dialCode: '+679' },
+      { name: 'New Zealand', code: 'NZ', dialCode: '+64' },
+      { name: 'Papua New Guinea', code: 'PG', dialCode: '+675' },
+      { name: 'Samoa', code: 'WS', dialCode: '+685' },
+      { name: 'Solomon Islands', code: 'SB', dialCode: '+677' },
+      { name: 'Tonga', code: 'TO', dialCode: '+676' },
+      { name: 'Vanuatu', code: 'VU', dialCode: '+678' }
+    ]
+  }
+];
+
+export const ALL_COUNTRIES = COUNTRY_GROUPS.flatMap(g => g.countries);

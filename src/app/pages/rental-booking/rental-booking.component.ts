@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService, RentalBookingRequest } from '../../core/services/booking.service';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
+import { CountrySelectComponent } from '../../shared/components/phone-input/country-select.component';
 import { RentalService, Rental } from '../../core/services/rental.service';
 
 const DRIVER_FEE_PER_DAY = 15000;
@@ -11,7 +13,7 @@ const DRIVER_FEE_PER_DAY = 15000;
 @Component({
   selector: 'app-rental-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe, PhoneInputComponent, CountrySelectComponent],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -71,38 +73,20 @@ const DRIVER_FEE_PER_DAY = 15000;
                       <input type="email" name="email" [(ngModel)]="formData.email" required />
                     </div>
                     <div class="form-group">
-                      <label>{{ lang.t('booking.phone') }}</label>
-                      <input type="tel" name="phone" [(ngModel)]="formData.phone" placeholder="+221 XX XXX XX XX" />
+                      <app-phone-input
+                        [country]="formData.country"
+                        [(phone)]="formData.phone"
+                        [required]="true"
+                        label="{{ lang.t('booking.phone') }}"
+                      />
                     </div>
-                    <div class="form-group country-group">
-                      <label>{{ lang.t('booking.selectCountry') }} *</label>
-                      <div class="country-input-wrapper">
-                        <input
-                          type="text"
-                          name="country"
-                          [(ngModel)]="formData.country"
-                          [placeholder]="lang.t('booking.selectCountry')"
-                          (focus)="showCountryDropdown.set(true)"
-                          (blur)="onCountryBlur()"
-                          autocomplete="off"
-                          required
-                        />
-                        @if (showCountryDropdown() && filteredCountryGroups().length > 0) {
-                          <div class="country-dropdown">
-                            @for (group of filteredCountryGroups(); track group.name) {
-                              <div class="country-group">
-                                <div class="country-group-label">{{ group.name }}</div>
-                                @for (country of group.countries; track country.name) {
-                                  <div class="country-option" (mousedown)="selectCountry(country.name)">
-                                    <span class="country-flag">{{ country.flag }}</span>
-                                    <span>{{ country.name }}</span>
-                                  </div>
-                                }
-                              </div>
-                            }
-                          </div>
-                        }
-                      </div>
+                    <div class="form-group">
+                      <app-country-select
+                        [(value)]="formData.country"
+                        [required]="true"
+                        label="{{ lang.t('contact.country') }}"
+                        placeholder="{{ lang.t('booking.selectCountry') }}"
+                      />
                     </div>
                   </div>
                 </div>
@@ -500,64 +484,7 @@ export class RentalBookingComponent implements OnInit {
     return base + driver;
   });
 
-  countryGroups = [
-    { name: 'Afrique / Africa', countries: [
-      { name: 'Senegal', flag: '🇸🇳' }, { name: 'Algeria', flag: '🇩🇿' }, { name: 'Angola', flag: '🇦🇴' },
-      { name: 'Benin', flag: '🇧🇯' }, { name: 'Burkina Faso', flag: '🇧🇫' }, { name: 'Cameroon', flag: '🇨🇲' },
-      { name: 'Cape Verde', flag: '🇨🇻' }, { name: 'Chad', flag: '🇹🇩' }, { name: 'Congo', flag: '🇨🇬' },
-      { name: 'Ivory Coast', flag: '🇨🇮' }, { name: 'Democratic Republic of Congo', flag: '🇨🇩' },
-      { name: 'Egypt', flag: '🇪🇬' }, { name: 'Ethiopia', flag: '🇪🇹' }, { name: 'Gabon', flag: '🇬🇦' },
-      { name: 'Gambia', flag: '🇬🇲' }, { name: 'Ghana', flag: '🇬🇭' }, { name: 'Guinea', flag: '🇬🇳' },
-      { name: 'Guinea-Bissau', flag: '🇬🇼' }, { name: 'Kenya', flag: '🇰🇪' }, { name: 'Madagascar', flag: '🇲🇬' },
-      { name: 'Mali', flag: '🇲🇱' }, { name: 'Mauritania', flag: '🇲🇷' }, { name: 'Morocco', flag: '🇲🇦' },
-      { name: 'Mozambique', flag: '🇲🇿' }, { name: 'Niger', flag: '🇳🇪' }, { name: 'Nigeria', flag: '🇳🇬' },
-      { name: 'Rwanda', flag: '🇷🇼' }, { name: 'South Africa', flag: '🇿🇦' }, { name: 'Tanzania', flag: '🇹🇿' },
-      { name: 'Togo', flag: '🇹🇬' }, { name: 'Tunisia', flag: '🇹🇳' }, { name: 'Uganda', flag: '🇺🇬' }
-    ]},
-    { name: 'Europe', countries: [
-      { name: 'Austria', flag: '🇦🇹' }, { name: 'Belgium', flag: '🇧🇪' }, { name: 'Denmark', flag: '🇩🇰' },
-      { name: 'Finland', flag: '🇫🇮' }, { name: 'France', flag: '🇫🇷' }, { name: 'Germany', flag: '🇩🇪' },
-      { name: 'Greece', flag: '🇬🇷' }, { name: 'Ireland', flag: '🇮🇪' }, { name: 'Italy', flag: '🇮🇹' },
-      { name: 'Luxembourg', flag: '🇱🇺' }, { name: 'Netherlands', flag: '🇳🇱' }, { name: 'Norway', flag: '🇳🇴' },
-      { name: 'Poland', flag: '🇵🇱' }, { name: 'Portugal', flag: '🇵🇹' }, { name: 'Spain', flag: '🇪🇸' },
-      { name: 'Sweden', flag: '🇸🇪' }, { name: 'Switzerland', flag: '🇨🇭' }, { name: 'United Kingdom', flag: '🇬🇧' }
-    ]},
-    { name: 'Amerique / Americas', countries: [
-      { name: 'Argentina', flag: '🇦🇷' }, { name: 'Brazil', flag: '🇧🇷' }, { name: 'Canada', flag: '🇨🇦' },
-      { name: 'Chile', flag: '🇨🇱' }, { name: 'Colombia', flag: '🇨🇴' }, { name: 'Mexico', flag: '🇲🇽' },
-      { name: 'Peru', flag: '🇵🇪' }, { name: 'United States', flag: '🇺🇸' }
-    ]},
-    { name: 'Asie / Asia', countries: [
-      { name: 'China', flag: '🇨🇳' }, { name: 'India', flag: '🇮🇳' }, { name: 'Indonesia', flag: '🇮🇩' },
-      { name: 'Japan', flag: '🇯🇵' }, { name: 'Malaysia', flag: '🇲🇾' }, { name: 'Philippines', flag: '🇵🇭' },
-      { name: 'Singapore', flag: '🇸🇬' }, { name: 'South Korea', flag: '🇰🇷' }, { name: 'Thailand', flag: '🇹🇭' },
-      { name: 'Vietnam', flag: '🇻🇳' }
-    ]},
-    { name: 'Moyen-Orient / Middle East', countries: [
-      { name: 'Saudi Arabia', flag: '🇸🇦' }, { name: 'United Arab Emirates', flag: '🇦🇪' },
-      { name: 'Qatar', flag: '🇶🇦' }, { name: 'Kuwait', flag: '🇰🇼' }, { name: 'Turkey', flag: '🇹🇷' }
-    ]},
-    { name: 'Autre / Other', countries: [{ name: 'Other', flag: '🌍' }] }
-  ];
-
-  showCountryDropdown = signal(false);
-
-  filteredCountryGroups = computed(() => {
-    const term = this.formData.country.toLowerCase().trim();
-    if (!term) return this.countryGroups;
-    return this.countryGroups
-      .map(g => ({ ...g, countries: g.countries.filter(c => c.name.toLowerCase().includes(term)) }))
-      .filter(g => g.countries.length > 0);
-  });
-
-  selectCountry(name: string): void {
-    this.formData.country = name;
-    this.showCountryDropdown.set(false);
-  }
-
-  onCountryBlur(): void {
-    setTimeout(() => this.showCountryDropdown.set(false), 200);
-  }
+  // Country and phone are handled by app-phone-input component
 
   getRentalName(): string {
     const r = this.rental();
