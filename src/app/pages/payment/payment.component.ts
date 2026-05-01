@@ -118,6 +118,29 @@ import { PaymentService } from '../../core/services/payment.service';
                 </div>
               </div>
 
+              <!-- PayPal -->
+              <div class="method-card" [class.selected]="selectedMethod() === 'paypal'" (click)="selectedMethod.set('paypal')">
+                <div class="method-radio">
+                  <div class="radio-circle" [class.checked]="selectedMethod() === 'paypal'"></div>
+                </div>
+                <div class="method-icon paypal-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M12 12h.01"/>
+                    <path d="M8 12h.01"/>
+                    <path d="M16 12h.01"/>
+                  </svg>
+                </div>
+                <div class="method-info">
+                  <span class="method-title">{{ lang.t('payment.paypal.title') }}</span>
+                  <span class="method-subtitle">{{ lang.t('payment.paypal.subtitle') }}</span>
+                  <div class="method-logos">
+                    <span class="logo-badge paypal">PayPal</span>
+                    <span class="logo-badge pp-card">Carte</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Payer plus tard -->
               <div class="method-card" [class.selected]="selectedMethod() === 'later'" (click)="selectedMethod.set('later')">
                 <div class="method-radio">
@@ -147,6 +170,8 @@ import { PaymentService } from '../../core/services/payment.service';
                   {{ lang.t('payment.local.btn') }}
                 } @else if (selectedMethod() === 'stripe') {
                   {{ lang.t('payment.intl.btn') }}
+                } @else if (selectedMethod() === 'paypal') {
+                  {{ lang.t('payment.paypal.btn') }}
                 } @else {
                   {{ lang.t('payment.later.btn') }}
                 }
@@ -327,6 +352,7 @@ import { PaymentService } from '../../core/services/payment.service';
     }
     .paytech-icon { background: rgba(255,102,0,0.1); color: #ff6600; }
     .stripe-icon  { background: rgba(99,91,255,0.1); color: #635bff; }
+    .paypal-icon  { background: rgba(0,48,135,0.1); color: #003087; }
     .later-icon   { background: rgba(43,138,138,0.1); color: var(--color-secondary); }
 
     .method-info {
@@ -351,12 +377,14 @@ import { PaymentService } from '../../core/services/payment.service';
       border-radius: 4px;
       letter-spacing: 0.02em;
     }
-    .logo-badge.orange { background: #ff6600; color: white; }
-    .logo-badge.wave   { background: #1d1d5e; color: white; }
-    .logo-badge.card   { background: #eee; color: #555; }
-    .logo-badge.visa   { background: #1a1f71; color: white; }
-    .logo-badge.mc     { background: #eb001b; color: white; }
-    .logo-badge.amex   { background: #2e77bc; color: white; }
+    .logo-badge.orange  { background: #ff6600; color: white; }
+    .logo-badge.wave    { background: #1d1d5e; color: white; }
+    .logo-badge.card    { background: #eee; color: #555; }
+    .logo-badge.visa    { background: #1a1f71; color: white; }
+    .logo-badge.mc      { background: #eb001b; color: white; }
+    .logo-badge.amex    { background: #2e77bc; color: white; }
+    .logo-badge.paypal  { background: #003087; color: white; }
+    .logo-badge.pp-card { background: #eee; color: #555; }
 
     .btn-pay {
       width: 100%;
@@ -397,7 +425,7 @@ export class PaymentComponent implements OnInit {
   reference = signal('');
   summary = signal<{ title: string; email: string; amount: number } | null>(null);
   isLoading = signal(true);
-  selectedMethod = signal<'paytech' | 'stripe' | 'later' | null>(null);
+  selectedMethod = signal<'paytech' | 'stripe' | 'paypal' | 'later' | null>(null);
   processing = signal(false);
   errorMessage = signal(false);
 
@@ -420,6 +448,14 @@ export class PaymentComponent implements OnInit {
       }
     } else if (method === 'stripe') {
       const result = await this.paymentService.initiateStripe(ref, s.amount, s.title, s.email);
+      if ('url' in result) {
+        window.location.href = result.url;
+      } else {
+        this.processing.set(false);
+        this.errorMessage.set(true);
+      }
+    } else if (method === 'paypal') {
+      const result = await this.paymentService.initiatePayPal(ref, s.amount, s.title, s.email);
       if ('url' in result) {
         window.location.href = result.url;
       } else {
