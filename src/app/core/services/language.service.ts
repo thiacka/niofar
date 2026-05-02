@@ -561,7 +561,7 @@ const translations: Translations = {
   providedIn: 'root'
 })
 export class LanguageService {
-  private currentLang = signal<Language>('en');
+  private currentLang = signal<Language>('fr');
 
   readonly language = this.currentLang.asReadonly();
 

@@ -485,7 +485,7 @@ export class RentalBookingComponent implements OnInit {
     lastName: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'France',
     startDate: '',
     days: 1,
     withDriver: false,

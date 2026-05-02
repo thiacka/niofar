@@ -245,10 +245,10 @@ export class PhoneInputComponent implements OnInit, OnChanges {
   @Input() name = 'phone';
   @Input() placeholder = '';
   @Input() disabled = false;
-  @Input() defaultIso: string = 'SN';
+  @Input() defaultIso: string = 'FR';
 
   countries = DIAL_COUNTRIES;
-  selected = signal<DialCountry>(DIAL_COUNTRIES[0]);
+  selected = signal<DialCountry>(DIAL_COUNTRIES.find(c => c.iso === 'FR') ?? DIAL_COUNTRIES[0]);
   localNumber = '';
   open = signal(false);
   searchTerm = '';

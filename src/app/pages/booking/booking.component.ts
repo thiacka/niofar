@@ -876,7 +876,7 @@ export class BookingComponent implements OnInit {
     lastName: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'France',
     startDate: '',
     endDate: '',
     adults: 1,

@@ -510,7 +510,7 @@ export class TransferBookingComponent {
     lastName: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'France',
     direction: 'airport_to_hotel' as 'airport_to_hotel' | 'hotel_to_airport',
     flightDate: '',
     flightTime: '',
