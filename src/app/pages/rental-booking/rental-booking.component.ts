@@ -5,13 +5,14 @@ import { DecimalPipe } from '@angular/common';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService, RentalBookingRequest } from '../../core/services/booking.service';
 import { RentalService, Rental } from '../../core/services/rental.service';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
 
 const DRIVER_FEE_PER_DAY = 15000;
 
 @Component({
   selector: 'app-rental-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe, PhoneInputComponent],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -72,7 +73,7 @@ const DRIVER_FEE_PER_DAY = 15000;
                     </div>
                     <div class="form-group">
                       <label>{{ lang.t('booking.phone') }}</label>
-                      <input type="tel" name="phone" [(ngModel)]="formData.phone" placeholder="+221 XX XXX XX XX" />
+                      <app-phone-input name="phone" [value]="formData.phone" (valueChange)="formData.phone = $event" />
                     </div>
                     <div class="form-group country-group">
                       <label>{{ lang.t('booking.selectCountry') }} *</label>

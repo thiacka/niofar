@@ -7,11 +7,12 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe, PhoneInputComponent],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -83,12 +84,11 @@ import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pip
                     />
                   </div>
                   <div class="form-group">
-                    <label for="phone">{{ lang.t('booking.phone') }}</label>
-                    <input
-                      type="tel"
-                      id="phone"
+                    <label>{{ lang.t('booking.phone') }}</label>
+                    <app-phone-input
                       name="phone"
-                      [(ngModel)]="formData.phone"
+                      [value]="formData.phone"
+                      (valueChange)="formData.phone = $event"
                       [disabled]="isSubmitting()"
                     />
                   </div>

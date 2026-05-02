@@ -50,8 +50,11 @@
                                 [disabled]="isSubmitting()" />
                         </div>
                         <div class="form-group">
-                            <label for="phone">{{ lang.t('booking.phone') }}</label>
-                            <input type="tel" id="phone" name="phone" [(ngModel)]="formData.phone"
+                            <label>{{ lang.t('booking.phone') }}</label>
+                            <app-phone-input
+                                name="phone"
+                                [value]="formData.phone"
+                                (valueChange)="formData.phone = $event"
                                 [disabled]="isSubmitting()" />
                         </div>
                     </div>

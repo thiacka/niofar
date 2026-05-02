@@ -7,10 +7,11 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
 
 @Component({
   selector: 'app-excursion-booking',
-  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe, PhoneInputComponent],
   templateUrl: './excursion-booking.component.html',
   styleUrl: './excursion-booking.component.css',
 })

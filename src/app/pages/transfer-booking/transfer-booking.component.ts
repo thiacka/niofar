@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService, TransferBookingRequest } from '../../core/services/booking.service';
+import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
 
 @Component({
   selector: 'app-transfer-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, PhoneInputComponent],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -57,7 +58,7 @@ import { BookingService, TransferBookingRequest } from '../../core/services/book
                   </div>
                   <div class="form-group">
                     <label>{{ lang.t('booking.phone') }}</label>
-                    <input type="tel" name="phone" [(ngModel)]="formData.phone" placeholder="+221 XX XXX XX XX" />
+                    <app-phone-input name="phone" [value]="formData.phone" (valueChange)="formData.phone = $event" />
                   </div>
                   <div class="form-group country-group">
                     <label>{{ lang.t('booking.selectCountry') }} *</label>
