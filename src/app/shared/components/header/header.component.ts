@@ -13,7 +13,7 @@ import { CurrencyService, type Currency } from '../../../core/services/currency.
       <div class="container">
         <a routerLink="/" class="logo">
           <span class="logo-text">NIO FAR</span>
-          <span class="logo-tagline">Tourisme Services</span>
+          <span class="logo-tagline">Tourisme</span>
         </a>
 
         <nav class="nav" [class.active]="mobileMenuOpen()">
