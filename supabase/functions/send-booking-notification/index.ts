@@ -192,7 +192,7 @@ function buildTeamNotificationHtml(b: BookingPayload['record']): string {
       <tr><td>Reçu le</td><td>${new Date(b.created_at).toLocaleString('fr-FR')}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="https://nio-far-tourisme.com/admin" style="background:#C4682B;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin →</a>
+      <a href="https://niofartoursime.com/admin" style="background:#C4682B;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin →</a>
     </p>
   </div>
 </div>

@@ -62,7 +62,7 @@ init_deployment() {
     ./init-letsencrypt.sh
 
     print_header "DÉPLOIEMENT TERMINÉ"
-    print_info "Votre site est maintenant accessible à https://nio-far-tourisme.com"
+    print_info "Votre site est maintenant accessible à https://niofartoursime.com"
 }
 
 update_deployment() {
@@ -113,7 +113,7 @@ show_status() {
 
     echo ""
     print_info "Certificat SSL:"
-    if [ -d "certbot/conf/live/nio-far-tourisme.com" ]; then
+    if [ -d "certbot/conf/live/niofartoursime.com" ]; then
         docker compose run --rm certbot certificates
     else
         print_warning "Aucun certificat trouvé"

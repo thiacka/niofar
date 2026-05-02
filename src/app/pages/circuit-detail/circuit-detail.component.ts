@@ -1425,7 +1425,7 @@ export class CircuitDetailComponent implements OnInit {
         provider: {
           '@type': 'TravelAgency',
           name: 'NIO FAR Tourisme',
-          url: 'https://nio-far-tourisme.com'
+          url: 'https://niofartoursime.com'
         }
       }, `circuit-${slug}`);
     }

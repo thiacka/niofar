@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-domains=(nio-far-tourisme.com www.nio-far-tourisme.com)
-email="admin@nio-far-tourisme.com"
+domains=(niofartoursime.com www.niofartoursime.com)
+email="admin@niofartoursime.com"
 staging=0
 rsa_key_size=4096
 data_path="./certbot"
@@ -13,7 +13,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${GREEN}Initializing SSL certificate setup for nio-far-tourisme.com${NC}"
+echo -e "${GREEN}Initializing SSL certificate setup for niofartoursime.com${NC}"
 echo ""
 
 # Check if certificates already exist
@@ -97,6 +97,6 @@ echo -e "${GREEN}SSL certificate setup complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "Your site should now be accessible at:"
-echo -e "${GREEN}https://nio-far-tourisme.com${NC}"
+echo -e "${GREEN}https://niofartoursime.com${NC}"
 echo ""
 echo -e "Certificate will auto-renew every 12 hours."
