@@ -94,7 +94,7 @@ function buildPaymentConfirmedEmail(opts: {
 
     <p>Notre équipe va vous contacter très prochainement avec tous les détails pratiques pour préparer votre séjour.</p>
 
-    <a href="https://wa.me/221711525436?text=Bonjour%20NIO%20FAR%20!%20Ma%20réservation%20${opts.reference}%20est%20confirmée" class="whatsapp-btn">
+    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Ma%20réservation%20${opts.reference}%20est%20confirmée" class="whatsapp-btn">
       💬 Nous contacter sur WhatsApp
     </a>
 
@@ -104,7 +104,7 @@ function buildPaymentConfirmedEmail(opts: {
   </div>
   <div class="footer">
     <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
-    <p>+221 71 152 54 36 · contact@niofartourisme.com</p>
+    <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
 </div>

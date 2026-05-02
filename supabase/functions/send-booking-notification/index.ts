@@ -138,7 +138,7 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
       <div class="step"><span class="step-num">3</span><span>Préparez-vous pour une aventure inoubliable au Sénégal !</span></div>
     </div>
 
-    <a href="https://wa.me/221711525436?text=Bonjour%20NIO%20FAR%20!%20J'ai%20une%20question%20concernant%20ma%20r%C3%A9servation%20${b.reference_number}" class="whatsapp-btn">
+    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20J'ai%20une%20question%20concernant%20ma%20r%C3%A9servation%20${b.reference_number}" class="whatsapp-btn">
       💬 Nous contacter sur WhatsApp
     </a>
 
@@ -148,7 +148,7 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
   </div>
   <div class="footer">
     <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
-    <p>+221 71 152 54 36 · contact@niofartourisme.com</p>
+    <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,0.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
 </div>
