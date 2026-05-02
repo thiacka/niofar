@@ -94,7 +94,7 @@ function buildContactNotificationHtml(m: ContactPayload['record']): string {
     </div>
     <a href="mailto:${m.email}?subject=Re:%20Votre%20demande%20NIO%20FAR" class="reply-btn">Répondre →</a>
     <p style="margin-top:16px;">
-      <a href="https://niofartoursime.com/admin" style="font-size:0.85rem;color:#888;">Voir dans l'admin</a>
+      <a href="https://niofartourisme.com/admin" style="font-size:0.85rem;color:#888;">Voir dans l'admin</a>
     </p>
   </div>
 </div>
