@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { RentalService, Rental, RentalFormData } from '../../core/services/rental.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CurrencyService } from '../../core/services/currency.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 
 type RentalType = 'vehicle' | 'incentive' | 'boat';
@@ -11,7 +13,7 @@ type FilterType = 'all' | RentalType;
 @Component({
   selector: 'app-admin-rentals',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, CloudinaryUploadComponent],
+  imports: [FormsModule, DecimalPipe, CurrencyConverterPipe, CloudinaryUploadComponent],
   template: `
     @if (view() === 'list') {
     <div class="section-header">
@@ -78,7 +80,7 @@ type FilterType = 'all' | RentalType;
                   </svg>
                   {{ rental.capacity }}
                 </span>
-                <span class="price">{{ rental.price_per_day | number }} FCFA</span>
+                <span class="price">{{ rental.price_per_day | currencyConverter }}</span>
               </div>
             </div>
             <div class="rental-actions">
@@ -165,8 +167,9 @@ type FilterType = 'all' | RentalType;
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Prix par jour (FCFA)</label>
-                  <input type="number" [(ngModel)]="formData.price_per_day" name="price_per_day" required />
+                  <label>Prix par jour ({{ currencyService.getCurrencyInfo().symbol }})</label>
+                  <input type="number" [ngModel]="getDisplayPrice()" (ngModelChange)="setDisplayPrice($event)" name="price_per_day" required step="0.01" />
+                  <small class="form-hint">{{ formData.price_per_day | number:'1.0-0' }} FCFA</small>
                 </div>
                 <div class="form-group">
                   <label>Capacite (personnes)</label>
@@ -628,6 +631,7 @@ type FilterType = 'all' | RentalType;
       background: var(--color-background);
       cursor: not-allowed;
     }
+    .form-hint { display: block; font-size: 0.75rem; color: #666; margin-top: 4px; }
 
     .checkbox-group {
       display: flex;
@@ -717,7 +721,17 @@ type FilterType = 'all' | RentalType;
 })
 export class AdminRentalsComponent implements OnInit {
   lang = inject(LanguageService);
+  currencyService = inject(CurrencyService);
   rentalService = inject(RentalService);
+
+  getDisplayPrice(): number {
+    return this.currencyService.convert(this.formData.price_per_day || 0);
+  }
+
+  setDisplayPrice(value: number): void {
+    const rate = this.currencyService.getCurrencyInfo().rate;
+    this.formData.price_per_day = Math.round((Number(value) || 0) * rate);
+  }
 
   rentals = signal<Rental[]>([]);
   isLoading = signal(false);

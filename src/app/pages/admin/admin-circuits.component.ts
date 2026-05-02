@@ -4,13 +4,15 @@ import { DecimalPipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { CircuitService, Circuit, CircuitFormData, ItineraryDay, CircuitAttachment } from '../../core/services/circuit.service';
 import { CircuitStageService, CircuitStage, CircuitStageFormData } from '../../core/services/circuit-stage.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CurrencyService } from '../../core/services/currency.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 import { CloudinaryService } from '../../core/services/cloudinary.service';
 
 @Component({
   selector: 'app-admin-circuits',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe, CloudinaryUploadComponent],
+  imports: [FormsModule, DecimalPipe, SlicePipe, UpperCasePipe, CurrencyConverterPipe, CloudinaryUploadComponent],
   template: `
     @if (view() === 'list') {
     <!-- ── En-tête section ── -->
@@ -40,7 +42,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
             <div class="circuit-info">
               <h3>{{ circuit.title_fr }}</h3>
               <p class="circuit-duration">{{ circuit.duration_fr }}</p>
-              <p class="circuit-price">{{ circuit.price | number }} FCFA</p>
+              <p class="circuit-price">{{ circuit.price | currencyConverter }}</p>
               <p class="circuit-meta">
                 <span class="meta-badge itinerary">{{ (circuit.itinerary || []).length }} jour(s)</span>
               </p>
@@ -185,8 +187,9 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
 
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Prix par personne (FCFA) *</label>
-                      <input type="number" [(ngModel)]="formData.price" name="price" required min="0" />
+                      <label>Prix par personne ({{ currencyService.getCurrencyInfo().symbol }}) *</label>
+                      <input type="number" [ngModel]="getDisplayPrice()" (ngModelChange)="setDisplayPrice($event)" name="price" required min="0" step="0.01" />
+                      <small class="form-hint">{{ formData.price | number:'1.0-0' }} FCFA</small>
                     </div>
                     <div class="form-group">
                       <label>Participants min *</label>
@@ -1199,6 +1202,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
       outline: none; border-color: var(--color-primary);
     }
     .form-group input:disabled { background: var(--color-background); cursor: not-allowed; }
+    .form-hint { display: block; font-size: 0.75rem; color: #666; margin-top: 4px; }
     .checkbox-group { display: flex; align-items: center; }
     .checkbox-group label {
       display: flex; align-items: center; gap: var(--spacing-sm);
@@ -1562,6 +1566,7 @@ import { CloudinaryService } from '../../core/services/cloudinary.service';
 })
 export class AdminCircuitsComponent implements OnInit {
   lang = inject(LanguageService);
+  currencyService = inject(CurrencyService);
   circuitService = inject(CircuitService);
   stageService = inject(CircuitStageService);
   private cloudinaryService = inject(CloudinaryService);
@@ -1619,6 +1624,16 @@ export class AdminCircuitsComponent implements OnInit {
   itineraryDays = signal<ItineraryDay[]>([]);
   editingDayIndex = signal<number | null>(null);
   dayFormData: ItineraryDay = this.getEmptyDayData();
+
+  // ── Currency helpers ─────────────────────────────────────────────────────────
+  getDisplayPrice(): number {
+    return this.currencyService.convert(this.formData.price || 0);
+  }
+
+  setDisplayPrice(value: number): void {
+    const rate = this.currencyService.getCurrencyInfo().rate;
+    this.formData.price = Math.round((Number(value) || 0) * rate);
+  }
 
   // ── Lifecycle ───────────────────────────────────────────────────────────────
   ngOnInit(): void { this.loadCircuits(); }

@@ -3,12 +3,14 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ExcursionService, Excursion, ExcursionFormData } from '../../core/services/excursion.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CurrencyService } from '../../core/services/currency.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-upload/cloudinary-upload.component';
 
 @Component({
   selector: 'app-admin-excursions',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, CloudinaryUploadComponent],
+  imports: [FormsModule, DecimalPipe, CurrencyConverterPipe, CloudinaryUploadComponent],
   template: `
     @if (view() === 'list') {
     <div class="section-header">
@@ -54,7 +56,7 @@ import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-up
               </span>
               <h3>{{ excursion.title_fr }}</h3>
               <p class="excursion-duration">{{ excursion.duration_fr }}</p>
-              <p class="excursion-price">{{ excursion.price | number }} FCFA</p>
+              <p class="excursion-price">{{ excursion.price | currencyConverter }}</p>
             </div>
             <div class="excursion-actions">
               <button class="btn-icon" [title]="lang.t('admin.edit')" (click)="openEditForm(excursion)">
@@ -110,8 +112,9 @@ import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-up
                   <input type="text" [(ngModel)]="formData.slug" name="slug" required [disabled]="isEditing()" />
                 </div>
                 <div class="form-group">
-                  <label>{{ lang.t('admin.price') }} (FCFA)</label>
-                  <input type="number" [(ngModel)]="formData.price" name="price" required />
+                  <label>{{ lang.t('admin.price') }} ({{ currencyService.getCurrencyInfo().symbol }})</label>
+                  <input type="number" [ngModel]="getDisplayPrice()" (ngModelChange)="setDisplayPrice($event)" name="price" required step="0.01" />
+                  <small class="form-hint">{{ formData.price | number:'1.0-0' }} FCFA</small>
                 </div>
               </div>
 
@@ -492,6 +495,7 @@ import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-up
       background: var(--color-background);
       cursor: not-allowed;
     }
+    .form-hint { display: block; font-size: 0.75rem; color: #666; margin-top: 4px; }
 
     .checkbox-group {
       display: flex;
@@ -632,7 +636,17 @@ import { CloudinaryUploadComponent } from '../../shared/components/cloudinary-up
 })
 export class AdminExcursionsComponent implements OnInit {
   lang = inject(LanguageService);
+  currencyService = inject(CurrencyService);
   excursionService = inject(ExcursionService);
+
+  getDisplayPrice(): number {
+    return this.currencyService.convert(this.formData.price || 0);
+  }
+
+  setDisplayPrice(value: number): void {
+    const rate = this.currencyService.getCurrencyInfo().rate;
+    this.formData.price = Math.round((Number(value) || 0) * rate);
+  }
 
   excursions = signal<Excursion[]>([]);
   isLoading = signal(false);
