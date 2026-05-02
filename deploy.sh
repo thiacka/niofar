@@ -54,8 +54,9 @@ init_deployment() {
 
     check_requirements
 
-    print_info "Construction de l'image Docker..."
-    docker compose build
+    GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    print_info "Construction de l'image Docker (sha=${GIT_SHA})..."
+    docker compose build --build-arg GIT_SHA="${GIT_SHA}"
 
     print_info "Initialisation des certificats SSL..."
     chmod +x init-letsencrypt.sh
@@ -72,8 +73,9 @@ update_deployment() {
     git pull origin main
 
     # --no-cache force la regénération de version.json via le hook prebuild Angular
-    print_info "Reconstruction de l'image web (sans cache)..."
-    docker compose build --no-cache web
+    GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    print_info "Reconstruction de l'image web (sans cache, sha=${GIT_SHA})..."
+    docker compose build --no-cache --build-arg GIT_SHA="${GIT_SHA}" web
 
     # On ne touche QUE le conteneur web — certbot et ses certificats restent intacts
     print_info "Redémarrage du conteneur web uniquement..."

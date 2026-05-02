@@ -8,13 +8,15 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-let gitSha = 'unknown';
-try {
-  gitSha = execSync('git rev-parse --short HEAD', { stdio: ['pipe', 'pipe', 'ignore'] })
-    .toString()
-    .trim();
-} catch {
-  // pas de git disponible (CI sans historique, etc.)
+let gitSha = process.env.GIT_SHA || 'unknown';
+if (gitSha === 'unknown') {
+  try {
+    gitSha = execSync('git rev-parse --short HEAD', { stdio: ['pipe', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+  } catch {
+    // pas de git disponible (CI sans historique, etc.)
+  }
 }
 
 const versionData = {

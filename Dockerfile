@@ -1,6 +1,8 @@
 # Stage 1: Build Angular application
 FROM node:20-alpine AS builder
 
+ARG GIT_SHA=unknown
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -8,6 +10,8 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+
+ENV GIT_SHA=${GIT_SHA}
 
 RUN npm run build
 
