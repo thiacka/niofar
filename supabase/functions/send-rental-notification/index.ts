@@ -37,16 +37,24 @@ interface RentalRecord {
   created_at: string;
 }
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const apiKey   = Deno.env.get('RESEND_API_KEY');
-  const fromEmail = Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com';
+function buildFrom(): string {
+  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
+  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
+  if (raw.includes('<') && raw.includes('>')) return raw;
+  return `NIO FAR Tourisme <${raw}>`;
+}
 
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY');
   if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
+
+  const from = buildFrom();
+  console.log(`Sending email from=${from} to=${to}`);
 
   const res = await fetch(RESEND_API, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: `NIO FAR Tourisme <${fromEmail}>`, to, subject, html }),
+    body: JSON.stringify({ from, to, subject, html }),
   });
 
   if (!res.ok) {

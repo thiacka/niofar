@@ -29,13 +29,21 @@ interface ContactPayload {
   };
 }
 
+function buildFrom(): string {
+  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
+  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
+  if (raw.includes('<') && raw.includes('>')) return raw;
+  return `NIO FAR Tourisme <${raw}>`;
+}
+
 async function sendEmail(to: string, subject: string, html: string, replyTo?: string): Promise<void> {
   const apiKey = Deno.env.get('RESEND_API_KEY');
-  const fromEmail = Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com';
-
   if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
 
-  const body: Record<string, unknown> = { from: `NIO FAR Tourisme <${fromEmail}>`, to, subject, html };
+  const from = buildFrom();
+  console.log(`Sending email from=${from} to=${to}`);
+
+  const body: Record<string, unknown> = { from, to, subject, html };
   if (replyTo) body.reply_to = replyTo;
 
   const res = await fetch(RESEND_API, {
