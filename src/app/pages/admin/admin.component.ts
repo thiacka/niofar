@@ -7,6 +7,8 @@ import {
 } from '../../core/services/admin.service';
 import { AuditService } from '../../core/services/audit.service';
 import { LanguageService } from '../../core/services/language.service';
+import { CurrencyService, type Currency } from '../../core/services/currency.service';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { AdminCircuitsComponent } from './admin-circuits.component';
 import { AdminExcursionsComponent } from './admin-excursions.component';
 import { AdminPromotionsComponent } from './admin-promotions.component';
@@ -53,7 +55,8 @@ const ROLE_LABELS: Record<string, string> = {
     AdminCircuitsComponent, AdminExcursionsComponent,
     AdminPromotionsComponent, AdminDashboardComponent,
     AdminImagesComponent, AdminUsersComponent,
-    AdminRentalsComponent, AdminAuditComponent
+    AdminRentalsComponent, AdminAuditComponent,
+    CurrencyConverterPipe
   ],
   template: `
     <div class="admin-container">
@@ -153,6 +156,20 @@ const ROLE_LABELS: Record<string, string> = {
           </div>
 
           <div class="header-right">
+            <!-- Sélecteur de devise -->
+            <div class="currency-switcher" title="Devise d'affichage">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+              <select class="currency-select" [value]="currencyService.getCurrency()()" (change)="onCurrencyChange($event)">
+                @for (c of currencyService.getAllCurrencies(); track c.code) {
+                  <option [value]="c.code">{{ c.code }} ({{ c.symbol }})</option>
+                }
+              </select>
+            </div>
+
             <!-- Utilisateur connecté -->
             <div class="user-info">
               <div class="user-avatar">{{ userInitials() }}</div>
@@ -279,7 +296,7 @@ const ROLE_LABELS: Record<string, string> = {
                             </div>
                           </td>
                           <td>{{ booking.adults }}A@if (booking.children > 0) { / {{ booking.children }}E}</td>
-                          <td><span class="total">{{ booking.estimated_total | number }} FCFA</span></td>
+                          <td><span class="total">{{ booking.estimated_total | currencyConverter }}</span></td>
                           <td>
                             <span class="status-badge" [class]="'status-' + booking.status">{{ statusLabel(booking.status) }}</span>
                             @if (booking.paid_at) { <span class="paid-badge">Payé</span> }
@@ -342,7 +359,7 @@ const ROLE_LABELS: Record<string, string> = {
                             </div>
                           </td>
                           <td>{{ rb.with_driver ? 'Oui' : 'Non' }}</td>
-                          <td><span class="total">{{ rb.estimated_total | number }} FCFA</span></td>
+                          <td><span class="total">{{ rb.estimated_total | currencyConverter }}</span></td>
                           <td>
                             <span class="status-badge" [class]="'status-' + rb.status">{{ statusLabel(rb.status) }}</span>
                             @if (rb.paid_at) { <span class="paid-badge">Payé</span> }
@@ -786,6 +803,28 @@ const ROLE_LABELS: Record<string, string> = {
       color: var(--color-primary);
     }
 
+    .currency-switcher {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px 4px 12px;
+      background: var(--color-background);
+      border-radius: var(--radius-md);
+      color: var(--color-text-light);
+    }
+    .currency-switcher svg { flex-shrink: 0; }
+    .currency-select {
+      background: transparent;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      cursor: pointer;
+      outline: none;
+      padding: 6px 4px;
+    }
+    .currency-select:focus { outline: none; }
+
     /* ── Contenu ───────────────────────────────────────────────── */
     .admin-content {
       padding: var(--spacing-xl);
@@ -1167,6 +1206,12 @@ export class AdminComponent implements OnInit {
   private audit  = inject(AuditService);
   lang     = inject(LanguageService);
   editMode = inject(EditModeService);
+  currencyService = inject(CurrencyService);
+
+  onCurrencyChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.currencyService.setCurrency(select.value as Currency);
+  }
 
   // ── État login ────────────────────────────────────────────────
   email    = '';

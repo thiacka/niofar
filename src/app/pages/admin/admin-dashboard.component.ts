@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
 import { AdminService, Booking, ContactMessage } from '../../core/services/admin.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { CircuitService } from '../../core/services/circuit.service';
@@ -27,7 +28,7 @@ interface CircuitStats {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [DatePipe, DecimalPipe],
+  imports: [DatePipe, DecimalPipe, CurrencyConverterPipe],
   template: `
     <div class="dashboard">
       @if (isLoading()) {
@@ -83,7 +84,7 @@ interface CircuitStats {
               </svg>
             </div>
             <div class="stat-content">
-              <span class="stat-value">{{ stats().totalRevenue | number }} <small>FCFA</small></span>
+              <span class="stat-value">{{ stats().totalRevenue | currencyConverter }}</span>
               <span class="stat-label">{{ lang.t('dashboard.totalRevenue') }}</span>
             </div>
           </div>
@@ -169,7 +170,7 @@ interface CircuitStats {
                     <div class="table-row">
                       <span class="circuit-name">{{ circuit.title }}</span>
                       <span class="circuit-bookings">{{ circuit.bookingsCount }}</span>
-                      <span class="circuit-revenue">{{ circuit.revenue | number }} FCFA</span>
+                      <span class="circuit-revenue">{{ circuit.revenue | currencyConverter }}</span>
                     </div>
                   }
                 </div>
