@@ -9,9 +9,13 @@
  * Secrets requis : RESEND_API_KEY, TEAM_EMAIL, FROM_EMAIL
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-
 const RESEND_API = 'https://api.resend.com/emails';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+};
 
 interface TransferRecord {
   id: string;
@@ -38,13 +42,19 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
   const apiKey    = Deno.env.get('RESEND_API_KEY');
   const fromEmail = Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com';
 
+  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
+
   const res = await fetch(RESEND_API, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: `NIO FAR Tourisme <${fromEmail}>`, to, subject, html }),
   });
 
-  if (!res.ok) throw new Error(`Resend error: ${await res.text()}`);
+  if (!res.ok) {
+    const error = await res.text();
+    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
+    throw new Error(`Resend error: ${error}`);
+  }
 }
 
 function formatDate(d: string): string {
@@ -175,20 +185,39 @@ function buildTeamEmail(r: TransferRecord): string {
 </body></html>`;
 }
 
-serve(async (req) => {
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   try {
-    const { record } = await req.json() as { record: TransferRecord };
+    const payload = await req.json();
+    const record: TransferRecord = payload.record ?? payload;
+
+    if (!record?.email || !record?.reference_number) {
+      return new Response(JSON.stringify({ error: 'Invalid payload' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
 
-    await Promise.all([
+    const results = await Promise.allSettled([
       sendEmail(record.email, `Confirmation de votre transfert NIO FAR — ${record.reference_number}`, buildClientEmail(record)),
       sendEmail(teamEmail, `[NIO FAR] Nouveau transfert — ${record.reference_number} — ${record.first_name} ${record.last_name}`, buildTeamEmail(record)),
     ]);
 
-    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    const failed = results.filter((r) => r.status === 'rejected');
+    if (failed.length > 0) console.error('send-transfer-notification failures:', failed);
+
+    return new Response(JSON.stringify({
+      success: failed.length === 0,
+      client_email: results[0].status,
+      team_email: results[1].status,
+      errors: failed.map((f: any) => String(f.reason)),
+    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('send-transfer-notification error:', err);
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

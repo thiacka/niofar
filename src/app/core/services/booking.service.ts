@@ -89,35 +89,60 @@ export class BookingService {
       return { success: false, error: error.message };
     }
 
+    this.triggerNotification('send-booking-notification', data);
+
     return { success: true, data };
   }
 
   async createRentalBooking(booking: RentalBookingRequest): Promise<{ success: boolean; reference?: string; error?: string }> {
     const reference = `NR-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const { error } = await this.supabase.client
+    const { data, error } = await this.supabase.client
       .from('rental_bookings')
-      .insert({ ...booking, reference_number: reference, status: 'pending' });
+      .insert({ ...booking, reference_number: reference, status: 'pending' })
+      .select()
+      .maybeSingle();
 
     if (error) {
       console.error('Error creating rental booking:', error);
       return { success: false, error: error.message };
     }
 
+    this.triggerNotification('send-rental-notification', data ?? { ...booking, reference_number: reference, status: 'pending', created_at: new Date().toISOString() });
+
     return { success: true, reference };
   }
 
   async createTransferBooking(booking: TransferBookingRequest): Promise<{ success: boolean; reference?: string; error?: string }> {
     const reference = `NT-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const { error } = await this.supabase.client
+    const { data, error } = await this.supabase.client
       .from('transfer_bookings')
-      .insert({ ...booking, reference_number: reference, status: 'pending' });
+      .insert({ ...booking, reference_number: reference, status: 'pending' })
+      .select()
+      .maybeSingle();
 
     if (error) {
       console.error('Error creating transfer booking:', error);
       return { success: false, error: error.message };
     }
 
+    this.triggerNotification('send-transfer-notification', data ?? { ...booking, reference_number: reference, status: 'pending', created_at: new Date().toISOString() });
+
     return { success: true, reference };
+  }
+
+  private async triggerNotification(functionName: string, record: unknown): Promise<void> {
+    try {
+      const { data, error } = await this.supabase.client.functions.invoke(functionName, {
+        body: { record },
+      });
+      if (error) {
+        console.error(`[${functionName}] invoke error:`, error);
+      } else {
+        console.log(`[${functionName}] sent:`, data);
+      }
+    } catch (err) {
+      console.error(`[${functionName}] exception:`, err);
+    }
   }
 
   async getBookingByReference(reference: string): Promise<BookingResponse | null> {

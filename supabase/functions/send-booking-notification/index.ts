@@ -12,9 +12,13 @@
  *   FROM_EMAIL       → adresse expéditeur (ex: noreply@niofartourisme.com)
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-
 const RESEND_API = 'https://api.resend.com/emails';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+};
 
 interface BookingPayload {
   record: {
@@ -41,6 +45,10 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
   const apiKey = Deno.env.get('RESEND_API_KEY');
   const fromEmail = Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com';
 
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not configured');
+  }
+
   const res = await fetch(RESEND_API, {
     method: 'POST',
     headers: {
@@ -52,6 +60,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
 
   if (!res.ok) {
     const error = await res.text();
+    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
     throw new Error(`Resend error: ${error}`);
   }
 }
@@ -185,24 +194,35 @@ function buildTeamNotificationHtml(b: BookingPayload['record']): string {
 </html>`;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
   try {
-    const payload: BookingPayload = await req.json();
-    const booking = payload.record;
+    const payload = await req.json();
+    // Accept both direct call ({...record}) and webhook format ({record: {...}})
+    const booking: BookingPayload['record'] = payload.record ?? payload;
+
+    if (!booking?.email || !booking?.reference_number) {
+      return new Response(JSON.stringify({ error: 'Invalid payload: missing booking fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
 
-    await Promise.all([
-      // 1. Confirmation au client
+    const results = await Promise.allSettled([
       sendEmail(
         booking.email,
         `Confirmation de votre réservation NIO FAR — ${booking.reference_number}`,
         buildClientEmailFr(booking)
       ),
-      // 2. Notification interne équipe
       sendEmail(
         teamEmail,
         `[NIO FAR] Nouvelle réservation — ${booking.reference_number} — ${booking.first_name} ${booking.last_name}`,
@@ -210,15 +230,25 @@ serve(async (req) => {
       ),
     ]);
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const failed = results.filter((r) => r.status === 'rejected');
+    if (failed.length > 0) {
+      console.error('send-booking-notification failures:', failed);
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: failed.length === 0,
+        client_email: results[0].status,
+        team_email: results[1].status,
+        errors: failed.map((f: any) => String(f.reason)),
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (err) {
     console.error('send-booking-notification error:', err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
