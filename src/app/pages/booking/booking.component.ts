@@ -7,13 +7,11 @@ import { ExcursionService, Excursion } from '../../core/services/excursion.servi
 import { Circuit, CircuitService } from '../../core/services/circuit.service';
 import { ScrollAnimateDirective } from '../../shared/directives/scroll-animate.directive';
 import { CurrencyConverterPipe } from '../../shared/pipes/currency-converter.pipe';
-import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
-import { CountrySelectComponent } from '../../shared/components/phone-input/country-select.component';
 
 @Component({
   selector: 'app-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe, PhoneInputComponent, CountrySelectComponent],
+  imports: [FormsModule, RouterLink, ScrollAnimateDirective, CurrencyConverterPipe],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -85,24 +83,49 @@ import { CountrySelectComponent } from '../../shared/components/phone-input/coun
                     />
                   </div>
                   <div class="form-group">
-                    <app-phone-input
-                      [country]="formData.country"
-                      [(phone)]="formData.phone"
+                    <label for="phone">{{ lang.t('booking.phone') }}</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      [(ngModel)]="formData.phone"
                       [disabled]="isSubmitting()"
-                      [required]="true"
-                      label="{{ lang.t('booking.phone') }}"
                     />
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <app-country-select
-                    [(value)]="formData.country"
-                    [disabled]="isSubmitting()"
-                    [required]="true"
-                    label="{{ lang.t('contact.country') }}"
+                <div class="form-group country-autocomplete">
+                  <label for="country">{{ lang.t('contact.country') }} *</label>
+                  <input
+                    type="text"
+                    id="country"
+                    name="country"
+                    [(ngModel)]="formData.country"
+                    (focus)="showCountryDropdown.set(true)"
+                    (blur)="onCountryBlur()"
                     placeholder="{{ lang.t('booking.searchCountry') }}"
+                    required
+                    [disabled]="isSubmitting()"
+                    autocomplete="off"
                   />
+                  @if (showCountryDropdown() && filteredCountryGroups().length > 0) {
+                    <div class="country-dropdown">
+                      @for (continent of filteredCountryGroups(); track continent.name) {
+                        <div class="country-group">
+                          <div class="country-group-label">{{ continent.name }}</div>
+                          @for (country of continent.countries; track country.name) {
+                            <div
+                              class="country-option"
+                              (mousedown)="selectCountry(country.name)"
+                            >
+                              <span class="country-flag">{{ country.flag }}</span>
+                              <span class="country-name">{{ country.name }}</span>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
 
                 <h3>{{ lang.t('booking.tripDetails') }}</h3>
@@ -867,7 +890,173 @@ export class BookingComponent implements OnInit {
   promoError = signal(false);
   promoSuccess = signal(false);
 
-  // Country and phone are handled by app-phone-input component
+  countryGroups = [
+    {
+      name: 'Afrique / Africa',
+      countries: [
+        { name: 'Senegal', flag: '🇸🇳' },
+        { name: 'Algeria', flag: '🇩🇿' },
+        { name: 'Angola', flag: '🇦🇴' },
+        { name: 'Benin', flag: '🇧🇯' },
+        { name: 'Botswana', flag: '🇧🇼' },
+        { name: 'Burkina Faso', flag: '🇧🇫' },
+        { name: 'Burundi', flag: '🇧🇮' },
+        { name: 'Cameroon', flag: '🇨🇲' },
+        { name: 'Cape Verde', flag: '🇨🇻' },
+        { name: 'Central African Republic', flag: '🇨🇫' },
+        { name: 'Chad', flag: '🇹🇩' },
+        { name: 'Comoros', flag: '🇰🇲' },
+        { name: 'Congo', flag: '🇨🇬' },
+        { name: 'Ivory Coast', flag: '🇨🇮' },
+        { name: 'Democratic Republic of Congo', flag: '🇨🇩' },
+        { name: 'Djibouti', flag: '🇩🇯' },
+        { name: 'Egypt', flag: '🇪🇬' },
+        { name: 'Equatorial Guinea', flag: '🇬🇶' },
+        { name: 'Eritrea', flag: '🇪🇷' },
+        { name: 'Eswatini', flag: '🇸🇿' },
+        { name: 'Ethiopia', flag: '🇪🇹' },
+        { name: 'Gabon', flag: '🇬🇦' },
+        { name: 'Gambia', flag: '🇬🇲' },
+        { name: 'Ghana', flag: '🇬🇭' },
+        { name: 'Guinea', flag: '🇬🇳' },
+        { name: 'Guinea-Bissau', flag: '🇬🇼' },
+        { name: 'Kenya', flag: '🇰🇪' },
+        { name: 'Lesotho', flag: '🇱🇸' },
+        { name: 'Liberia', flag: '🇱🇷' },
+        { name: 'Libya', flag: '🇱🇾' },
+        { name: 'Madagascar', flag: '🇲🇬' },
+        { name: 'Malawi', flag: '🇲🇼' },
+        { name: 'Mali', flag: '🇲🇱' },
+        { name: 'Mauritania', flag: '🇲🇷' },
+        { name: 'Mauritius', flag: '🇲🇺' },
+        { name: 'Morocco', flag: '🇲🇦' },
+        { name: 'Mozambique', flag: '🇲🇿' },
+        { name: 'Namibia', flag: '🇳🇦' },
+        { name: 'Niger', flag: '🇳🇪' },
+        { name: 'Nigeria', flag: '🇳🇬' },
+        { name: 'Rwanda', flag: '🇷🇼' },
+        { name: 'Sao Tome and Principe', flag: '🇸🇹' },
+        { name: 'Seychelles', flag: '🇸🇨' },
+        { name: 'Sierra Leone', flag: '🇸🇱' },
+        { name: 'Somalia', flag: '🇸🇴' },
+        { name: 'South Africa', flag: '🇿🇦' },
+        { name: 'South Sudan', flag: '🇸🇸' },
+        { name: 'Sudan', flag: '🇸🇩' },
+        { name: 'Tanzania', flag: '🇹🇿' },
+        { name: 'Togo', flag: '🇹🇬' },
+        { name: 'Tunisia', flag: '🇹🇳' },
+        { name: 'Uganda', flag: '🇺🇬' },
+        { name: 'Zambia', flag: '🇿🇲' },
+        { name: 'Zimbabwe', flag: '🇿🇼' }
+      ]
+    },
+    {
+      name: 'Europe',
+      countries: [
+        { name: 'Austria', flag: '🇦🇹' },
+        { name: 'Belgium', flag: '🇧🇪' },
+        { name: 'Denmark', flag: '🇩🇰' },
+        { name: 'Finland', flag: '🇫🇮' },
+        { name: 'France', flag: '🇫🇷' },
+        { name: 'Germany', flag: '🇩🇪' },
+        { name: 'Greece', flag: '🇬🇷' },
+        { name: 'Ireland', flag: '🇮🇪' },
+        { name: 'Italy', flag: '🇮🇹' },
+        { name: 'Luxembourg', flag: '🇱🇺' },
+        { name: 'Netherlands', flag: '🇳🇱' },
+        { name: 'Norway', flag: '🇳🇴' },
+        { name: 'Poland', flag: '🇵🇱' },
+        { name: 'Portugal', flag: '🇵🇹' },
+        { name: 'Spain', flag: '🇪🇸' },
+        { name: 'Sweden', flag: '🇸🇪' },
+        { name: 'Switzerland', flag: '🇨🇭' },
+        { name: 'United Kingdom', flag: '🇬🇧' }
+      ]
+    },
+    {
+      name: 'Amerique / Americas',
+      countries: [
+        { name: 'Argentina', flag: '🇦🇷' },
+        { name: 'Brazil', flag: '🇧🇷' },
+        { name: 'Canada', flag: '🇨🇦' },
+        { name: 'Chile', flag: '🇨🇱' },
+        { name: 'Colombia', flag: '🇨🇴' },
+        { name: 'Mexico', flag: '🇲🇽' },
+        { name: 'Peru', flag: '🇵🇪' },
+        { name: 'United States', flag: '🇺🇸' }
+      ]
+    },
+    {
+      name: 'Asie / Asia',
+      countries: [
+        { name: 'China', flag: '🇨🇳' },
+        { name: 'India', flag: '🇮🇳' },
+        { name: 'Indonesia', flag: '🇮🇩' },
+        { name: 'Japan', flag: '🇯🇵' },
+        { name: 'Malaysia', flag: '🇲🇾' },
+        { name: 'Philippines', flag: '🇵🇭' },
+        { name: 'Singapore', flag: '🇸🇬' },
+        { name: 'South Korea', flag: '🇰🇷' },
+        { name: 'Thailand', flag: '🇹🇭' },
+        { name: 'Vietnam', flag: '🇻🇳' }
+      ]
+    },
+    {
+      name: 'Oceanie / Oceania',
+      countries: [
+        { name: 'Australia', flag: '🇦🇺' },
+        { name: 'New Zealand', flag: '🇳🇿' }
+      ]
+    },
+    {
+      name: 'Moyen-Orient / Middle East',
+      countries: [
+        { name: 'Saudi Arabia', flag: '🇸🇦' },
+        { name: 'United Arab Emirates', flag: '🇦🇪' },
+        { name: 'Qatar', flag: '🇶🇦' },
+        { name: 'Kuwait', flag: '🇰🇼' },
+        { name: 'Israel', flag: '🇮🇱' },
+        { name: 'Turkey', flag: '🇹🇷' }
+      ]
+    },
+    {
+      name: 'Autre / Other',
+      countries: [
+        { name: 'Other', flag: '🌍' }
+      ]
+    }
+  ];
+
+  showCountryDropdown = signal(false);
+
+  filteredCountryGroups = computed(() => {
+    const searchTerm = this.formData.country.toLowerCase().trim();
+
+    if (!searchTerm) {
+      return this.countryGroups;
+    }
+
+    return this.countryGroups
+      .map(continent => ({
+        ...continent,
+        countries: continent.countries.filter(country =>
+          country.name.toLowerCase().includes(searchTerm)
+        )
+      }))
+      .filter(continent => continent.countries.length > 0);
+  });
+
+  selectCountry(countryName: string): void {
+    this.formData.country = countryName;
+    this.showCountryDropdown.set(false);
+  }
+
+  onCountryBlur(): void {
+    setTimeout(() => {
+      this.showCountryDropdown.set(false);
+    }, 200);
+  }
+
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const excursionSlug = params.get('circuitId');
@@ -997,14 +1186,13 @@ export class BookingComponent implements OnInit {
 
     this.isSubmitting.set(false);
 
-    if (result.success && result.data?.reference_number) {
+    if (result.success && result.data) {
       const promo = this.appliedPromotion();
       if (promo?.id) {
         await this.circuitService.incrementPromotionUsage(promo.id);
       }
-      await this.router.navigate(['/payment', result.data.reference_number]);
+      this.router.navigate(['/payment', result.data.reference_number]);
     } else {
-      console.error('Booking failed or missing reference:', result);
       this.errorMessage.set(true);
     }
   }

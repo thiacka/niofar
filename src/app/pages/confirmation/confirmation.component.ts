@@ -400,8 +400,8 @@ export class ConfirmationComponent implements OnInit {
       ? `Voyage NIO FAR — ${b.excursion_title}`
       : `NIO FAR Trip — ${b.excursion_title}`;
     const description = isFr
-      ? `Référence\\: ${b.reference_number}\\nContact\\: +221 75 651 83 50`
-      : `Reference\\: ${b.reference_number}\\nContact\\: +221 75 651 83 50`;
+      ? `Référence\\: ${b.reference_number}\\nContact\\: +221 71 152 54 36`
+      : `Reference\\: ${b.reference_number}\\nContact\\: +221 71 152 54 36`;
 
     const ics = [
       'BEGIN:VCALENDAR',

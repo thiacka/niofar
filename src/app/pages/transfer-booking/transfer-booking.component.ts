@@ -3,13 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageService } from '../../core/services/language.service';
 import { BookingService, TransferBookingRequest } from '../../core/services/booking.service';
-import { PhoneInputComponent } from '../../shared/components/phone-input/phone-input.component';
-import { CountrySelectComponent } from '../../shared/components/phone-input/country-select.component';
 
 @Component({
   selector: 'app-transfer-booking',
   standalone: true,
-  imports: [FormsModule, RouterLink, PhoneInputComponent, CountrySelectComponent],
+  imports: [FormsModule, RouterLink],
   template: `
     <section class="page-hero">
       <div class="hero-overlay"></div>
@@ -58,20 +56,38 @@ import { CountrySelectComponent } from '../../shared/components/phone-input/coun
                     <input type="email" name="email" [(ngModel)]="formData.email" required />
                   </div>
                   <div class="form-group">
-                    <app-phone-input
-                      [country]="formData.country"
-                      [(phone)]="formData.phone"
-                      [required]="true"
-                      label="{{ lang.t('booking.phone') }}"
-                    />
+                    <label>{{ lang.t('booking.phone') }}</label>
+                    <input type="tel" name="phone" [(ngModel)]="formData.phone" placeholder="+221 XX XXX XX XX" />
                   </div>
-                  <div class="form-group">
-                    <app-country-select
-                      [(value)]="formData.country"
-                      [required]="true"
-                      label="{{ lang.t('contact.country') }}"
-                      placeholder="{{ lang.t('booking.selectCountry') }}"
-                    />
+                  <div class="form-group country-group">
+                    <label>{{ lang.t('booking.selectCountry') }} *</label>
+                    <div class="country-input-wrapper">
+                      <input
+                        type="text"
+                        name="country"
+                        [(ngModel)]="formData.country"
+                        [placeholder]="lang.t('booking.selectCountry')"
+                        (focus)="showCountryDropdown.set(true)"
+                        (blur)="onCountryBlur()"
+                        autocomplete="off"
+                        required
+                      />
+                      @if (showCountryDropdown() && filteredCountryGroups().length > 0) {
+                        <div class="country-dropdown">
+                          @for (group of filteredCountryGroups(); track group.name) {
+                            <div class="country-group-block">
+                              <div class="country-group-label">{{ group.name }}</div>
+                              @for (country of group.countries; track country.name) {
+                                <div class="country-option" (mousedown)="selectCountry(country.name)">
+                                  <span>{{ country.flag }}</span>
+                                  <span>{{ country.name }}</span>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
@@ -505,7 +521,52 @@ export class TransferBookingComponent {
     specialRequests: ''
   };
 
-  // Country and phone are handled by app-phone-input component
+  countryGroups = [
+    { name: 'Afrique / Africa', countries: [
+      { name: 'Senegal', flag: '🇸🇳' }, { name: 'Algeria', flag: '🇩🇿' }, { name: 'Benin', flag: '🇧🇯' },
+      { name: 'Burkina Faso', flag: '🇧🇫' }, { name: 'Cameroon', flag: '🇨🇲' }, { name: 'Cape Verde', flag: '🇨🇻' },
+      { name: 'Ivory Coast', flag: '🇨🇮' }, { name: 'Gabon', flag: '🇬🇦' }, { name: 'Gambia', flag: '🇬🇲' },
+      { name: 'Ghana', flag: '🇬🇭' }, { name: 'Guinea', flag: '🇬🇳' }, { name: 'Mali', flag: '🇲🇱' },
+      { name: 'Mauritania', flag: '🇲🇷' }, { name: 'Morocco', flag: '🇲🇦' }, { name: 'Niger', flag: '🇳🇪' },
+      { name: 'Nigeria', flag: '🇳🇬' }, { name: 'South Africa', flag: '🇿🇦' }, { name: 'Togo', flag: '🇹🇬' },
+      { name: 'Tunisia', flag: '🇹🇳' }
+    ]},
+    { name: 'Europe', countries: [
+      { name: 'Belgium', flag: '🇧🇪' }, { name: 'France', flag: '🇫🇷' }, { name: 'Germany', flag: '🇩🇪' },
+      { name: 'Italy', flag: '🇮🇹' }, { name: 'Netherlands', flag: '🇳🇱' }, { name: 'Portugal', flag: '🇵🇹' },
+      { name: 'Spain', flag: '🇪🇸' }, { name: 'Switzerland', flag: '🇨🇭' }, { name: 'United Kingdom', flag: '🇬🇧' }
+    ]},
+    { name: 'Amerique / Americas', countries: [
+      { name: 'Brazil', flag: '🇧🇷' }, { name: 'Canada', flag: '🇨🇦' }, { name: 'United States', flag: '🇺🇸' }
+    ]},
+    { name: 'Asie / Asia', countries: [
+      { name: 'China', flag: '🇨🇳' }, { name: 'India', flag: '🇮🇳' }, { name: 'Japan', flag: '🇯🇵' }
+    ]},
+    { name: 'Moyen-Orient / Middle East', countries: [
+      { name: 'Saudi Arabia', flag: '🇸🇦' }, { name: 'United Arab Emirates', flag: '🇦🇪' },
+      { name: 'Qatar', flag: '🇶🇦' }
+    ]},
+    { name: 'Autre / Other', countries: [{ name: 'Other', flag: '🌍' }] }
+  ];
+
+  showCountryDropdown = signal(false);
+
+  filteredCountryGroups = computed(() => {
+    const term = this.formData.country.toLowerCase().trim();
+    if (!term) return this.countryGroups;
+    return this.countryGroups
+      .map(g => ({ ...g, countries: g.countries.filter(c => c.name.toLowerCase().includes(term)) }))
+      .filter(g => g.countries.length > 0);
+  });
+
+  selectCountry(name: string): void {
+    this.formData.country = name;
+    this.showCountryDropdown.set(false);
+  }
+
+  onCountryBlur(): void {
+    setTimeout(() => this.showCountryDropdown.set(false), 200);
+  }
 
   async onSubmit(): Promise<void> {
     if (this.isSubmitting()) return;
@@ -532,8 +593,8 @@ export class TransferBookingComponent {
     const result = await this.bookingService.createTransferBooking(request);
     this.isSubmitting.set(false);
 
-    if (result.success && result.data?.reference_number) {
-      window.location.href = `/payment/${result.data.reference_number}`;
+    if (result.success && result.reference) {
+      window.location.href = `/payment/${result.reference}`;
     } else {
       this.errorMessage.set(true);
     }

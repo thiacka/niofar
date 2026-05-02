@@ -16,12 +16,6 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 const RESEND_API = 'https://api.resend.com/emails';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
 interface BookingPayload {
   record: {
     id: string;
@@ -139,7 +133,7 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
   </div>
   <div class="footer">
     <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
-    <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
+    <p>+221 71 152 54 36 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,0.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
 </div>
@@ -192,11 +186,8 @@ function buildTeamNotificationHtml(b: BookingPayload['record']): string {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+    return new Response('Method not allowed', { status: 405 });
   }
 
   try {
@@ -221,13 +212,13 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('send-booking-notification error:', err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 });

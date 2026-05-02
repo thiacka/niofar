@@ -104,7 +104,7 @@ function buildPaymentConfirmedEmail(opts: {
   </div>
   <div class="footer">
     <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
-    <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
+    <p>+221 71 152 54 36 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
 </div>
@@ -192,91 +192,6 @@ async function sendPaymentConfirmedEmail(
   }
 }
 
-// ── Helper PayPal ────────────────────────────────────────────────────────────
-async function getPayPalAccessToken(): Promise<string> {
-  const clientId     = Deno.env.get('PAYPAL_CLIENT_ID')     ?? '';
-  const clientSecret = Deno.env.get('PAYPAL_CLIENT_SECRET') ?? '';
-  const isSandbox    = clientId.endsWith('SB') || clientId.includes('sb-');
-  const baseUrl      = isSandbox ? 'https://api.sandbox.paypal.com' : 'https://api.paypal.com';
-
-  const res = await fetch(`${baseUrl}/v1/oauth2/token`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`PayPal auth error: ${err}`);
-  }
-
-  const data = await res.json();
-  return data.access_token;
-}
-
-async function capturePayPalOrder(orderId: string): Promise<void> {
-  const accessToken = await getPayPalAccessToken();
-  const clientId    = Deno.env.get('PAYPAL_CLIENT_ID') ?? '';
-  const isSandbox   = clientId.endsWith('SB') || clientId.includes('sb-');
-  const baseUrl     = isSandbox ? 'https://api.sandbox.paypal.com' : 'https://api.paypal.com';
-
-  const res = await fetch(`${baseUrl}/v2/checkout/orders/${orderId}/capture`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`PayPal capture error: ${err}`);
-  }
-}
-
-async function handlePayPal(req: Request, supabase: ReturnType<typeof createClient>): Promise<Response> {
-  try {
-    const body = await req.json();
-    const eventType = body.event_type;
-
-    console.log('PayPal webhook received:', eventType);
-
-    if (eventType === 'CHECKOUT.ORDER.APPROVED') {
-      const orderId   = body.resource?.id;
-      const reference = body.resource?.purchase_units?.[0]?.custom_id;
-
-      if (orderId && reference) {
-        await capturePayPalOrder(orderId);
-        await updateBookingStatus(supabase, reference, 'confirmed');
-      }
-    } else if (eventType === 'PAYMENT.CAPTURE.COMPLETED') {
-      const reference = body.resource?.custom_id || body.resource?.supplementary_data?.related_ids?.order_id;
-      if (reference) {
-        await updateBookingStatus(supabase, reference, 'confirmed');
-      }
-    } else if (eventType === 'CHECKOUT.ORDER.CANCELLED') {
-      const reference = body.resource?.purchase_units?.[0]?.custom_id;
-      if (reference) {
-        await updateBookingStatus(supabase, reference, 'pending');
-      }
-    }
-
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err) {
-    console.error('PayPal webhook error:', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-}
-
 // ── Handlers PayTech / Stripe ────────────────────────────────────────────────
 async function handlePayTech(req: Request, supabase: ReturnType<typeof createClient>): Promise<Response> {
   const body   = await req.text();
@@ -331,8 +246,6 @@ serve(async (req) => {
   try {
     if (source === 'stripe') {
       return await handleStripe(req, supabase);
-    } else if (source === 'paypal') {
-      return await handlePayPal(req, supabase);
     } else {
       return await handlePayTech(req, supabase);
     }

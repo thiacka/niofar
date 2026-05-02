@@ -109,7 +109,7 @@ import { SeoService } from '../../core/services/seo.service';
                   </div>
                   <div class="info-content">
                     <span class="info-label">{{ lang.t('contact.whatsapp') }}</span>
-                    <a href="https://wa.me/221756518350" target="_blank" rel="noopener" class="info-value whatsapp-link">+221 75 651 83 50</a>
+                    <a href="https://wa.me/221756518350" target="_blank" rel="noopener" class="info-value whatsapp-link">+221 71 152 54 36</a>
                   </div>
                 </div>
 
