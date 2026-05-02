@@ -138,7 +138,7 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
       <div class="step"><span class="step-num">3</span><span>Préparez-vous pour une aventure inoubliable au Sénégal !</span></div>
     </div>
 
-    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20J'ai%20une%20question%20concernant%20ma%20r%C3%A9servation%20${b.reference_number}" class="whatsapp-btn">
+    <a href="https://wa.me/221711525436?text=Bonjour%20NIO%20FAR%20!%20J'ai%20une%20question%20concernant%20ma%20r%C3%A9servation%20${b.reference_number}" class="whatsapp-btn">
       💬 Nous contacter sur WhatsApp
     </a>
 

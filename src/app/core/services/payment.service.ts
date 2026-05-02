@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 
-export type PaymentMethod = 'paytech' | 'stripe' | 'later';
+export type PaymentMethod = 'paytech' | 'stripe' | 'paypal' | 'later';
 export type BookingType = 'excursion' | 'rental' | 'transfer';
 
 export interface PaymentSession {
@@ -31,6 +31,16 @@ export class PaymentService {
     });
     if (error) return { error: error.message };
     if (!data?.url) return { error: 'No Stripe URL returned' };
+    return { url: data.url as string };
+  }
+
+  /** Appelle l'Edge Function PayPal et retourne l'URL d'approbation */
+  async initiatePaypal(reference: string, amount: number, label: string, email: string): Promise<{ url: string } | { error: string }> {
+    const { data, error } = await this.supabase.client.functions.invoke('create-paypal-order', {
+      body: { reference, amount, label, email }
+    });
+    if (error) return { error: error.message };
+    if (!data?.url) return { error: 'No PayPal URL returned' };
     return { url: data.url as string };
   }
 

@@ -118,6 +118,25 @@ import { PaymentService } from '../../core/services/payment.service';
                 </div>
               </div>
 
+              <!-- PayPal -->
+              <div class="method-card" [class.selected]="selectedMethod() === 'paypal'" (click)="selectedMethod.set('paypal')">
+                <div class="method-radio">
+                  <div class="radio-circle" [class.checked]="selectedMethod() === 'paypal'"></div>
+                </div>
+                <div class="method-icon paypal-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.076 21.337H2.47a.64.64 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 4.758-5.937 4.758H11.22c-.38 0-.7.275-.76.648l-.906 5.75-.33 2.087a.39.39 0 0 0 .387.455h3.95c.484 0 .9-.351.976-.83l.04-.21.74-4.7.046-.259c.075-.479.491-.83.975-.83h.614c3.975 0 7.084-1.614 7.99-6.279.38-1.948.184-3.576-.78-4.844z"/>
+                  </svg>
+                </div>
+                <div class="method-info">
+                  <span class="method-title">{{ lang.t('payment.paypal.title') }}</span>
+                  <span class="method-subtitle">{{ lang.t('payment.paypal.subtitle') }}</span>
+                  <div class="method-logos">
+                    <span class="logo-badge paypal">PayPal</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Payer plus tard -->
               <div class="method-card" [class.selected]="selectedMethod() === 'later'" (click)="selectedMethod.set('later')">
                 <div class="method-radio">
@@ -147,6 +166,8 @@ import { PaymentService } from '../../core/services/payment.service';
                   {{ lang.t('payment.local.btn') }}
                 } @else if (selectedMethod() === 'stripe') {
                   {{ lang.t('payment.intl.btn') }}
+                } @else if (selectedMethod() === 'paypal') {
+                  {{ lang.t('payment.paypal.btn') }}
                 } @else {
                   {{ lang.t('payment.later.btn') }}
                 }
@@ -327,6 +348,7 @@ import { PaymentService } from '../../core/services/payment.service';
     }
     .paytech-icon { background: rgba(255,102,0,0.1); color: #ff6600; }
     .stripe-icon  { background: rgba(99,91,255,0.1); color: #635bff; }
+    .paypal-icon  { background: rgba(0,48,135,0.08); color: #003087; }
     .later-icon   { background: rgba(43,138,138,0.1); color: var(--color-secondary); }
 
     .method-info {
@@ -357,6 +379,7 @@ import { PaymentService } from '../../core/services/payment.service';
     .logo-badge.visa   { background: #1a1f71; color: white; }
     .logo-badge.mc     { background: #eb001b; color: white; }
     .logo-badge.amex   { background: #2e77bc; color: white; }
+    .logo-badge.paypal { background: #003087; color: white; }
 
     .btn-pay {
       width: 100%;
@@ -397,7 +420,7 @@ export class PaymentComponent implements OnInit {
   reference = signal('');
   summary = signal<{ title: string; email: string; amount: number } | null>(null);
   isLoading = signal(true);
-  selectedMethod = signal<'paytech' | 'stripe' | 'later' | null>(null);
+  selectedMethod = signal<'paytech' | 'stripe' | 'paypal' | 'later' | null>(null);
   processing = signal(false);
   errorMessage = signal(false);
 
@@ -420,6 +443,14 @@ export class PaymentComponent implements OnInit {
       }
     } else if (method === 'stripe') {
       const result = await this.paymentService.initiateStripe(ref, s.amount, s.title, s.email);
+      if ('url' in result) {
+        window.location.href = result.url;
+      } else {
+        this.processing.set(false);
+        this.errorMessage.set(true);
+      }
+    } else if (method === 'paypal') {
+      const result = await this.paymentService.initiatePaypal(ref, s.amount, s.title, s.email);
       if ('url' in result) {
         window.location.href = result.url;
       } else {

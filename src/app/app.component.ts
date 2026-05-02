@@ -152,6 +152,6 @@ export class AppComponent {
     const message = this.lang.language() === 'fr'
       ? 'Bonjour NIO FAR ! Je suis intéressé par vos services.'
       : 'Hello NIO FAR! I am interested in your services.';
-    return `https://wa.me/221756518350?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/221711525436?text=${encodeURIComponent(message)}`;
   }
 }
