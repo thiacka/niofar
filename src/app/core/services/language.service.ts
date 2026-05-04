@@ -277,6 +277,7 @@ const translations: Translations = {
   'excursionBooking.subtitle': { en: 'Complete the form below to request your booking', fr: 'Remplissez le formulaire ci-dessous pour demander votre reservation' },
   'excursionBooking.backToExcursions': { en: 'Back to all excursions', fr: 'Retour aux excursions' },
   'excursionBooking.browseExcursions': { en: 'Browse all excursions', fr: 'Voir toutes les excursions' },
+  'excursionBooking.description': { en: 'Description', fr: 'Description' },
   'booking.details': { en: 'Your Information', fr: 'Vos Informations' },
   'booking.firstName': { en: 'First Name', fr: 'Prenom' },
   'booking.lastName': { en: 'Last Name', fr: 'Nom' },

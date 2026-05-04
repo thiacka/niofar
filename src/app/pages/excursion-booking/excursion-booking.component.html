@@ -222,6 +222,13 @@
             </div>
 
             <div class="booking-sidebar" appScrollAnimate animationType="fade-left" [animationDelay]="200">
+                @if (getDescription()) {
+                <div class="description-card">
+                    <h4>{{ lang.t('excursionBooking.description') }}</h4>
+                    <p>{{ getDescription() }}</p>
+                </div>
+                }
+
                 <div class="help-card">
                     <h4>{{ lang.t('booking.needHelp') }}</h4>
                     <p>{{ lang.t('booking.helpText') }}</p>

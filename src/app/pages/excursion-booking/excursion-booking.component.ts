@@ -248,6 +248,12 @@ export class ExcursionBookingComponent implements OnInit {
     return this.lang.language() === 'fr' ? c.duration_fr : c.duration_en;
   }
 
+  getDescription(): string {
+    const c = this.excursion();
+    if (!c) return '';
+    return this.lang.language() === 'fr' ? c.description_fr : c.description_en;
+  }
+
   getPriceNote(): string {
     const c = this.excursion();
     if (!c) return '';

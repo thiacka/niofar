@@ -371,6 +371,7 @@
       top: calc(var(--header-height) + var(--spacing-lg));
     }
 
+    .description-card,
     .help-card,
     .info-card {
       background: var(--color-white);
@@ -380,10 +381,17 @@
       margin-bottom: var(--spacing-lg);
     }
 
+    .description-card h4,
     .help-card h4,
     .info-card h4 {
       margin-bottom: var(--spacing-md);
       color: var(--color-text);
+    }
+
+    .description-card p {
+      color: var(--color-text-light);
+      font-size: 0.95rem;
+      line-height: 1.7;
     }
 
     .help-card p {
