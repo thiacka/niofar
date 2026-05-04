@@ -225,6 +225,10 @@ import { SeoService } from '../../core/services/seo.service';
       color: var(--color-text-light);
       line-height: 1.7;
       margin-bottom: var(--spacing-lg);
+      display: -webkit-box;
+      -webkit-line-clamp: 5;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .excursion-highlights {
