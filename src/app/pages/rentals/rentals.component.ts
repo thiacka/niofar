@@ -19,7 +19,7 @@ import { SeoService } from '../../core/services/seo.service';
       </div>
     </section>
 
-    <section class="rentals-intro section">
+    <section class="rentals-intro section section-compact">
       <div class="container">
         <div class="intro-content" appScrollAnimate>
           <p class="lead">{{ lang.t('rentals.intro') }}</p>
@@ -313,6 +313,10 @@ import { SeoService } from '../../core/services/seo.service';
       opacity: 0.95;
       max-width: 600px;
       margin: 0 auto;
+    }
+
+    .section-compact {
+      padding: var(--spacing-2xl) 0;
     }
 
     .intro-content {
