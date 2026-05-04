@@ -150,7 +150,7 @@ import { SeoService } from '../../core/services/seo.service';
     }
 
     .section-compact {
-      padding: var(--spacing-2xl) 0;
+      padding: var(--spacing-xl) 0 var(--spacing-sm);
     }
 
     .intro-content {
