@@ -1,21 +1,19 @@
 /**
  * Supabase Edge Function : send-contact-notification
  *
- * Déclenchée par un Database Webhook sur INSERT dans la table `contact_messages`.
- * Envoie une notification interne à l'équipe NIO FAR.
+ * Envoie une notification interne a l'equipe NIO FAR via Gmail SMTP.
  *
- * Configuration requise (Supabase Secrets) :
- *   RESEND_API_KEY   → clé API Resend (https://resend.com)
- *   TEAM_EMAIL       → adresse de l'équipe (ex: contact@niofartourisme.com)
- *   FROM_EMAIL       → adresse expéditeur (ex: noreply@niofartourisme.com)
+ * Secrets requis : MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD,
+ *                  MAIL_FROM, TEAM_EMAIL
  */
 
-const RESEND_API = 'https://api.resend.com/emails';
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 interface ContactPayload {
@@ -29,40 +27,45 @@ interface ContactPayload {
   };
 }
 
-function buildFrom(): string {
-  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
-  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
-  if (raw.includes('<') && raw.includes('>')) return raw;
-  return `NIO FAR Tourisme <${raw}>`;
-}
-
-async function sendEmail(to: string, subject: string, html: string, replyTo?: string): Promise<void> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
-
-  const from = buildFrom();
-  console.log(`Sending email from=${from} to=${to}`);
-
-  const body: Record<string, unknown> = { from, to, subject, html };
-  if (replyTo) body.reply_to = replyTo;
-
-  const res = await fetch(RESEND_API, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: Deno.env.get("MAIL_HOST") ?? "smtp.gmail.com",
+    port: Number(Deno.env.get("MAIL_PORT") ?? "587"),
+    secure: false,
+    auth: {
+      user: Deno.env.get("MAIL_USERNAME"),
+      pass: Deno.env.get("MAIL_PASSWORD"),
     },
-    body: JSON.stringify(body),
   });
-
-  if (!res.ok) {
-    const error = await res.text();
-    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
-    throw new Error(`Resend error: ${error}`);
-  }
 }
 
-function buildContactNotificationHtml(m: ContactPayload['record']): string {
+function getFrom(): string {
+  const fromEmail = Deno.env.get("MAIL_FROM") ?? "noreply@niofartourisme.com";
+  return `NIO FAR Tourisme <${fromEmail}>`;
+}
+
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  replyTo?: string,
+): Promise<void> {
+  const transporter = getTransporter();
+  const mailOptions: Record<string, unknown> = {
+    from: getFrom(),
+    to,
+    subject,
+    html,
+  };
+  if (replyTo) mailOptions.replyTo = replyTo;
+
+  console.log(`Sending email to=${to}`);
+  await transporter.sendMail(mailOptions);
+}
+
+function buildContactNotificationHtml(
+  m: ContactPayload["record"],
+): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -81,18 +84,18 @@ function buildContactNotificationHtml(m: ContactPayload['record']): string {
 <body>
 <div class="card">
   <div class="header">
-    <h2>📩 Nouveau message de contact — ${m.name}</h2>
+    <h2>Nouveau message de contact — ${m.name}</h2>
   </div>
   <div class="body">
     <div class="field"><label>Nom</label><p>${m.name}</p></div>
     <div class="field"><label>Email</label><p><a href="mailto:${m.email}" style="color:#C4682B;">${m.email}</a></p></div>
     <div class="field"><label>Pays</label><p>${m.country}</p></div>
-    <div class="field"><label>Reçu le</label><p>${new Date(m.created_at).toLocaleString('fr-FR')}</p></div>
+    <div class="field"><label>Re\u00e7u le</label><p>${new Date(m.created_at).toLocaleString("fr-FR")}</p></div>
     <div class="field">
       <label>Message</label>
       <div class="message-box">${m.message}</div>
     </div>
-    <a href="mailto:${m.email}?subject=Re:%20Votre%20demande%20NIO%20FAR" class="reply-btn">Répondre →</a>
+    <a href="mailto:${m.email}?subject=Re:%20Votre%20demande%20NIO%20FAR" class="reply-btn">R\u00e9pondre</a>
     <p style="margin-top:16px;">
       <a href="https://niofartourisme.com/admin" style="font-size:0.85rem;color:#888;">Voir dans l'admin</a>
     </p>
@@ -103,41 +106,46 @@ function buildContactNotificationHtml(m: ContactPayload['record']): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
+    });
   }
 
   try {
     const payload = await req.json();
-    const message: ContactPayload['record'] = payload.record ?? payload;
+    const message: ContactPayload["record"] = payload.record ?? payload;
 
     if (!message?.email || !message?.name) {
-      return new Response(JSON.stringify({ error: 'Invalid payload' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ error: "Invalid payload" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'contact@niofartourisme.com';
+    const teamEmail =
+      Deno.env.get("TEAM_EMAIL") ?? "contact@niofartourisme.com";
 
     await sendEmail(
       teamEmail,
       `[NIO FAR] Nouveau message de ${message.name} (${message.country})`,
       buildContactNotificationHtml(message),
-      message.email
+      message.email,
     );
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error('send-contact-notification error:', err);
+    console.error("send-contact-notification error:", err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

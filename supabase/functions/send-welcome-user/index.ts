@@ -1,39 +1,57 @@
 /**
  * Supabase Edge Function : send-welcome-user
  *
- * Appelée par le frontend (via supabase.functions.invoke) après la création
- * d'un nouvel utilisateur admin. Génère un token de définition de mot de passe,
- * le stocke en base, et envoie un email de bienvenue au nouvel utilisateur.
+ * Genere un token de definition de mot de passe, le stocke en base,
+ * et envoie un email de bienvenue au nouvel utilisateur via Gmail SMTP.
  *
  * Body attendu (JSON) :
  *   { userId: string, name: string, email: string, role: string, createdBy: string }
  *
- * Secrets requis : RESEND_API_KEY, FROM_EMAIL, SITE_URL
- * Secrets injectés automatiquement : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Secrets requis : MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM, SITE_URL
+ * Secrets injectes automatiquement : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import nodemailer from "npm:nodemailer@6.9.16";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
-const RESEND_API = 'https://api.resend.com/emails';
-
-const ROLE_LABELS: Record<string, string> = {
-  administrator: 'Super-Administrateur',
-  manager:       'Manager',
-  operator:      'Opérateur',
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const apiKey    = Deno.env.get('RESEND_API_KEY');
-  const fromEmail = Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com';
+const ROLE_LABELS: Record<string, string> = {
+  administrator: "Super-Administrateur",
+  manager: "Manager",
+  operator: "Op\u00e9rateur",
+};
 
-  const res = await fetch(RESEND_API, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: `NIO FAR Tourisme <${fromEmail}>`, to, subject, html }),
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: Deno.env.get("MAIL_HOST") ?? "smtp.gmail.com",
+    port: Number(Deno.env.get("MAIL_PORT") ?? "587"),
+    secure: false,
+    auth: {
+      user: Deno.env.get("MAIL_USERNAME"),
+      pass: Deno.env.get("MAIL_PASSWORD"),
+    },
   });
+}
 
-  if (!res.ok) throw new Error(`Resend error: ${await res.text()}`);
+function getFrom(): string {
+  const fromEmail = Deno.env.get("MAIL_FROM") ?? "noreply@niofartourisme.com";
+  return `NIO FAR Tourisme <${fromEmail}>`;
+}
+
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  const transporter = getTransporter();
+  console.log(`Sending email to=${to}`);
+  await transporter.sendMail({ from: getFrom(), to, subject, html });
 }
 
 function buildWelcomeEmail(opts: {
@@ -74,115 +92,124 @@ function buildWelcomeEmail(opts: {
 <div class="wrapper">
   <div class="header">
     <h1>NIO FAR</h1>
-    <p>Bienvenue dans l'équipe !</p>
+    <p>Bienvenue dans l'\u00e9quipe !</p>
   </div>
   <div class="body">
     <p>Bonjour <strong>${opts.name}</strong>,</p>
-    <p>Un compte d'accès au backoffice <strong>NIO FAR Tourisme</strong> vient d'être créé pour vous par <em>${opts.createdBy}</em>.</p>
+    <p>Un compte d'acc\u00e8s au backoffice <strong>NIO FAR Tourisme</strong> vient d'\u00eatre cr\u00e9\u00e9 pour vous par <em>${opts.createdBy}</em>.</p>
 
     <div class="info-box">
       <p><strong>Email de connexion :</strong> ${opts.email}</p>
-      <p><strong>Rôle attribué :</strong> ${roleLabel}</p>
+      <p><strong>R\u00f4le attribu\u00e9 :</strong> ${roleLabel}</p>
     </div>
 
-    <p>Pour accéder à votre compte, vous devez d'abord <strong>définir votre mot de passe</strong> en cliquant sur le bouton ci-dessous :</p>
+    <p>Pour acc\u00e9der \u00e0 votre compte, vous devez d'abord <strong>d\u00e9finir votre mot de passe</strong> en cliquant sur le bouton ci-dessous :</p>
 
     <a href="${opts.setupUrl}" class="setup-btn">
-      🔑 Définir mon mot de passe
+      D\u00e9finir mon mot de passe
     </a>
 
     <div class="expiry">
-      ⏳ Ce lien est valable <strong>${opts.expiresIn}</strong>. Après expiration, contactez votre administrateur pour obtenir un nouveau lien.
+      Ce lien est valable <strong>${opts.expiresIn}</strong>. Apr\u00e8s expiration, contactez votre administrateur pour obtenir un nouveau lien.
     </div>
 
     <p style="font-size:.85rem;color:#7A6355;">Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :</p>
     <div class="url-box">${opts.setupUrl}</div>
 
     <p style="font-size:.85rem;color:#7A6355;">
-      Pour toute question, contactez l'administrateur ou écrivez-nous à <a href="mailto:contact@niofartourisme.com" style="color:#C4682B;">contact@niofartourisme.com</a>
+      Pour toute question, contactez l'administrateur ou \u00e9crivez-nous \u00e0 <a href="mailto:contact@niofartourisme.com" style="color:#C4682B;">contact@niofartourisme.com</a>
     </p>
   </div>
   <div class="footer">
     <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Backoffice Interne</p>
-    <p>Cet email vous a été envoyé automatiquement. Ne pas répondre.</p>
+    <p>Cet email vous a \u00e9t\u00e9 envoy\u00e9 automatiquement. Ne pas r\u00e9pondre.</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
 </div>
 </body></html>`;
 }
 
-serve(async (req) => {
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin':  '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'authorization, content-type',
-      },
-    });
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
+    });
+  }
 
   try {
     const { userId, name, email, role, createdBy } = await req.json();
 
     if (!userId || !email) {
-      return new Response(JSON.stringify({ error: 'userId and email are required' }), { status: 400 });
+      return new Response(
+        JSON.stringify({ error: "userId and email are required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    const supabase  = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-    const siteUrl   = Deno.env.get('SITE_URL') ?? 'https://niofartourisme.com';
+    const siteUrl =
+      Deno.env.get("SITE_URL") ?? "https://niofartourisme.com";
 
-    // Invalider les anciens tokens non utilisés pour cet utilisateur
     await supabase
-      .from('password_reset_tokens')
+      .from("password_reset_tokens")
       .update({ used_at: new Date().toISOString() })
-      .eq('user_id', userId)
-      .is('used_at', null);
+      .eq("user_id", userId)
+      .is("used_at", null);
 
-    // Créer un nouveau token (valide 48h)
     const { data: tokenRow, error: tokenError } = await supabase
-      .from('password_reset_tokens')
+      .from("password_reset_tokens")
       .insert({ user_id: userId })
-      .select('token, expires_at')
+      .select("token, expires_at")
       .single();
 
     if (tokenError || !tokenRow) {
-      throw new Error(`Failed to create reset token: ${tokenError?.message}`);
+      throw new Error(
+        `Failed to create reset token: ${tokenError?.message}`,
+      );
     }
 
     const setupUrl = `${siteUrl}/admin/set-password?token=${tokenRow.token}`;
-    const expires  = new Date(tokenRow.expires_at).toLocaleString('fr-FR', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    const expires = new Date(tokenRow.expires_at).toLocaleString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
     await sendEmail(
       email,
-      `[NIO FAR] Bienvenue ${name} — Définissez votre mot de passe`,
+      `[NIO FAR] Bienvenue ${name} — D\u00e9finissez votre mot de passe`,
       buildWelcomeEmail({
         name,
         email,
         role,
         setupUrl,
-        createdBy: createdBy ?? 'un administrateur',
+        createdBy: createdBy ?? "un administrateur",
         expiresIn: `48 heures (jusqu'au ${expires})`,
-      })
+      }),
     );
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error('send-welcome-user error:', err);
+    console.error("send-welcome-user error:", err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

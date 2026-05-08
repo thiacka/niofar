@@ -1,23 +1,21 @@
 /**
  * Supabase Edge Function : send-booking-notification
  *
- * Déclenchée par un Database Webhook sur INSERT dans la table `bookings`.
- * Envoie deux emails via l'API Resend :
- *  1. Confirmation au client (FR ou EN selon la langue détectée)
- *  2. Notification interne à l'équipe NIO FAR
+ * Envoie deux emails via Gmail SMTP :
+ *  1. Confirmation au client (FR)
+ *  2. Notification interne a l'equipe NIO FAR
  *
- * Configuration requise (Supabase Secrets) :
- *   RESEND_API_KEY   → clé API Resend (https://resend.com)
- *   TEAM_EMAIL       → adresse de l'équipe (ex: reservations@niofartourisme.com)
- *   FROM_EMAIL       → adresse expéditeur (ex: noreply@niofartourisme.com)
+ * Secrets requis : MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD,
+ *                  MAIL_FROM, TEAM_EMAIL
  */
 
-const RESEND_API = 'https://api.resend.com/emails';
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 interface BookingPayload {
@@ -41,43 +39,51 @@ interface BookingPayload {
   };
 }
 
-function buildFrom(): string {
-  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
-  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
-  if (raw.includes('<') && raw.includes('>')) return raw;
-  return `NIO FAR Tourisme <${raw}>`;
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: Deno.env.get("MAIL_HOST") ?? "smtp.gmail.com",
+    port: Number(Deno.env.get("MAIL_PORT") ?? "587"),
+    secure: false,
+    auth: {
+      user: Deno.env.get("MAIL_USERNAME"),
+      pass: Deno.env.get("MAIL_PASSWORD"),
+    },
+  });
 }
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
+function getFrom(): string {
+  const fromEmail = Deno.env.get("MAIL_FROM") ?? "noreply@niofartourisme.com";
+  return `NIO FAR Tourisme <${fromEmail}>`;
+}
 
-  const from = buildFrom();
-  console.log(`Sending email from=${from} to=${to}`);
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  replyTo?: string,
+): Promise<void> {
+  const transporter = getTransporter();
+  const mailOptions: Record<string, unknown> = {
+    from: getFrom(),
+    to,
+    subject,
+    html,
+  };
+  if (replyTo) mailOptions.replyTo = replyTo;
 
-  const res = await fetch(RESEND_API, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
-    throw new Error(`Resend error: ${error}`);
-  }
+  console.log(`Sending email to=${to}`);
+  await transporter.sendMail(mailOptions);
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('fr-FR', {
-    day: 'numeric', month: 'long', year: 'numeric'
+  return new Date(dateStr).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
-function buildClientEmailFr(b: BookingPayload['record']): string {
+function buildClientEmailFr(b: BookingPayload["record"]): string {
   return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -108,46 +114,46 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
 <div class="wrapper">
   <div class="header">
     <h1>NIO FAR</h1>
-    <p>Votre voyage au Sénégal est confirmé !</p>
+    <p>Votre voyage au S\u00e9n\u00e9gal est confirm\u00e9 !</p>
   </div>
   <div class="body">
     <p>Bonjour <strong>${b.first_name} ${b.last_name}</strong>,</p>
-    <p>Merci pour votre réservation. Nous sommes ravis de vous accueillir pour cette expérience au cœur du Sénégal.</p>
+    <p>Merci pour votre r\u00e9servation. Nous sommes ravis de vous accueillir pour cette exp\u00e9rience au c\u0153ur du S\u00e9n\u00e9gal.</p>
 
     <div class="ref-box">
-      <div class="label">Votre numéro de référence</div>
+      <div class="label">Votre num\u00e9ro de r\u00e9f\u00e9rence</div>
       <div class="ref">${b.reference_number}</div>
-      <div style="font-size:0.8rem;color:#7A6355;margin-top:6px;">Conservez ce numéro pour toute correspondance</div>
+      <div style="font-size:0.8rem;color:#7A6355;margin-top:6px;">Conservez ce num\u00e9ro pour toute correspondance</div>
     </div>
 
     <table>
       <tr><td>Excursion / Circuit</td><td>${b.excursion_title}</td></tr>
-      <tr><td>Date de départ</td><td>${formatDate(b.start_date)}</td></tr>
-      ${b.end_date ? `<tr><td>Date de retour</td><td>${formatDate(b.end_date)}</td></tr>` : ''}
-      <tr><td>Voyageurs</td><td>${b.adults} adulte(s)${b.children > 0 ? `, ${b.children} enfant(s)` : ''}</td></tr>
+      <tr><td>Date de d\u00e9part</td><td>${formatDate(b.start_date)}</td></tr>
+      ${b.end_date ? `<tr><td>Date de retour</td><td>${formatDate(b.end_date)}</td></tr>` : ""}
+      <tr><td>Voyageurs</td><td>${b.adults} adulte(s)${b.children > 0 ? `, ${b.children} enfant(s)` : ""}</td></tr>
       <tr><td>Pays</td><td>${b.country}</td></tr>
-      ${b.phone ? `<tr><td>Téléphone</td><td>${b.phone}</td></tr>` : ''}
-      ${b.special_requests ? `<tr><td>Demandes spéciales</td><td>${b.special_requests}</td></tr>` : ''}
-      <tr class="total"><td>Montant estimé</td><td>${b.estimated_total.toLocaleString('fr-FR')} FCFA</td></tr>
+      ${b.phone ? `<tr><td>T\u00e9l\u00e9phone</td><td>${b.phone}</td></tr>` : ""}
+      ${b.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${b.special_requests}</td></tr>` : ""}
+      <tr class="total"><td>Montant estim\u00e9</td><td>${b.estimated_total.toLocaleString("fr-FR")} FCFA</td></tr>
     </table>
 
     <div class="steps">
-      <h3>Prochaines étapes</h3>
-      <div class="step"><span class="step-num">1</span><span>Notre équipe va examiner votre demande et vous contacter sous 24h.</span></div>
-      <div class="step"><span class="step-num">2</span><span>Vous recevrez les détails de paiement et les informations pratiques.</span></div>
-      <div class="step"><span class="step-num">3</span><span>Préparez-vous pour une aventure inoubliable au Sénégal !</span></div>
+      <h3>Prochaines \u00e9tapes</h3>
+      <div class="step"><span class="step-num">1</span><span>Notre \u00e9quipe va examiner votre demande et vous contacter sous 24h.</span></div>
+      <div class="step"><span class="step-num">2</span><span>Vous recevrez les d\u00e9tails de paiement et les informations pratiques.</span></div>
+      <div class="step"><span class="step-num">3</span><span>Pr\u00e9parez-vous pour une aventure inoubliable au S\u00e9n\u00e9gal !</span></div>
     </div>
 
     <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20J'ai%20une%20question%20concernant%20ma%20r%C3%A9servation%20${b.reference_number}" class="whatsapp-btn">
-      💬 Nous contacter sur WhatsApp
+      Nous contacter sur WhatsApp
     </a>
 
     <p style="font-size:0.85rem;color:#7A6355;">
-      Vous pouvez également nous joindre par email à <a href="mailto:contact@niofartourisme.com" style="color:#C4682B;">contact@niofartourisme.com</a>
+      Vous pouvez \u00e9galement nous joindre par email \u00e0 <a href="mailto:contact@niofartourisme.com" style="color:#C4682B;">contact@niofartourisme.com</a>
     </p>
   </div>
   <div class="footer">
-    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
+    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, S\u00e9n\u00e9gal</p>
     <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,0.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
@@ -156,7 +162,7 @@ function buildClientEmailFr(b: BookingPayload['record']): string {
 </html>`;
 }
 
-function buildTeamNotificationHtml(b: BookingPayload['record']): string {
+function buildTeamNotificationHtml(b: BookingPayload["record"]): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -175,24 +181,24 @@ function buildTeamNotificationHtml(b: BookingPayload['record']): string {
 <body>
 <div class="card">
   <div class="header">
-    <h2>🔔 Nouvelle réservation — <span class="badge" style="color:#F5D98B;border-color:#F5D98B;background:rgba(255,255,255,0.1)">${b.reference_number}</span></h2>
+    <h2>Nouvelle r\u00e9servation — <span class="badge" style="color:#F5D98B;border-color:#F5D98B;background:rgba(255,255,255,0.1)">${b.reference_number}</span></h2>
   </div>
   <div class="body">
     <table>
       <tr><td>Client</td><td>${b.first_name} ${b.last_name}</td></tr>
       <tr><td>Email</td><td><a href="mailto:${b.email}">${b.email}</a></td></tr>
-      <tr><td>Téléphone</td><td>${b.phone ?? '—'}</td></tr>
+      <tr><td>T\u00e9l\u00e9phone</td><td>${b.phone ?? "\u2014"}</td></tr>
       <tr><td>Pays</td><td>${b.country}</td></tr>
       <tr><td>Excursion / Circuit</td><td>${b.excursion_title}</td></tr>
-      <tr><td>Date de départ</td><td>${formatDate(b.start_date)}</td></tr>
-      ${b.end_date ? `<tr><td>Date de retour</td><td>${formatDate(b.end_date)}</td></tr>` : ''}
-      <tr><td>Voyageurs</td><td>${b.adults} adulte(s)${b.children > 0 ? `, ${b.children} enfant(s)` : ''}</td></tr>
-      <tr><td>Montant estimé</td><td><strong>${b.estimated_total.toLocaleString('fr-FR')} FCFA</strong></td></tr>
-      ${b.special_requests ? `<tr><td>Demandes spéciales</td><td>${b.special_requests}</td></tr>` : ''}
-      <tr><td>Reçu le</td><td>${new Date(b.created_at).toLocaleString('fr-FR')}</td></tr>
+      <tr><td>Date de d\u00e9part</td><td>${formatDate(b.start_date)}</td></tr>
+      ${b.end_date ? `<tr><td>Date de retour</td><td>${formatDate(b.end_date)}</td></tr>` : ""}
+      <tr><td>Voyageurs</td><td>${b.adults} adulte(s)${b.children > 0 ? `, ${b.children} enfant(s)` : ""}</td></tr>
+      <tr><td>Montant estim\u00e9</td><td><strong>${b.estimated_total.toLocaleString("fr-FR")} FCFA</strong></td></tr>
+      ${b.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${b.special_requests}</td></tr>` : ""}
+      <tr><td>Re\u00e7u le</td><td>${new Date(b.created_at).toLocaleString("fr-FR")}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin →</a>
+      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin</a>
     </p>
   </div>
 </div>
@@ -201,44 +207,50 @@ function buildTeamNotificationHtml(b: BookingPayload['record']): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
+    });
   }
 
   try {
     const payload = await req.json();
-    // Accept both direct call ({...record}) and webhook format ({record: {...}})
-    const booking: BookingPayload['record'] = payload.record ?? payload;
+    const booking: BookingPayload["record"] = payload.record ?? payload;
 
     if (!booking?.email || !booking?.reference_number) {
-      return new Response(JSON.stringify({ error: 'Invalid payload: missing booking fields' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: "Invalid payload: missing booking fields" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
+    const teamEmail =
+      Deno.env.get("TEAM_EMAIL") ?? "reservations@niofartourisme.com";
 
     const results = await Promise.allSettled([
       sendEmail(
         booking.email,
-        `Confirmation de votre réservation NIO FAR — ${booking.reference_number}`,
-        buildClientEmailFr(booking)
+        `Confirmation de votre r\u00e9servation NIO FAR — ${booking.reference_number}`,
+        buildClientEmailFr(booking),
       ),
       sendEmail(
         teamEmail,
-        `[NIO FAR] Nouvelle réservation — ${booking.reference_number} — ${booking.first_name} ${booking.last_name}`,
-        buildTeamNotificationHtml(booking)
+        `[NIO FAR] Nouvelle r\u00e9servation — ${booking.reference_number} — ${booking.first_name} ${booking.last_name}`,
+        buildTeamNotificationHtml(booking),
       ),
     ]);
 
-    const failed = results.filter((r) => r.status === 'rejected');
+    const failed = results.filter((r) => r.status === "rejected");
     if (failed.length > 0) {
-      console.error('send-booking-notification failures:', failed);
+      console.error("send-booking-notification failures:", failed);
     }
 
     return new Response(
@@ -248,13 +260,16 @@ Deno.serve(async (req) => {
         team_email: results[1].status,
         errors: failed.map((f: any) => String(f.reason)),
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
     );
   } catch (err) {
-    console.error('send-booking-notification error:', err);
+    console.error("send-booking-notification error:", err);
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

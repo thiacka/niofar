@@ -1,20 +1,21 @@
 /**
  * Supabase Edge Function : send-rental-notification
  *
- * Déclenchée par un Database Webhook sur INSERT dans `rental_bookings`.
- * Envoie :
+ * Envoie deux emails via Gmail SMTP :
  *  1. Confirmation au client (FR)
- *  2. Notification interne à l'équipe NIO FAR
+ *  2. Notification interne a l'equipe NIO FAR
  *
- * Secrets requis : RESEND_API_KEY, TEAM_EMAIL, FROM_EMAIL
+ * Secrets requis : MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD,
+ *                  MAIL_FROM, TEAM_EMAIL
  */
 
-const RESEND_API = 'https://api.resend.com/emails';
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 interface RentalRecord {
@@ -37,42 +38,46 @@ interface RentalRecord {
   created_at: string;
 }
 
-function buildFrom(): string {
-  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
-  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
-  if (raw.includes('<') && raw.includes('>')) return raw;
-  return `NIO FAR Tourisme <${raw}>`;
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: Deno.env.get("MAIL_HOST") ?? "smtp.gmail.com",
+    port: Number(Deno.env.get("MAIL_PORT") ?? "587"),
+    secure: false,
+    auth: {
+      user: Deno.env.get("MAIL_USERNAME"),
+      pass: Deno.env.get("MAIL_PASSWORD"),
+    },
+  });
 }
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
+function getFrom(): string {
+  const fromEmail = Deno.env.get("MAIL_FROM") ?? "noreply@niofartourisme.com";
+  return `NIO FAR Tourisme <${fromEmail}>`;
+}
 
-  const from = buildFrom();
-  console.log(`Sending email from=${from} to=${to}`);
-
-  const res = await fetch(RESEND_API, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
-    throw new Error(`Resend error: ${error}`);
-  }
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  const transporter = getTransporter();
+  console.log(`Sending email to=${to}`);
+  await transporter.sendMail({ from: getFrom(), to, subject, html });
 }
 
 function formatDate(d: string): string {
-  return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(d).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 function rentalTypeLabel(type: string): string {
   const map: Record<string, string> = {
-    vehicle:   'Véhicule',
-    incentive: 'Incentive / Événement',
-    boat:      'Bateau / Pirogue',
+    vehicle: "V\u00e9hicule",
+    incentive: "Incentive / \u00c9v\u00e9nement",
+    boat: "Bateau / Pirogue",
   };
   return map[type] ?? type;
 }
@@ -107,40 +112,40 @@ function buildClientEmail(r: RentalRecord): string {
 <div class="wrapper">
   <div class="header">
     <h1>NIO FAR</h1>
-    <p>Votre réservation de location est confirmée !</p>
+    <p>Votre r\u00e9servation de location est confirm\u00e9e !</p>
   </div>
   <div class="body">
     <p>Bonjour <strong>${r.first_name} ${r.last_name}</strong>,</p>
-    <p>Merci pour votre réservation. Nous sommes ravis de vous proposer ce service au Sénégal.</p>
+    <p>Merci pour votre r\u00e9servation. Nous sommes ravis de vous proposer ce service au S\u00e9n\u00e9gal.</p>
 
     <div class="ref-box">
-      <div class="label">Votre numéro de référence</div>
+      <div class="label">Votre num\u00e9ro de r\u00e9f\u00e9rence</div>
       <div class="ref">${r.reference_number}</div>
-      <div style="font-size:.8rem;color:#7A6355;margin-top:6px;">Conservez ce numéro pour toute correspondance</div>
+      <div style="font-size:.8rem;color:#7A6355;margin-top:6px;">Conservez ce num\u00e9ro pour toute correspondance</div>
     </div>
 
     <table>
       <tr><td>Type de location</td><td>${rentalTypeLabel(r.rental_type)}</td></tr>
-      <tr><td>Véhicule / Service</td><td>${r.rental_title}</td></tr>
-      <tr><td>Date de début</td><td>${formatDate(r.start_date)}</td></tr>
-      <tr><td>Durée</td><td>${r.days} jour(s)</td></tr>
-      <tr><td>Avec chauffeur</td><td>${r.with_driver ? 'Oui' : 'Non'}</td></tr>
-      ${r.pickup_location ? `<tr><td>Lieu de prise en charge</td><td>${r.pickup_location}</td></tr>` : ''}
+      <tr><td>V\u00e9hicule / Service</td><td>${r.rental_title}</td></tr>
+      <tr><td>Date de d\u00e9but</td><td>${formatDate(r.start_date)}</td></tr>
+      <tr><td>Dur\u00e9e</td><td>${r.days} jour(s)</td></tr>
+      <tr><td>Avec chauffeur</td><td>${r.with_driver ? "Oui" : "Non"}</td></tr>
+      ${r.pickup_location ? `<tr><td>Lieu de prise en charge</td><td>${r.pickup_location}</td></tr>` : ""}
       <tr><td>Pays</td><td>${r.country}</td></tr>
-      ${r.phone ? `<tr><td>Téléphone</td><td>${r.phone}</td></tr>` : ''}
-      ${r.special_requests ? `<tr><td>Demandes spéciales</td><td>${r.special_requests}</td></tr>` : ''}
-      <tr class="total"><td>Montant estimé</td><td>${r.estimated_total.toLocaleString('fr-FR')} FCFA</td></tr>
+      ${r.phone ? `<tr><td>T\u00e9l\u00e9phone</td><td>${r.phone}</td></tr>` : ""}
+      ${r.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${r.special_requests}</td></tr>` : ""}
+      <tr class="total"><td>Montant estim\u00e9</td><td>${r.estimated_total.toLocaleString("fr-FR")} FCFA</td></tr>
     </table>
 
     <div class="steps">
-      <h3>Prochaines étapes</h3>
-      <div class="step"><span class="step-num">1</span><span>Notre équipe va examiner votre demande et vous contacter sous 24h.</span></div>
-      <div class="step"><span class="step-num">2</span><span>Vous recevrez les détails de paiement et les informations pratiques.</span></div>
-      <div class="step"><span class="step-num">3</span><span>Profitez de votre expérience au Sénégal !</span></div>
+      <h3>Prochaines \u00e9tapes</h3>
+      <div class="step"><span class="step-num">1</span><span>Notre \u00e9quipe va examiner votre demande et vous contacter sous 24h.</span></div>
+      <div class="step"><span class="step-num">2</span><span>Vous recevrez les d\u00e9tails de paiement et les informations pratiques.</span></div>
+      <div class="step"><span class="step-num">3</span><span>Profitez de votre exp\u00e9rience au S\u00e9n\u00e9gal !</span></div>
     </div>
 
-    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Question%20concernant%20ma%20réservation%20${r.reference_number}" class="whatsapp-btn">
-      💬 Nous contacter sur WhatsApp
+    <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Question%20concernant%20ma%20r%C3%A9servation%20${r.reference_number}" class="whatsapp-btn">
+      Nous contacter sur WhatsApp
     </a>
 
     <p style="font-size:.85rem;color:#7A6355;">
@@ -148,7 +153,7 @@ function buildClientEmail(r: RentalRecord): string {
     </p>
   </div>
   <div class="footer">
-    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
+    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, S\u00e9n\u00e9gal</p>
     <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
@@ -174,26 +179,26 @@ function buildTeamEmail(r: RentalRecord): string {
 <body>
 <div class="card">
   <div class="header">
-    <h2>🔔 Nouvelle location — <span class="badge" style="color:#F5D98B;border-color:#F5D98B;background:rgba(255,255,255,.1)">${r.reference_number}</span></h2>
+    <h2>Nouvelle location — <span class="badge" style="color:#F5D98B;border-color:#F5D98B;background:rgba(255,255,255,.1)">${r.reference_number}</span></h2>
   </div>
   <div class="body">
     <table>
       <tr><td>Client</td><td>${r.first_name} ${r.last_name}</td></tr>
       <tr><td>Email</td><td><a href="mailto:${r.email}">${r.email}</a></td></tr>
-      <tr><td>Téléphone</td><td>${r.phone ?? '—'}</td></tr>
+      <tr><td>T\u00e9l\u00e9phone</td><td>${r.phone ?? "\u2014"}</td></tr>
       <tr><td>Pays</td><td>${r.country}</td></tr>
       <tr><td>Type</td><td>${rentalTypeLabel(r.rental_type)}</td></tr>
-      <tr><td>Véhicule</td><td>${r.rental_title}</td></tr>
-      <tr><td>Date de début</td><td>${formatDate(r.start_date)}</td></tr>
-      <tr><td>Durée</td><td>${r.days} jour(s)</td></tr>
-      <tr><td>Avec chauffeur</td><td>${r.with_driver ? 'Oui' : 'Non'}</td></tr>
-      ${r.pickup_location ? `<tr><td>Lieu de prise en charge</td><td>${r.pickup_location}</td></tr>` : ''}
-      <tr><td>Montant estimé</td><td><strong>${r.estimated_total.toLocaleString('fr-FR')} FCFA</strong></td></tr>
-      ${r.special_requests ? `<tr><td>Demandes spéciales</td><td>${r.special_requests}</td></tr>` : ''}
-      <tr><td>Reçu le</td><td>${new Date(r.created_at).toLocaleString('fr-FR')}</td></tr>
+      <tr><td>V\u00e9hicule</td><td>${r.rental_title}</td></tr>
+      <tr><td>Date de d\u00e9but</td><td>${formatDate(r.start_date)}</td></tr>
+      <tr><td>Dur\u00e9e</td><td>${r.days} jour(s)</td></tr>
+      <tr><td>Avec chauffeur</td><td>${r.with_driver ? "Oui" : "Non"}</td></tr>
+      ${r.pickup_location ? `<tr><td>Lieu de prise en charge</td><td>${r.pickup_location}</td></tr>` : ""}
+      <tr><td>Montant estim\u00e9</td><td><strong>${r.estimated_total.toLocaleString("fr-FR")} FCFA</strong></td></tr>
+      ${r.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${r.special_requests}</td></tr>` : ""}
+      <tr><td>Re\u00e7u le</td><td>${new Date(r.created_at).toLocaleString("fr-FR")}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin →</a>
+      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin</a>
     </p>
   </div>
 </div>
@@ -201,38 +206,62 @@ function buildTeamEmail(r: RentalRecord): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  if (req.method !== "POST")
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
+    });
   try {
     const payload = await req.json();
     const record: RentalRecord = payload.record ?? payload;
 
     if (!record?.email || !record?.reference_number) {
-      return new Response(JSON.stringify({ error: 'Invalid payload' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ error: "Invalid payload" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
+    const teamEmail =
+      Deno.env.get("TEAM_EMAIL") ?? "reservations@niofartourisme.com";
 
     const results = await Promise.allSettled([
-      sendEmail(record.email, `Confirmation de votre location NIO FAR — ${record.reference_number}`, buildClientEmail(record)),
-      sendEmail(teamEmail, `[NIO FAR] Nouvelle location — ${record.reference_number} — ${record.first_name} ${record.last_name}`, buildTeamEmail(record)),
+      sendEmail(
+        record.email,
+        `Confirmation de votre location NIO FAR — ${record.reference_number}`,
+        buildClientEmail(record),
+      ),
+      sendEmail(
+        teamEmail,
+        `[NIO FAR] Nouvelle location — ${record.reference_number} — ${record.first_name} ${record.last_name}`,
+        buildTeamEmail(record),
+      ),
     ]);
 
-    const failed = results.filter((r) => r.status === 'rejected');
-    if (failed.length > 0) console.error('send-rental-notification failures:', failed);
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length > 0)
+      console.error("send-rental-notification failures:", failed);
 
-    return new Response(JSON.stringify({
-      success: failed.length === 0,
-      client_email: results[0].status,
-      team_email: results[1].status,
-      errors: failed.map((f: any) => String(f.reason)),
-    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({
+        success: failed.length === 0,
+        client_email: results[0].status,
+        team_email: results[1].status,
+        errors: failed.map((f: any) => String(f.reason)),
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
-    console.error('send-rental-notification error:', err);
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    console.error("send-rental-notification error:", err);
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

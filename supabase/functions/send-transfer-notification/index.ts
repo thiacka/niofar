@@ -1,20 +1,21 @@
 /**
  * Supabase Edge Function : send-transfer-notification
  *
- * Déclenchée par un Database Webhook sur INSERT dans `transfer_bookings`.
- * Envoie :
+ * Envoie deux emails via Gmail SMTP :
  *  1. Confirmation au client (FR)
- *  2. Notification interne à l'équipe NIO FAR
+ *  2. Notification interne a l'equipe NIO FAR
  *
- * Secrets requis : RESEND_API_KEY, TEAM_EMAIL, FROM_EMAIL
+ * Secrets requis : MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD,
+ *                  MAIL_FROM, TEAM_EMAIL
  */
 
-const RESEND_API = 'https://api.resend.com/emails';
+import nodemailer from "npm:nodemailer@6.9.16";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 interface TransferRecord {
@@ -25,7 +26,7 @@ interface TransferRecord {
   email: string;
   phone: string | null;
   country: string;
-  direction: 'airport_to_hotel' | 'hotel_to_airport';
+  direction: "airport_to_hotel" | "hotel_to_airport";
   flight_date: string;
   flight_time: string;
   flight_number: string | null;
@@ -38,39 +39,45 @@ interface TransferRecord {
   created_at: string;
 }
 
-function buildFrom(): string {
-  let raw = (Deno.env.get('FROM_EMAIL') ?? 'noreply@niofartourisme.com').trim();
-  raw = raw.replace(/^['"`]+|['"`]+$/g, '').trim();
-  if (raw.includes('<') && raw.includes('>')) return raw;
-  return `NIO FAR Tourisme <${raw}>`;
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: Deno.env.get("MAIL_HOST") ?? "smtp.gmail.com",
+    port: Number(Deno.env.get("MAIL_PORT") ?? "587"),
+    secure: false,
+    auth: {
+      user: Deno.env.get("MAIL_USERNAME"),
+      pass: Deno.env.get("MAIL_PASSWORD"),
+    },
+  });
 }
 
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  const apiKey = Deno.env.get('RESEND_API_KEY');
-  if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
+function getFrom(): string {
+  const fromEmail = Deno.env.get("MAIL_FROM") ?? "noreply@niofartourisme.com";
+  return `NIO FAR Tourisme <${fromEmail}>`;
+}
 
-  const from = buildFrom();
-  console.log(`Sending email from=${from} to=${to}`);
-
-  const res = await fetch(RESEND_API, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html }),
-  });
-
-  if (!res.ok) {
-    const error = await res.text();
-    console.error(`Resend API error (${res.status}) sending to ${to}:`, error);
-    throw new Error(`Resend error: ${error}`);
-  }
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  const transporter = getTransporter();
+  console.log(`Sending email to=${to}`);
+  await transporter.sendMail({ from: getFrom(), to, subject, html });
 }
 
 function formatDate(d: string): string {
-  return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(d).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 function directionLabel(d: string): string {
-  return d === 'airport_to_hotel' ? 'Aéroport → Hôtel' : 'Hôtel → Aéroport';
+  return d === "airport_to_hotel"
+    ? "A\u00e9roport \u2192 H\u00f4tel"
+    : "H\u00f4tel \u2192 A\u00e9roport";
 }
 
 function buildClientEmail(r: TransferRecord): string {
@@ -102,41 +109,41 @@ function buildClientEmail(r: TransferRecord): string {
 <div class="wrapper">
   <div class="header">
     <h1>NIO FAR</h1>
-    <p>Votre transfert aéroport est confirmé !</p>
+    <p>Votre transfert a\u00e9roport est confirm\u00e9 !</p>
   </div>
   <div class="body">
     <p>Bonjour <strong>${r.first_name} ${r.last_name}</strong>,</p>
-    <p>Merci pour votre réservation de transfert. Notre chauffeur vous attendra à l'heure convenue.</p>
+    <p>Merci pour votre r\u00e9servation de transfert. Notre chauffeur vous attendra \u00e0 l'heure convenue.</p>
 
     <div class="ref-box">
-      <div class="label">Votre numéro de référence</div>
+      <div class="label">Votre num\u00e9ro de r\u00e9f\u00e9rence</div>
       <div class="ref">${r.reference_number}</div>
-      <div style="font-size:.8rem;color:#7A6355;margin-top:6px;">Conservez ce numéro pour toute correspondance</div>
+      <div style="font-size:.8rem;color:#7A6355;margin-top:6px;">Conservez ce num\u00e9ro pour toute correspondance</div>
     </div>
 
     <table>
       <tr><td>Sens du trajet</td><td>${directionLabel(r.direction)}</td></tr>
       <tr><td>Date de vol</td><td>${formatDate(r.flight_date)}</td></tr>
       <tr><td>Heure de vol</td><td>${r.flight_time}</td></tr>
-      ${r.flight_number ? `<tr><td>N° de vol</td><td>${r.flight_number}</td></tr>` : ''}
-      <tr><td>Hôtel</td><td>${r.hotel_name}</td></tr>
+      ${r.flight_number ? `<tr><td>N\u00b0 de vol</td><td>${r.flight_number}</td></tr>` : ""}
+      <tr><td>H\u00f4tel</td><td>${r.hotel_name}</td></tr>
       <tr><td>Passagers</td><td>${r.passengers}</td></tr>
       <tr><td>Bagages</td><td>${r.luggage}</td></tr>
-      <tr><td>Type de véhicule</td><td>${r.vehicle_type}</td></tr>
+      <tr><td>Type de v\u00e9hicule</td><td>${r.vehicle_type}</td></tr>
       <tr><td>Pays</td><td>${r.country}</td></tr>
-      ${r.phone ? `<tr><td>Téléphone</td><td>${r.phone}</td></tr>` : ''}
-      ${r.special_requests ? `<tr><td>Demandes spéciales</td><td>${r.special_requests}</td></tr>` : ''}
+      ${r.phone ? `<tr><td>T\u00e9l\u00e9phone</td><td>${r.phone}</td></tr>` : ""}
+      ${r.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${r.special_requests}</td></tr>` : ""}
     </table>
 
     <div class="steps">
-      <h3>Prochaines étapes</h3>
-      <div class="step"><span class="step-num">1</span><span>Notre équipe va confirmer votre transfert et vous contacter sous 24h.</span></div>
-      <div class="step"><span class="step-num">2</span><span>Vous recevrez les détails du chauffeur et du point de rendez-vous.</span></div>
+      <h3>Prochaines \u00e9tapes</h3>
+      <div class="step"><span class="step-num">1</span><span>Notre \u00e9quipe va confirmer votre transfert et vous contacter sous 24h.</span></div>
+      <div class="step"><span class="step-num">2</span><span>Vous recevrez les d\u00e9tails du chauffeur et du point de rendez-vous.</span></div>
       <div class="step"><span class="step-num">3</span><span>Bon voyage !</span></div>
     </div>
 
     <a href="https://wa.me/221756518350?text=Bonjour%20NIO%20FAR%20!%20Question%20concernant%20mon%20transfert%20${r.reference_number}" class="whatsapp-btn">
-      💬 Nous contacter sur WhatsApp
+      Nous contacter sur WhatsApp
     </a>
 
     <p style="font-size:.85rem;color:#7A6355;">
@@ -144,7 +151,7 @@ function buildClientEmail(r: TransferRecord): string {
     </p>
   </div>
   <div class="footer">
-    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, Sénégal</p>
+    <p><strong style="color:#F5D98B;">NIO FAR Tourisme</strong> — Saly Portudal, M'bour, S\u00e9n\u00e9gal</p>
     <p>+221 75 651 83 50 · contact@niofartourisme.com</p>
     <p style="margin-top:10px;font-style:italic;color:rgba(255,255,255,.4);">"Nio Far" — Nous sommes ensemble</p>
   </div>
@@ -169,24 +176,24 @@ function buildTeamEmail(r: TransferRecord): string {
 <body>
 <div class="card">
   <div class="header">
-    <h2>✈️ Nouveau transfert — ${r.reference_number}</h2>
+    <h2>Nouveau transfert — ${r.reference_number}</h2>
   </div>
   <div class="body">
     <table>
       <tr><td>Client</td><td>${r.first_name} ${r.last_name}</td></tr>
       <tr><td>Email</td><td><a href="mailto:${r.email}">${r.email}</a></td></tr>
-      <tr><td>Téléphone</td><td>${r.phone ?? '—'}</td></tr>
+      <tr><td>T\u00e9l\u00e9phone</td><td>${r.phone ?? "\u2014"}</td></tr>
       <tr><td>Sens</td><td>${directionLabel(r.direction)}</td></tr>
-      <tr><td>Date de vol</td><td>${formatDate(r.flight_date)} à ${r.flight_time}</td></tr>
-      ${r.flight_number ? `<tr><td>N° de vol</td><td>${r.flight_number}</td></tr>` : ''}
-      <tr><td>Hôtel</td><td>${r.hotel_name}</td></tr>
+      <tr><td>Date de vol</td><td>${formatDate(r.flight_date)} \u00e0 ${r.flight_time}</td></tr>
+      ${r.flight_number ? `<tr><td>N\u00b0 de vol</td><td>${r.flight_number}</td></tr>` : ""}
+      <tr><td>H\u00f4tel</td><td>${r.hotel_name}</td></tr>
       <tr><td>Passagers / Bagages</td><td>${r.passengers} pax / ${r.luggage} bagage(s)</td></tr>
-      <tr><td>Véhicule</td><td>${r.vehicle_type}</td></tr>
-      ${r.special_requests ? `<tr><td>Demandes spéciales</td><td>${r.special_requests}</td></tr>` : ''}
-      <tr><td>Reçu le</td><td>${new Date(r.created_at).toLocaleString('fr-FR')}</td></tr>
+      <tr><td>V\u00e9hicule</td><td>${r.vehicle_type}</td></tr>
+      ${r.special_requests ? `<tr><td>Demandes sp\u00e9ciales</td><td>${r.special_requests}</td></tr>` : ""}
+      <tr><td>Re\u00e7u le</td><td>${new Date(r.created_at).toLocaleString("fr-FR")}</td></tr>
     </table>
     <p style="margin-top:20px;">
-      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin →</a>
+      <a href="https://niofartourisme.com/admin" style="background:#C4682B;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Voir dans l'admin</a>
     </p>
   </div>
 </div>
@@ -194,38 +201,62 @@ function buildTeamEmail(r: TransferRecord): string {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  if (req.method !== "POST")
+    return new Response("Method not allowed", {
+      status: 405,
+      headers: corsHeaders,
+    });
   try {
     const payload = await req.json();
     const record: TransferRecord = payload.record ?? payload;
 
     if (!record?.email || !record?.reference_number) {
-      return new Response(JSON.stringify({ error: 'Invalid payload' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ error: "Invalid payload" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const teamEmail = Deno.env.get('TEAM_EMAIL') ?? 'reservations@niofartourisme.com';
+    const teamEmail =
+      Deno.env.get("TEAM_EMAIL") ?? "reservations@niofartourisme.com";
 
     const results = await Promise.allSettled([
-      sendEmail(record.email, `Confirmation de votre transfert NIO FAR — ${record.reference_number}`, buildClientEmail(record)),
-      sendEmail(teamEmail, `[NIO FAR] Nouveau transfert — ${record.reference_number} — ${record.first_name} ${record.last_name}`, buildTeamEmail(record)),
+      sendEmail(
+        record.email,
+        `Confirmation de votre transfert NIO FAR — ${record.reference_number}`,
+        buildClientEmail(record),
+      ),
+      sendEmail(
+        teamEmail,
+        `[NIO FAR] Nouveau transfert — ${record.reference_number} — ${record.first_name} ${record.last_name}`,
+        buildTeamEmail(record),
+      ),
     ]);
 
-    const failed = results.filter((r) => r.status === 'rejected');
-    if (failed.length > 0) console.error('send-transfer-notification failures:', failed);
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length > 0)
+      console.error("send-transfer-notification failures:", failed);
 
-    return new Response(JSON.stringify({
-      success: failed.length === 0,
-      client_email: results[0].status,
-      team_email: results[1].status,
-      errors: failed.map((f: any) => String(f.reason)),
-    }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({
+        success: failed.length === 0,
+        client_email: results[0].status,
+        team_email: results[1].status,
+        errors: failed.map((f: any) => String(f.reason)),
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
-    console.error('send-transfer-notification error:', err);
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    console.error("send-transfer-notification error:", err);
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
