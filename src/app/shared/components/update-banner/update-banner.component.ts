@@ -6,19 +6,17 @@ import { LanguageService } from '../../../core/services/language.service';
   selector: 'app-update-banner',
   standalone: true,
   template: `
-    <!-- Téléchargement en cours (discret, non bloquant) -->
     @if (version.isDownloading()) {
       <div class="update-banner downloading" role="status" aria-live="polite">
         <div class="spinner-ring"></div>
         <span class="dl-text">
           {{ lang.language() === 'fr'
-            ? 'Mise à jour en cours de téléchargement…'
-            : 'Downloading update…' }}
+            ? 'Mise a jour en cours de telechargement...'
+            : 'Downloading update...' }}
         </span>
       </div>
     }
 
-    <!-- Nouvelle version prête -->
     @if (version.hasUpdate()) {
       <div class="update-banner ready" role="alert" aria-live="assertive">
 
@@ -27,7 +25,7 @@ import { LanguageService } from '../../../core/services/language.service';
                viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
           </svg>
         </div>
 
@@ -39,8 +37,8 @@ import { LanguageService } from '../../../core/services/language.service';
           </strong>
           <span>
             {{ lang.language() === 'fr'
-              ? 'Une mise à jour est prête. Rechargez pour en profiter.'
-              : 'An update is ready. Reload the page to apply it.' }}
+              ? 'Actualisez la page pour profiter des dernieres ameliorations.'
+              : 'Refresh the page to get the latest improvements.' }}
           </span>
         </div>
 
@@ -69,7 +67,6 @@ import { LanguageService } from '../../../core/services/language.service';
     }
   `,
   styles: [`
-    /* ─── Base ───────────────────────────────────────────────────── */
     .update-banner {
       position: fixed;
       bottom: 24px;
@@ -95,7 +92,6 @@ import { LanguageService } from '../../../core/services/language.service';
       to   { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
-    /* ─── Variante téléchargement ────────────────────────────────── */
     .update-banner.downloading {
       background: #1a2b2b;
       color: rgba(255, 255, 255, 0.75);
@@ -121,7 +117,6 @@ import { LanguageService } from '../../../core/services/language.service';
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* ─── Variante prête ─────────────────────────────────────────── */
     .update-banner.ready {
       background: #1a2b2b;
       color: #ffffff;
@@ -208,7 +203,6 @@ import { LanguageService } from '../../../core/services/language.service';
       background: rgba(255, 255, 255, 0.08);
     }
 
-    /* ─── Mobile ─────────────────────────────────────────────────── */
     @media (max-width: 600px) {
       .update-banner {
         bottom: 16px;
@@ -230,5 +224,5 @@ import { LanguageService } from '../../../core/services/language.service';
 })
 export class UpdateBannerComponent {
   version = inject(VersionCheckService);
-  lang    = inject(LanguageService);
+  lang = inject(LanguageService);
 }
